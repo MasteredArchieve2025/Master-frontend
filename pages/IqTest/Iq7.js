@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   View,
@@ -11,7 +10,7 @@ import {
   StatusBar,
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import Footer from '../../src/components/Footer';
+import Footer from "../../src/components/Footer";
 export default function Iq7() {
   return (
     <View style={styles.root}>
@@ -173,7 +172,12 @@ const styles = StyleSheet.create({
   },
   highlight: { color: "#0B5394", fontWeight: "700" },
 
-  subNote: { textAlign: "center", color: "#9a9a9a", fontSize: 14,marginTop: 6 },
+  subNote: {
+    textAlign: "center",
+    color: "#9a9a9a",
+    fontSize: 14,
+    marginTop: 6,
+  },
 
   rangeBtn: {
     alignSelf: "center",
