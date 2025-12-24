@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,13 +9,48 @@ import {
   Platform,
   StatusBar,
   SafeAreaView,
+  Alert,
 } from "react-native";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Footer from "../../src/components/Footer";
 
 export default function Profile() {
   const navigation = useNavigation();
+
+  const [user, setUser] = useState(null);
+
+  // 🔹 Load user from storage
+  useEffect(() => {
+    loadUser();
+  }, []);
+
+  const loadUser = async () => {
+    try {
+      const storedUser = await AsyncStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (error) {
+      console.log("Failed to load user", error);
+    }
+  };
+
+  // 🔹 Logout
+  const handleLogout = async () => {
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          await AsyncStorage.clear();
+          navigation.replace("Auth");
+        },
+      },
+    ]);
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -44,7 +79,9 @@ export default function Profile() {
       <View style={styles.avatarContainer}>
         <Image
           source={{
-            uri: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=400",
+            uri:
+              "https://ui-avatars.com/api/?name=" +
+              (user?.username || "User"),
           }}
           style={styles.avatar}
         />
@@ -56,20 +93,20 @@ export default function Profile() {
         showsVerticalScrollIndicator={false}
       >
         {/* Identity */}
-        <Text style={styles.name}>Mabisha</Text>
+        <Text style={styles.name}>{user?.username || "—"}</Text>
         <Text style={styles.subName}>Student • My Education</Text>
 
         {/* Info Card */}
         <View style={styles.card}>
-          <InfoRow icon="call-outline" text="+91 9876543210" />
-          <InfoRow icon="email" text="mabisha@gmail.com" />
+          <InfoRow icon="call-outline" text={user?.phone || "—"} />
+          <InfoRow icon="mail-outline" text={user?.email || "—"} />
           <InfoRow
             icon="location-outline"
-            text="Sunrise Crystal Complex, Thadagam Main Rd, Coimbatore"
+            text="Coimbatore, Tamil Nadu"
           />
         </View>
 
-        {/* IQ Score Card */}
+        {/* IQ Score Card (Static for now) */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>IQ Score</Text>
 
@@ -88,21 +125,13 @@ export default function Profile() {
 
         {/* Actions */}
         <View style={styles.card}>
-          <ProfileAction
-            icon="edit"
-            label="Edit Profile"
-            onPress={() => {}}
-          />
-          <ProfileAction
-            icon="settings"
-            label="Settings"
-            onPress={() => {}}
-          />
+          <ProfileAction icon="create-outline" label="Edit Profile" />
+          <ProfileAction icon="settings-outline" label="Settings" />
           <ProfileAction
             icon="log-out-outline"
             label="Logout"
             danger
-            onPress={() => {}}
+            onPress={handleLogout}
           />
         </View>
       </ScrollView>
@@ -150,7 +179,6 @@ const ProfileAction = ({ icon, label, onPress, danger }) => (
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#fff" },
 
-  /* Header */
   header: {
     height: 180,
     backgroundColor: "#0B5394",
@@ -174,7 +202,6 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
 
-  /* Avatar */
   avatarContainer: {
     position: "absolute",
     top: 115,
@@ -191,7 +218,6 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 
-  /* Content */
   content: {
     paddingTop: 90,
     paddingBottom: 40,
@@ -209,16 +235,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
 
-  /* Cards */
   card: {
     backgroundColor: "#fff",
     borderRadius: 14,
     padding: 16,
     marginBottom: 16,
     elevation: 2,
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
   },
 
   infoRow: {
@@ -267,7 +289,6 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
 
-  /* Actions */
   actionRow: {
     flexDirection: "row",
     alignItems: "center",

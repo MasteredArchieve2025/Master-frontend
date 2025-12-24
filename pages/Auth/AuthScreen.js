@@ -11,10 +11,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { loginApi, signupApi } from "../Auth/Authapi";
 
 const { width, height } = Dimensions.get("window");
 
@@ -23,6 +26,13 @@ export default function AuthScreen() {
   const [mode, setMode] = useState("login");
   const slideAnim = useRef(new Animated.Value(0)).current;
 
+  // 🔹 Form states
+  const [username, setUsername] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const switchTo = (type) => {
     setMode(type);
     Animated.timing(slideAnim, {
@@ -30,6 +40,63 @@ export default function AuthScreen() {
       duration: 400,
       useNativeDriver: true,
     }).start();
+  };
+
+  // 🔐 AUTH HANDLER
+  const handleAuth = async () => {
+    try {
+      // 🔴 VALIDATION
+      if (mode === "login") {
+        if (!phone || !password) {
+          return Alert.alert("Error", "Phone and password are required");
+        }
+      } else {
+        if (!username || !phone || !email || !password) {
+          return Alert.alert("Error", "All fields are required");
+        }
+        if (password.length < 6) {
+          return Alert.alert(
+            "Error",
+            "Password must be at least 6 characters"
+          );
+        }
+      }
+
+      setLoading(true);
+
+      if (mode === "login") {
+        const res = await loginApi({
+          phone: phone.trim(),
+          password,
+        });
+
+        await AsyncStorage.setItem("token", res.token);
+        await AsyncStorage.setItem("user", JSON.stringify(res.user));
+
+        navigation.replace("Home");
+      } else {
+        await signupApi({
+          username: username.trim(),
+          phone: phone.trim(),
+          email: email.trim(),
+          password,
+        });
+
+        Alert.alert("Success", "Registration successful. Please login.");
+        switchTo("login");
+      }
+    } catch (err) {
+      console.log("AUTH ERROR 👉", err?.response?.data || err);
+
+      const message =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        "Something went wrong";
+
+      Alert.alert("Error", message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -43,12 +110,8 @@ export default function AuthScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* 🔵 TOP WAVE - Fixed at top */}
-          <Animated.View
-            style={{
-              transform: [{ translateX: slideAnim }],
-            }}
-          >
+          {/* 🔵 TOP WAVE */}
+          <Animated.View style={{ transform: [{ translateX: slideAnim }] }}>
             <Svg width={width * 1.5} height={160} viewBox="0 0 1440 320">
               <Path
                 fill="#0B66C3"
@@ -57,13 +120,15 @@ export default function AuthScreen() {
             </Svg>
           </Animated.View>
 
-          {/* CONTENT CONTAINER - Centered between waves */}
+          {/* CONTENT */}
           <View style={styles.contentContainer}>
             {/* TABS */}
             <View style={styles.tabRow}>
               <TouchableOpacity onPress={() => switchTo("login")}>
                 <Text
-                  style={mode === "login" ? styles.activeTab : styles.inactiveTab}
+                  style={
+                    mode === "login" ? styles.activeTab : styles.inactiveTab
+                  }
                 >
                   LOGIN
                 </Text>
@@ -82,30 +147,59 @@ export default function AuthScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* FORM CONTAINER - Centered */}
+            {/* FORM */}
             <View style={styles.formContainer}>
               <View style={styles.form}>
-                <Input icon="person-outline" placeholder="User Name" />
-
+                {/* USERNAME – REGISTER ONLY */}
                 {mode === "register" && (
-                  <>
-                    <Input icon="call-outline" placeholder="Phone Number" />
-                    <Input icon="mail-outline" placeholder="Email" />
-                  </>
+                  <Input
+                    icon="person-outline"
+                    placeholder="User Name"
+                    value={username}
+                    onChangeText={setUsername}
+                  />
                 )}
 
+                {/* PHONE */}
+                <Input
+                  icon="call-outline"
+                  placeholder="Phone Number"
+                  value={phone}
+                  onChangeText={setPhone}
+                  keyboardType="phone-pad"
+                />
+
+                {/* EMAIL – REGISTER ONLY */}
+                {mode === "register" && (
+                  <Input
+                    icon="mail-outline"
+                    placeholder="Email"
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                  />
+                )}
+
+                {/* PASSWORD */}
                 <Input
                   icon="lock-closed-outline"
                   placeholder="Password"
                   secure
+                  value={password}
+                  onChangeText={setPassword}
                 />
 
                 <TouchableOpacity
                   style={styles.button}
-                  onPress={() => navigation.replace("Home")}
+                  onPress={handleAuth}
+                  disabled={loading}
                 >
                   <Text style={styles.buttonText}>
-                    {mode === "login" ? "Login" : "Register"}
+                    {loading
+                      ? "Please wait..."
+                      : mode === "login"
+                      ? "Login"
+                      : "Register"}
                   </Text>
                 </TouchableOpacity>
 
@@ -133,7 +227,7 @@ export default function AuthScreen() {
             </View>
           </View>
 
-          {/* 🔵 BOTTOM WAVE - Fixed at bottom */}
+          {/* 🔵 BOTTOM WAVE */}
           <View style={styles.bottomWave}>
             <Svg width={width} height={140} viewBox="0 0 1440 320">
               <Path
@@ -149,7 +243,14 @@ export default function AuthScreen() {
 }
 
 /* INPUT */
-const Input = ({ icon, placeholder, secure }) => (
+const Input = ({
+  icon,
+  placeholder,
+  secure,
+  value,
+  onChangeText,
+  keyboardType,
+}) => (
   <View style={styles.inputBox}>
     <Ionicons name={icon} size={20} color="#000" />
     <TextInput
@@ -157,34 +258,23 @@ const Input = ({ icon, placeholder, secure }) => (
       placeholderTextColor="#aaa"
       secureTextEntry={secure}
       style={styles.input}
+      value={value}
+      onChangeText={onChangeText}
+      keyboardType={keyboardType}
     />
   </View>
 );
 
 /* STYLES */
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: 'space-between',
-  },
-
+  safe: { flex: 1, backgroundColor: "#fff" },
+  scrollContainer: { flexGrow: 1, justifyContent: "space-between" },
   contentContainer: {
     flex: 1,
-    justifyContent: 'center',
-    minHeight: height * 0.6, // Ensures content takes enough space
+    justifyContent: "center",
+    minHeight: height * 0.6,
   },
-
-  formContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 30,
-  },
-
+  formContainer: { flex: 1, justifyContent: "center", paddingHorizontal: 30 },
   tabRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -192,25 +282,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 30,
   },
-
-  activeTab: {
-    fontWeight: "700",
-    color: "#0B66C3",
-    fontSize: 16,
-  },
-
-  inactiveTab: {
-    fontWeight: "600",
-    color: "#aaa",
-    fontSize: 16,
-  },
-
-  form: {
-    width: '100%',
-    maxWidth: 400,
-    alignSelf: 'center',
-  },
-
+  activeTab: { fontWeight: "700", color: "#0B66C3", fontSize: 16 },
+  inactiveTab: { fontWeight: "600", color: "#aaa", fontSize: 16 },
+  form: { width: "100%", maxWidth: 400, alignSelf: "center" },
   inputBox: {
     flexDirection: "row",
     alignItems: "center",
@@ -220,18 +294,8 @@ const styles = StyleSheet.create({
     height: 52,
     marginBottom: 16,
     elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
-
-  input: {
-    flex: 1,
-    marginLeft: 10,
-    fontSize: 14,
-  },
-
+  input: { flex: 1, marginLeft: 10, fontSize: 14 },
   button: {
     backgroundColor: "#0B66C3",
     height: 48,
@@ -240,33 +304,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 12,
   },
-
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-
-  link: {
-    color: "#0B66C3",
-    textAlign: "center",
-    marginTop: 16,
-    fontSize: 14,
-  },
-
-  bottomText: {
-    textAlign: "center",
-    marginTop: 12,
-    fontSize: 13,
-    color: '#666',
-  },
-
-  signup: {
-    color: "#0B66C3",
-    fontWeight: "600",
-  },
-
-  bottomWave: {
-    marginTop: 'auto',
-  },
+  buttonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+  link: { color: "#0B66C3", textAlign: "center", marginTop: 16 },
+  bottomText: { textAlign: "center", marginTop: 12, fontSize: 13 },
+  signup: { color: "#0B66C3", fontWeight: "600" },
+  bottomWave: { marginTop: "auto" },
 });

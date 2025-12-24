@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -10,15 +10,64 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { forgotPasswordApi } from "../Auth/Authapi";
 
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 export default function ForgotPassword() {
   const navigation = useNavigation();
+
+  const [phone, setPhone] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleResetPassword = async () => {
+    // 🔴 VALIDATION
+    if (!phone || !newPassword || !confirmPassword) {
+      return Alert.alert("Error", "All fields are required");
+    }
+
+    if (newPassword.length < 6) {
+      return Alert.alert(
+        "Error",
+        "Password must be at least 6 characters"
+      );
+    }
+
+    if (newPassword !== confirmPassword) {
+      return Alert.alert("Error", "Passwords do not match");
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await forgotPasswordApi({
+        phone: phone.trim(),
+        newPassword,
+        confirmPassword,
+      });
+
+      Alert.alert("Success", res.message || "Password reset successful");
+      navigation.replace("Auth");
+    } catch (err) {
+      console.log("FORGOT PASSWORD ERROR 👉", err?.response?.data || err);
+
+      const message =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        "Something went wrong";
+
+      Alert.alert("Error", message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -31,7 +80,7 @@ export default function ForgotPassword() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* 🔵 TOP WAVE (SAME AS AUTHSCREEN) */}
+          {/* 🔵 TOP WAVE */}
           <Svg width={width * 1.5} height={160} viewBox="0 0 1440 320">
             <Path
               fill="#0B66C3"
@@ -47,20 +96,38 @@ export default function ForgotPassword() {
             </Text>
 
             <View style={styles.form}>
-              <Input icon="call-outline" placeholder="Phone Number" />
+              <Input
+                icon="call-outline"
+                placeholder="Phone Number"
+                value={phone}
+                onChangeText={setPhone}
+                keyboardType="phone-pad"
+              />
+
               <Input
                 icon="lock-closed-outline"
                 placeholder="New Password"
                 secure
+                value={newPassword}
+                onChangeText={setNewPassword}
               />
+
               <Input
                 icon="lock-closed-outline"
                 placeholder="Confirm Password"
                 secure
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
               />
 
-              <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Reset Password</Text>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={handleResetPassword}
+                disabled={loading}
+              >
+                <Text style={styles.buttonText}>
+                  {loading ? "Please wait..." : "Reset Password"}
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -73,7 +140,7 @@ export default function ForgotPassword() {
             </View>
           </View>
 
-          {/* 🔵 BOTTOM WAVE (SAME AS AUTHSCREEN) */}
+          {/* 🔵 BOTTOM WAVE */}
           <View style={{ marginTop: "auto" }}>
             <Svg width={width} height={140} viewBox="0 0 1440 320">
               <Path
@@ -89,7 +156,14 @@ export default function ForgotPassword() {
 }
 
 /* INPUT */
-const Input = ({ icon, placeholder, secure }) => (
+const Input = ({
+  icon,
+  placeholder,
+  secure,
+  value,
+  onChangeText,
+  keyboardType,
+}) => (
   <View style={styles.inputBox}>
     <Ionicons name={icon} size={20} color="#000" />
     <TextInput
@@ -97,21 +171,17 @@ const Input = ({ icon, placeholder, secure }) => (
       placeholderTextColor="#aaa"
       secureTextEntry={secure}
       style={styles.input}
+      value={value}
+      onChangeText={onChangeText}
+      keyboardType={keyboardType}
     />
   </View>
 );
 
 /* STYLES */
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: "space-between",
-  },
+  safe: { flex: 1, backgroundColor: "#fff" },
+  scrollContainer: { flexGrow: 1, justifyContent: "space-between" },
 
   content: {
     flex: 1,
@@ -122,7 +192,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#000",
     textAlign: "center",
     marginBottom: 6,
   },
@@ -149,17 +218,9 @@ const styles = StyleSheet.create({
     height: 52,
     marginBottom: 16,
     elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
 
-  input: {
-    flex: 1,
-    marginLeft: 10,
-    fontSize: 14,
-  },
+  input: { flex: 1, marginLeft: 10, fontSize: 14 },
 
   button: {
     backgroundColor: "#0B66C3",
