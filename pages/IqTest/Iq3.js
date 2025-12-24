@@ -1,12 +1,23 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+  Platform,
+  StatusBar,
+  useWindowDimensions,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native'; // ✅ import navigation hook
-
-const { width } = Dimensions.get('window');
+import { useNavigation } from '@react-navigation/native';
+import Footer from '../../src/components/Footer';
 
 export default function Iq3() {
-  const navigation = useNavigation(); // ✅ initialize navigation
+  const navigation = useNavigation();
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 768;
 
   const tests = [
     { id: 1, title: 'IQ Test 1' },
@@ -17,50 +28,160 @@ export default function Iq3() {
   ];
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Greeting */}
-      <Text style={styles.greeting}>
-        Hello ! <Text style={styles.name}>Mabisha</Text>
-      </Text>
-      
-      {/* Heading */}
-      <Text style={styles.heading}>Available IQ Tests</Text>
+    <SafeAreaView style={styles.safe}>
+      {/* Status Bar */}
+      <StatusBar barStyle="light-content" backgroundColor="#0052A2" />
 
-      {/* Cards */}
-      {tests.map(test => (
-        <View key={test.id} style={styles.card}>
-          <View style={styles.cardContent}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.cardTitle}>{test.title}</Text>
-              <Text style={styles.cardDesc}>Extensive IQ test with Different focuses</Text>
-            </View>
-            <View style={styles.timeContainer}>
-              <Ionicons name="time-outline" size={20} color="#004c97" />
-              <Text style={styles.timeText}>approx 45 minutes</Text>
-            </View>
-          </View>
-          <TouchableOpacity 
-            style={styles.button}
-            onPress={() => navigation.navigate("Iq4")} // ✅ navigate to intro
+      {/* Header (Same as Exam screens) */}
+      <View style={styles.headerWrapper}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backBtn}
+            onPress={() => navigation.goBack()}
           >
-            <Text style={styles.buttonText}>Start IQ Test</Text>
+            <Ionicons
+              name={Platform.OS === 'ios' ? 'chevron-back' : 'arrow-back'}
+              size={24}
+              color="#fff"
+            />
           </TouchableOpacity>
+
+          <Text style={styles.headerTitle}>IQ Tests</Text>
+
+          {/* Spacer for centering */}
+          <View style={styles.rightSpace} />
         </View>
-      ))}
-    </ScrollView>
+      </View>
+
+      {/* Content */}
+      <ScrollView
+        style={[
+          styles.container,
+          isTablet && styles.tabletContainer,
+        ]}
+        contentContainerStyle={{ paddingBottom: 40 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Heading */}
+        <Text
+          style={[
+            styles.heading,
+            isTablet && { fontSize: 26 },
+          ]}
+        >
+          Available IQ Tests
+        </Text>
+
+        {/* Cards */}
+        {tests.map(test => (
+          <View
+            key={test.id}
+            style={[
+              styles.card,
+              isTablet && styles.tabletCard,
+            ]}
+          >
+            <View style={styles.cardContent}>
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={[
+                    styles.cardTitle,
+                    isTablet && { fontSize: 22 },
+                  ]}
+                >
+                  {test.title}
+                </Text>
+                <Text
+                  style={[
+                    styles.cardDesc,
+                    isTablet && { fontSize: 16 },
+                  ]}
+                >
+                  Extensive IQ test with different focuses
+                </Text>
+              </View>
+
+              <View style={styles.timeContainer}>
+                <Ionicons name="time-outline" size={20} color="#004c97" />
+                <Text style={styles.timeText}>approx 45 min</Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.navigate('Iq4')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.buttonText}>Start IQ Test</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </ScrollView>
+      <Footer/>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', paddingHorizontal: 20 },
-  
-  greeting: { fontSize: 18, fontWeight: '600', marginTop: 0 },
-  name: { color: '#28527cff' },
-  heading: { fontSize: 22, fontWeight: 'bold', color: '#004c97', marginTop: 20 },
-  
+  /* Safe */
+  safe: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+
+  /* Header */
+  headerWrapper: {
+    backgroundColor: '#0052A2',
+  },
+
+  header: {
+    height: Platform.OS === 'ios' ? 52 : 64,
+    backgroundColor: '#0052A2',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: Platform.OS === 'ios' ? 6 : 8,
+  },
+
+  backBtn: {
+    width: 40,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: Platform.OS === 'ios' ? 17 : 18,
+    fontWeight: Platform.OS === 'ios' ? '600' : '700',
+    color: '#fff',
+  },
+
+  rightSpace: {
+    width: 40,
+  },
+
+  /* Containers */
+  container: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 24,
+  },
+
+  tabletContainer: {
+    paddingHorizontal: 60,
+  },
+
+  /* Text */
+  heading: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#004c97',
+    marginBottom: 10,
+  },
+
+  /* Card */
   card: {
-    width: width - 50,
-    height: 170,
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 15,
@@ -70,22 +191,52 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
     elevation: 3,
-    alignSelf: 'center',
-    borderWidth: 0
   },
-  
-  cardContent: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  cardTitle: { fontSize: 20, fontWeight: 'bold' },
-  cardDesc: { fontSize: 14, color: '#555', marginTop: 4 },
-  timeContainer: { alignItems: 'center', marginLeft: 10 },
-  timeText: { fontSize: 12, color: '#555', marginTop: 2 },
-  
+
+  tabletCard: {
+    padding: 20,
+  },
+
+  cardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+  },
+
+  cardDesc: {
+    fontSize: 14,
+    color: '#555',
+    marginTop: 4,
+  },
+
+  timeContainer: {
+    alignItems: 'center',
+    marginLeft: 12,
+  },
+
+  timeText: {
+    fontSize: 12,
+    color: '#555',
+    marginTop: 2,
+  },
+
+  /* Button */
   button: {
-    backgroundColor: '#1c5a98ff',
-    paddingVertical: 10,
+    backgroundColor: '#1c5a98',
+    paddingVertical: 12,
     borderRadius: 6,
     marginTop: 15,
-    alignItems: 'center'
+    alignItems: 'center',
   },
-  buttonText: { color: '#fff', fontWeight: 'bold' }
+
+  buttonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
+  },
 });
