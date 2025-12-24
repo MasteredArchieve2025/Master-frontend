@@ -13,6 +13,7 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import Button from '../../src/components/Button';
+import Footer from '../../src/components/Footer';
 
 const activities = [
   { id: 1, title: 'Computer & IT', icon: 'laptop', sections: [{ title: 'Computer & IT', items: ['Web Development','Python Programming','Data Science','Cybersecurity','Cloud Computing'] }] },
@@ -89,7 +90,9 @@ export default function Course1({ navigation }) {
           </View>
         ))}
       </ScrollView>
+      <Footer/>
     </SafeAreaView>
+    
   );
 }
 

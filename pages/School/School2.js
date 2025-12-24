@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import Footer from "../../src/components/Footer";
 
 const { width } = Dimensions.get("window");
 const isTablet = width >= 768;
@@ -127,6 +128,7 @@ export default function School2() {
           </Text>
         </View>
       </ScrollView>
+      <Footer/>
     </SafeAreaView>
   );
 }

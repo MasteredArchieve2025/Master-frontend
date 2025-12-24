@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import Footer from "../../src/components/Footer";
 
 // Categories data
 const categories = [
@@ -25,7 +26,7 @@ const categories = [
 
 const College1 = () => {
   const navigation = useNavigation();
-
+  
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="light-content" backgroundColor="#0052A2" />
@@ -74,6 +75,7 @@ const College1 = () => {
           ))}
         </ScrollView>
       </View>
+      <Footer/>
     </SafeAreaView>
   );
 };

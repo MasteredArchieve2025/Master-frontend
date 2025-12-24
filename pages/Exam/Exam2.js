@@ -1,8 +1,18 @@
 import React from 'react';
 import {
-  View,  Text,StyleSheet,FlatList,TouchableOpacity,SafeAreaView,} from 'react-native';
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  SafeAreaView,
+  Platform,
+  StatusBar,
+  useWindowDimensions,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Footer from '../../src/components/Footer'; // Make sure the path is correct
+import { useNavigation } from '@react-navigation/native';
+import Footer from '../../src/components/Footer';
 
 const exams = [
   { id: '1', title: 'Class 12 (HSC +2) Public Exams' },
@@ -14,110 +24,165 @@ const exams = [
 ];
 
 export default function Exam2() {
+  const navigation = useNavigation();
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 768;
+
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.item}>
-      <Text style={styles.itemText}>{item.title}</Text>
-      <Ionicons name="chevron-forward" size={20} color="#000" />
+  <View style={styles.item}>
+    <Text style={styles.itemText}>{item.title}</Text>
+
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={() => navigation.navigate('Exam3')}
+    >
+      <Ionicons name="chevron-forward" size={22} color="#003366" />
     </TouchableOpacity>
-  );
+  </View>
+);
+
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.safe}>
+      {/* Status Bar */}
+      <StatusBar barStyle="light-content" backgroundColor="#0052A2" />
+
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.myEducation}>My Education</Text>
-        <View style={styles.headerIcons}>
-          <Ionicons name="search-outline" size={24} color="black" style={styles.icon} />
-          <Ionicons name="notifications-outline" size={24} color="black" style={styles.icon} />
-          <Ionicons name="person-outline" size={24} color="black" style={styles.icon} />
+      <View style={styles.headerWrapper}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backBtn}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons
+              name={Platform.OS === 'ios' ? 'chevron-back' : 'arrow-back'}
+              size={24}
+              color="#fff"
+            />
+          </TouchableOpacity>
+
+          <Text style={styles.headerTitle}>Exam Details</Text>
+          <View style={styles.rightSpace} />
         </View>
       </View>
 
-      {/* Greeting */}
-      <Text style={styles.greeting}>Hello ! Mabisha</Text>
+      {/* Main Content */}
+      <View
+        style={[
+          styles.container,
+          isTablet && styles.tabletContainer,
+        ]}
+      >
+        {/* Card (Touchable → Navigate to Exam3) */}
+        <TouchableOpacity
+          activeOpacity={0.8}
+          // onPress={() => navigation.navigate('Exam3')}
+        >
+          <View style={styles.card}>
+            <Text
+              style={[
+                styles.cardTitle,
+                isTablet && { fontSize: 20 },
+              ]}
+            >
+              School Board Exams
+            </Text>
+          </View>
+        </TouchableOpacity>
 
-      {/* Card */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>School Board Exams</Text>
+        {/* Exam List */}
+        <FlatList
+          data={exams}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContainer}
+        />
       </View>
 
-      {/* Exam list */}
-      <FlatList
-        data={exams}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.listContainer}
-      />
-
-      {/* Footer */}
       <Footer />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safe: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+
+  /* Header */
+  headerWrapper: {
+    backgroundColor: '#0052A2',
+  },
+
+  header: {
+    height: Platform.OS === 'ios' ? 52 : 64,
+    backgroundColor: '#0052A2',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: Platform.OS === 'ios' ? 6 : 8,
+  },
+
+  backBtn: {
+    width: 40,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: Platform.OS === 'ios' ? 17 : 18,
+    fontWeight: Platform.OS === 'ios' ? '600' : '700',
+    color: '#fff',
+  },
+
+  rightSpace: {
+    width: 40,
+  },
+
+  /* Content */
+  container: {
+    flex: 1,
     paddingHorizontal: 16,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 20,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderRadius: 10,
+
+  tabletContainer: {
+    paddingHorizontal: 40,
   },
-  myEducation: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#003366',              // ✅ Blue text
-  },
-  headerIcons: {
-    flexDirection: 'row',
-  },
-  icon: {
-    marginLeft: 16,
-    color: '#003366',              // ✅ Blue icons
-  },
-  greeting: {
-    fontSize: 22,
-    fontWeight: '700',
-    marginTop: 16,
-    marginBottom: 20,
-    color: '#003366',
-  },
+
   card: {
     backgroundColor: '#cce0ff',
-    borderRadius: 20,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    borderRadius: 18,
+    paddingVertical: 16,
     alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 30,
-    width: '110%',              // Makes the card wider than the container
-    alignSelf: 'center',        // Center the card in the screen
+    marginBottom: 24,
   },
-  
+
   cardTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#003366',
   },
+
   item: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
+
   itemText: {
-    fontSize: 16,
+    color: '#003366',
+    flex: 1,
+    marginRight: 12,
   },
+
   listContainer: {
-    paddingBottom: 80, // space for the footer
+    paddingBottom: 20,
   },
 });

@@ -1,69 +1,166 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Platform,
+  StatusBar,
+  SafeAreaView,
+  Dimensions,
+} from "react-native";
+import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
+import Footer from "../../src/components/Footer";
+const { width } = Dimensions.get("window");
+const isTablet = width >= 768;
 
 export default function Course2({ route, navigation }) {
   const sections = route?.params?.sections || [
-    // Example default data if none passed
     {
-      title: 'Computer & IT',
-      items: ['Web Development', 'Python Programming', 'Data Science'],
+      title: "Computer & IT",
+      items: ["Web Development", "Python Programming", "Data Science"],
     },
     {
-      title: 'Business & Management',
-      items: ['Finance', 'Marketing', 'HR Management'],
+      title: "Business & Management",
+      items: ["Finance", "Marketing", "HR Management"],
     },
   ];
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 24 }}>
-      {sections.map((section, idx) => (
-        <View key={idx} style={{ marginTop: 20 }}>
-          {/* Section Header */}
-          <View style={styles.header}>
-            <Text style={styles.headerText}>{section.title}</Text>
-          </View>
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="light-content" backgroundColor="#0052A2" />
 
-          {/* Section Items */}
-          {section.items?.map((item, i) => (
-            <TouchableOpacity
-              key={i}
-              activeOpacity={0.7}
-              style={styles.row}
-              onPress={() =>
-                navigation.navigate('Course3', { title: item })
-              }
-            >
-              <Text style={styles.rowText}>{item}</Text>
-              <MaterialCommunityIcons name="chevron-right" size={28} color="#1F6FC4" />
-            </TouchableOpacity>
-          ))}
+      {/* ---------- HEADER (COMMON) ---------- */}
+      <View style={styles.headerWrapper}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backBtn}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons
+              name={Platform.OS === "ios" ? "chevron-back" : "arrow-back"}
+              size={24}
+              color="#fff"
+            />
+          </TouchableOpacity>
+
+          <Text style={styles.headerTitle}>Course Details</Text>
+
+          <View style={styles.rightSpace} />
         </View>
-      ))}
-    </ScrollView>
+      </View>
+
+      {/* ---------- BODY ---------- */}
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {sections.map((section, idx) => (
+          <View key={idx} style={styles.sectionWrapper}>
+            {/* Section Header */}
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionHeaderText}>{section.title}</Text>
+            </View>
+
+            {/* Section Items */}
+            {section.items?.map((item, i) => (
+              <TouchableOpacity
+                key={i}
+                activeOpacity={0.7}
+                style={styles.row}
+                onPress={() =>
+                  navigation.navigate("Course3", { title: item })
+                }
+              >
+                <Text style={styles.rowText}>{item}</Text>
+                <MaterialCommunityIcons
+                  name="chevron-right"
+                  size={26}
+                  color="#1F6FC4"
+                />
+              </TouchableOpacity>
+            ))}
+          </View>
+        ))}
+      </ScrollView>
+      <Footer/>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' },
-
-  header: {
-    backgroundColor: '#CFE5FA',
-    height: 56,
-    marginHorizontal: 10,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+  safe: {
+    flex: 1,
+    backgroundColor: "#fff",
   },
-  headerText: { fontSize: 22, fontWeight: '700', color: '#0B5AA7' },
+
+  /* ---------- HEADER ---------- */
+  headerWrapper: {
+    backgroundColor: "#0052A2",
+  },
+  header: {
+    height: Platform.OS === "ios" ? 52 : 64,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+  },
+  backBtn: {
+    width: 40,
+    justifyContent: "center",
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: "center",
+    fontSize: Platform.OS === "ios" ? 17 : 18,
+    fontWeight: Platform.OS === "ios" ? "600" : "700",
+    color: "#fff",
+  },
+  rightSpace: {
+    width: 40,
+  },
+
+  /* ---------- BODY ---------- */
+  container: {
+    flex: 1,
+    backgroundColor: "#FAFAFA",
+  },
+  scrollContent: {
+    paddingBottom: 30,
+  },
+
+  sectionWrapper: {
+    marginTop: 18,
+  },
+
+  sectionHeader: {
+    backgroundColor: "#CFE5FA",
+    height: isTablet ? 64 : 56,
+    marginHorizontal: isTablet ? 24 : 14,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sectionHeaderText: {
+    fontSize: isTablet ? 22 : 18,
+    fontWeight: "700",
+    color: "#0B5AA7",
+  },
 
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
-    paddingHorizontal: 18,
-    marginHorizontal: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: isTablet ? 20 : 16,
+    paddingHorizontal: isTablet ? 26 : 18,
+    marginHorizontal: isTablet ? 24 : 14,
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEE",
   },
-  rowText: { fontSize: 16, fontWeight: '500', color: '#111' },
+  rowText: {
+    fontSize: isTablet ? 18 : 16,
+    fontWeight: "500",
+    color: "#111",
+  },
 });

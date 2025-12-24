@@ -7,7 +7,7 @@ import {
   Image,
   TouchableOpacity,
   SafeAreaView,
-  Platform,
+  Platform,  
   StatusBar,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";

@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import Footer from "../../src/components/Footer";
 
 const schools = [
   {
@@ -149,6 +150,7 @@ export default function School1() {
           showsVerticalScrollIndicator={false}
         />
       </View>
+      <Footer/>
     </SafeAreaView>
   );
 }
