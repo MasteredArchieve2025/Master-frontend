@@ -43,7 +43,7 @@ const bannerData = [
     title: "Unlock Your Future at",
     line1: "ARUNACHALA COLLEGE OF",
     line2: "ENGINEERING",
-    info: "Admissions Open for 2025-2027",
+    info: "Admissions Open for 2025-2026",
     image: collegeBannerImage,
   },
   {
