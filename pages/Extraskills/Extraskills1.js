@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import Button from '../../src/components/Button';
-
+import Footer from '../../src/components/Footer';
 const activities = [
   {
     title: 'Fine Arts',
@@ -162,6 +162,7 @@ export default function Extraskills1({ navigation }) {
           </View>
         ))}
       </ScrollView>
+      <Footer/>
     </SafeAreaView>
   );
 }
