@@ -1,187 +1,361 @@
-
 import React from "react";
 import {
   View,
   Text,
   StyleSheet,
-  Image,
   TouchableOpacity,
   ScrollView,
   Platform,
   StatusBar,
 } from "react-native";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import Footer from '../../src/components/Footer';
+import { Ionicons } from "@expo/vector-icons";
+import Footer from "../../src/components/Footer";
+
 export default function Iq7() {
+  // Score data
+  const scoreData = {
+    score: 121,
+    category: "Superior Intelligence",
+    range: "120 - 129",
+    percentile: 84.3,
+    description: "Your score is higher than 84.3% of the population.",
+  };
+
   return (
     <View style={styles.root}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <TouchableOpacity style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={26} color="#fff" />
+            <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>My Education</Text>
-          <View style={{ width: 26 }} />
+          <Text style={styles.headerTitle}>IQ Results</Text>
+          <View style={styles.headerIcon}>
+            <Ionicons name="analytics" size={22} color="#fff" />
+          </View>
         </View>
       </View>
 
-      {/* Avatar absolutely positioned */}
-      <View style={styles.avatarContainer}>
-        <Image
-          source={{
-            uri: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=400",
-          }}
-          style={styles.avatar}
-        />
-      </View>
+      <ScrollView 
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Main Score Display */}
+        <View style={styles.mainCard}>
+          <Text style={styles.cardTitle}>Your IQ Score</Text>
+          
+          {/* Score Circle */}
+          <View style={styles.scoreCircle}>
+            <Text style={styles.scoreMain}>{scoreData.score}</Text>
+            <Text style={styles.scoreSub}>IQ Score</Text>
+          </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.name}>Mabisha</Text>
+          {/* Category Badge */}
+          <View style={styles.categoryBadge}>
+            <Ionicons name="trophy" size={16} color="#FFD700" />
+            <Text style={styles.categoryText}>{scoreData.category}</Text>
+          </View>
 
-        {/* Contact Info */}
-        <View style={styles.infoRow}>
-          <Ionicons name="call" size={22} color="#0B5394" />
-          <Text style={styles.infoText}>+91 9876543210</Text>
-        </View>
+          {/* Key Metric */}
+          <View style={styles.metricBox}>
+            <Ionicons name="stats-chart" size={20} color="#0B5394" />
+            <View style={styles.metricContent}>
+              <Text style={styles.metricValue}>{scoreData.percentile}%</Text>
+              <Text style={styles.metricLabel}>Population Percentile</Text>
+            </View>
+          </View>
 
-        <View style={styles.infoRow}>
-          <MaterialIcons name="email" size={22} color="#0B5394" />
-          <Text style={styles.infoText}>mabisha@gmail.com</Text>
-        </View>
+          {/* Range Display */}
+          <View style={styles.rangeBox}>
+            <Ionicons name="expand" size={20} color="#0B5394" />
+            <View style={styles.rangeContent}>
+              <Text style={styles.rangeValue}>{scoreData.range}</Text>
+              <Text style={styles.rangeLabel}>IQ Range</Text>
+            </View>
+          </View>
 
-        <View style={styles.infoRow}>
-          <Ionicons name="location" size={22} color="#0B5394" />
-          <Text style={styles.infoText}>
-            Sunrise Crystal Complex, Thadagam Main Rd, Kalappa Naicken Palayam,
-            Coimbatore, Tamil Nadu 641108
-          </Text>
-        </View>
-
-        {/* IQ Score */}
-        <Text style={styles.sectionTitle}>IQ Score Result</Text>
-
-        <View style={styles.circleWrap}>
-          <View style={styles.circle}>
-            <Text style={styles.scoreText}>121</Text>
+          {/* Result Description */}
+          <View style={styles.descriptionBox}>
+            <Text style={styles.descriptionText}>
+              {scoreData.description}
+            </Text>
           </View>
         </View>
 
-        <Text style={styles.resultText}>
-          Your test results show a score higher than{" "}
-          <Text style={styles.highlight}>16.55%</Text> of general population
-        </Text>
+        {/* Quick Stats */}
+        <View style={styles.statsCard}>
+          <Text style={styles.statsTitle}>Quick Insights</Text>
+          
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <View style={styles.statIconBox}>
+                <Ionicons name="checkmark-circle" size={18} color="#4CAF50" />
+              </View>
+              <Text style={styles.statTitle}>Above Average</Text>
+            </View>
+            
+            <View style={styles.statDivider} />
+            
+            <View style={styles.statItem}>
+              <View style={styles.statIconBox}>
+                <Ionicons name="trending-up" size={18} color="#2196F3" />
+              </View>
+              <Text style={styles.statTitle}>Superior Range</Text>
+            </View>
+          </View>
+        </View>
 
-        <Text style={styles.subNote}>Above 130 : High Intelligent</Text>
-
-        <TouchableOpacity style={styles.rangeBtn}>
-          <Text style={styles.rangeBtnText}>115 - 129 : Intelligent</Text>
-        </TouchableOpacity>
       </ScrollView>
+
       <Footer />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#fff" },
+  root: {
+    flex: 1,
+    backgroundColor: "#F8FAFF",
+  },
 
+  // Header
   header: {
-    height: 180,
+    height: 90,
     backgroundColor: "#0B5394",
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
-    paddingHorizontal: 16,
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 8 : 24,
-    zIndex: 0,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 10 : 36,
   },
   headerTop: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 8,
   },
-  backBtn: { padding: 4 },
-  headerTitle: { color: "#fff", fontSize: 24, fontWeight: "800" }, // header stays same
-
-  content: { paddingBottom: 36, paddingHorizontal: 18, paddingTop: 70 },
-
-  avatarContainer: {
-    position: "absolute",
-    top: 110,
-    alignSelf: "center",
-    zIndex: 1,
+  backBtn: {
+    padding: 8,
   },
-  avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 3,
-    borderColor: "#fff",
-    backgroundColor: "#eee",
-    elevation: 4,
+  headerTitle: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  headerIcon: {
+    padding: 4,
+  },
+
+  // Content
+  content: {
+    padding: 20,
+    paddingBottom: 100,
+  },
+
+  // Main Card
+  mainCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 20,
+    alignItems: "center",
     shadowColor: "#000",
-    shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 24,
   },
 
-  /* ↓↓↓ BELOW HEADER TEXT ↓↓↓ */
-  name: {
-    fontSize: 19, // reduced
-    fontWeight: "700",
-    color: "#0B5394",
-    textAlign: "center",
-    marginBottom: 6,
-  },
-
-  infoRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 6,
-    marginTop: 6,
-  },
-  infoText: { flex: 1, fontSize: 13, color: "#222", lineHeight: 18 }, // reduced
-
-  sectionTitle: {
-    fontSize: 16, // reduced
-    fontWeight: "700",
-    color: "#0B5394",
-    textAlign: "center",
-    marginTop: 14,
-  },
-
-  circleWrap: { alignItems: "center", marginTop: 12 },
-  circle: {
-    width: 130,
-    height: 130,
-    borderRadius: 65,
-    borderWidth: 5,
+  // Score Circle
+  scoreCircle: {
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: "#F0F7FF",
+    borderWidth: 8,
     borderColor: "#0B5394",
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: 20,
   },
-  scoreText: { fontSize: 32, fontWeight: "900", color: "#000" }, // reduced
-
-  resultText: {
-    textAlign: "center",
-    fontSize: 14, // reduced
-    marginTop: 12,
-    marginHorizontal: 10,
-    lineHeight: 18,
-    color: "#1d1d1d",
+  scoreMain: {
+    fontSize: 48,
+    fontWeight: "800",
+    color: "#0B5394",
   },
-  highlight: { color: "#0B5394", fontWeight: "700" },
+  scoreSub: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: -8,
+  },
 
-  subNote: { textAlign: "center", color: "#9a9a9a", fontSize: 14,marginTop: 6 },
-
-  rangeBtn: {
-    alignSelf: "center",
-    backgroundColor: "#0B5394",
+  // Category Badge
+  categoryBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(11, 83, 148, 0.1)",
+    paddingHorizontal: 16,
     paddingVertical: 8,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    marginTop: 12,
+    borderRadius: 16,
+    marginBottom: 20,
   },
-  rangeBtnText: { color: "#fff", fontSize: 14, fontWeight: "700" }, // reduced
+  categoryText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#0B5394",
+    marginLeft: 8,
+  },
+
+  // Metric Box
+  metricBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F8FAFF",
+    width: "100%",
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  metricContent: {
+    marginLeft: 12,
+  },
+  metricValue: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#0B5394",
+  },
+  metricLabel: {
+    fontSize: 12,
+    color: "#666",
+    marginTop: 2,
+  },
+
+  // Range Box
+  rangeBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F8FAFF",
+    width: "100%",
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 20,
+  },
+  rangeContent: {
+    marginLeft: 12,
+  },
+  rangeValue: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#333",
+  },
+  rangeLabel: {
+    fontSize: 12,
+    color: "#666",
+    marginTop: 2,
+  },
+
+  // Description Box
+  descriptionBox: {
+    backgroundColor: "rgba(11, 83, 148, 0.05)",
+    padding: 16,
+    borderRadius: 12,
+    width: "100%",
+    borderLeftWidth: 3,
+    borderLeftColor: "#0B5394",
+  },
+  descriptionText: {
+    fontSize: 14,
+    color: "#444",
+    lineHeight: 20,
+    textAlign: "center",
+  },
+
+  // Stats Card
+  statsCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  statsTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  statsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  statItem: {
+    flex: 1,
+    alignItems: "center",
+  },
+  statIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#F8FAFF",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  statTitle: {
+    fontSize: 13,
+    color: "#444",
+    textAlign: "center",
+  },
+  statDivider: {
+    width: 1,
+    backgroundColor: "#E0E0E0",
+    marginHorizontal: 20,
+  },
+
+  // Action Buttons
+  actionContainer: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  primaryBtn: {
+    flex: 1,
+    flexDirection: "row",
+    backgroundColor: "#0B5394",
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  primaryBtnText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 8,
+  },
+  secondaryBtn: {
+    flex: 1,
+    flexDirection: "row",
+    backgroundColor: "#FFFFFF",
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#0B5394",
+  },
+  secondaryBtnText: {
+    color: "#0B5394",
+    fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 8,
+  },
 });

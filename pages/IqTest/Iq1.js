@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
-
+import Footer from "../../src/components/Footer";
 const { width } = Dimensions.get("window");
 
 // Calculate card size for 2-column grid
@@ -175,6 +175,7 @@ export default function Iq1({ navigation }) {
           <Text style={styles.progressText}>0 of 6 tests completed</Text>
         </View>
       </ScrollView>
+      <Footer/>
     </SafeAreaView>
   );
 }

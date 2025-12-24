@@ -64,7 +64,7 @@ export default function Iq6() {
             />
           </TouchableOpacity>
 
-          <Text style={styles.headerTitle}>IQ Result</Text>
+          <Text style={styles.headerTitle}>Section Result </Text>
 
           {/* Spacer */}
           <View style={styles.rightSpace} />
