@@ -52,11 +52,7 @@ export default function School2() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.container}
       >
-        {/* Greeting */}
-        <Text style={styles.greeting}>
-          <Text style={styles.hello}>Hello! </Text>
-          <Text style={styles.name}>Mabisha</Text>
-        </Text>
+       
 
         {/* School Image */}
         <View style={styles.imageContainer}>
