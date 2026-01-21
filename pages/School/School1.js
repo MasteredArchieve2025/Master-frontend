@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,206 +7,171 @@ import {
   TouchableOpacity,
   ScrollView,
   useWindowDimensions,
-  Platform,
-  Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { Video, ResizeMode } from "expo-av";
+import { WebView } from "react-native-webview";
 import Footer from "../../src/components/Footer";
+
+/* ===== ASSETS ===== */
+const collegeBannerImage = require("../../assets/Global.png");
+
+/* ===== BANNER DATA ===== */
+const bannerData = [
+  {
+    title: "Unlock Your Future at",
+    line1: "ARUNACHALA MATRICULATION",
+    line2: "SCHOOL",
+    info: "Admissions Open for 2025-2026",
+    image: collegeBannerImage,
+  },
+  {
+    title: "Build Your Career With",
+    line1: "TOP TUTION CENTRE",
+    line2: "PROGRAMS",
+    info: "Apply Now",
+    image: collegeBannerImage,
+  },
+  {
+    title: "Learn. Innovate. Lead.",
+    line1: "QUALITY",
+    line2: "EDUCATION",
+    info: "Join Today",
+    image: collegeBannerImage,
+  },
+];
 
 export default function School1({ navigation }) {
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
-  const videoRef = useRef(null);
-  const [status, setStatus] = useState({});
+  const isWeb = width >= 1024;
+
+  const scrollRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  /* ===== AUTO SCROLL BANNER ===== */
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => {
+        const next = (prev + 1) % bannerData.length;
+        scrollRef.current?.scrollTo({
+          x: next * width,
+          animated: true,
+        });
+        return next;
+      });
+    }, 3500);
+
+    return () => clearInterval(timer);
+  }, [width]);
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* HEADER */}
-      <View
-        style={[
-          styles.header,
-          { paddingHorizontal: isTablet ? 24 : 16 },
-        ]}
-      >
+      {/* ===== HEADER ===== */}
+      <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#0B5ED7" />
+          <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <View style={styles.headerIcons}>
-          <Ionicons name="search" size={22} color="#000" />
-          <Ionicons name="notifications-outline" size={22} color="#000" />
-          <Ionicons name="person-circle-outline" size={26} color="#000" />
-        </View>
+        <Text style={styles.headerTitle}>School</Text>
+        <View style={{ width: 24 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* TITLE */}
-        <View
-          style={[
-            styles.titleContainer,
-            { paddingHorizontal: isTablet ? 24 : 16 },
-          ]}
+        {/* ===== BANNER SLIDER ===== */}
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={(e) => {
+            const index = Math.round(
+              e.nativeEvent.contentOffset.x / width
+            );
+            setActiveIndex(index);
+          }}
         >
-          <Text style={styles.title}>School</Text>
-          <Text style={styles.subtitle}>
-            Choose what you want to explore
-          </Text>
+          {bannerData.map((item, index) => (
+            <View key={index} style={{ width }}>
+              <Image
+                source={item.image}
+                style={[
+                  styles.bannerImage,
+                  { height: isTablet ? 260 : 200 },
+                ]}
+              />
+
+              <View style={styles.overlay}>
+                <Text style={styles.title}>{item.title}</Text>
+                <Text style={styles.line1}>{item.line1}</Text>
+                <Text style={styles.line2}>{item.line2}</Text>
+                <Text style={styles.info}>{item.info}</Text>
+              </View>
+            </View>
+          ))}
+        </ScrollView>
+
+        {/* ===== PAGINATION DOTS ===== */}
+        <View style={styles.pagination}>
+          {bannerData.map((_, index) => (
+            <View
+              key={index}
+              style={[
+                styles.dot,
+                activeIndex === index && styles.activeDot,
+              ]}
+            />
+          ))}
         </View>
 
-       
-
-        {/* AD BANNER 1 - ABOVE CARDS */}
-        <View style={styles.adBannerContainer}>
-          <Text style={styles.adLabel}>Sponsored</Text>
-          <Image
-            source={{
-              uri: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800",
-            }}
-            style={[
-              styles.adBanner,
-              {
-                height: isTablet ? 120 : 80,
-                borderRadius: isTablet ? 16 : 12,
-              },
-            ]}
-            resizeMode="cover"
-          />
-          <View style={styles.adOverlay}>
-            <Text style={styles.adTitle}>Premium Online Courses</Text>
-            <Text style={styles.adSubtitle}>Up to 50% Off - Enroll Now!</Text>
-          </View>
-          <TouchableOpacity style={styles.adButton}>
-            <Text style={styles.adButtonText}>Learn More</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* CARDS */}
-        <View
-          style={[
-            styles.cardWrapper,
-            { paddingHorizontal: isTablet ? 24 : 16 },
-          ]}
-        >
-          {/* ✅ NAVIGATION FIXED */}
+        {/* ===== 2 COLUMN GRID ===== */}
+        <View style={styles.grid}>
           <TouchableOpacity
-            style={styles.card}
-            activeOpacity={0.7}
+            style={styles.gridCard}
+            activeOpacity={0.85}
             onPress={() => navigation.navigate("School2")}
           >
-            <View style={styles.cardLeft}>
-              <View style={styles.iconBox}>
-                <Ionicons name="business" size={22} color="#0B5ED7" />
-              </View>
-              <View>
-                <Text style={styles.cardTitle}>View School</Text>
-                <Text style={styles.cardSubtitle}>
-                  Explore Schools for you
-                </Text>
-              </View>
-            </View>
-            <Ionicons name="chevron-forward" size={22} color="#999" />
+            <Ionicons name="business" size={40} color="#0B5ED7" />
+            <Text style={styles.gridTitle}>View School</Text>
+            <Text style={styles.gridSub}>Explore Schools for you</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.card} activeOpacity={0.7}  onPress={() => navigation.navigate("Tutions1")}>
-            <View style={styles.cardLeft}>
-              <View style={styles.iconBox}>
-                <Ionicons name="book" size={22} color="#0B5ED7" />
-              </View>
-              <View>
-                <Text style={styles.cardTitle}>View Tuitions</Text>
-                <Text style={styles.cardSubtitle}>
-                  Explore Tuitions for all Standards
-                </Text>
-              </View>
-            </View>
-            <Ionicons name="chevron-forward" size={22} color="#999" />
+          <TouchableOpacity
+            style={styles.gridCard}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate("Tutions1")}
+          >
+            <Ionicons name="book" size={40} color="#0B5ED7" />
+            <Text style={styles.gridTitle}>View Tuitions</Text>
+            <Text style={styles.gridSub}>
+              Explore Tuitions for all Standards
+            </Text>
           </TouchableOpacity>
         </View>
 
-        
-        {/* VIDEO AD */}
-        <View style={styles.videoAdContainer}>
-          <View style={styles.videoHeader}>
-            <Text style={styles.videoAdTitle}>Featured Video</Text>
-            <View style={styles.sponsoredBadge}>
-              <Text style={styles.sponsoredText}>Sponsored</Text>
-            </View>
-          </View>
-          
-          <Video
-            ref={videoRef}
-            style={[
-              styles.video,
-              {
-                height: isTablet ? 250 : 180,
-                borderRadius: isTablet ? 16 : 12,
-              },
-            ]}
-            source={{
-              uri: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-            }}
-            useNativeControls
-            resizeMode={ResizeMode.CONTAIN}
-            isLooping
-            onPlaybackStatusUpdate={status => setStatus(() => status)}
-          />
+     {/* ===== YOUTUBE VIDEO (CLEAN PLAYER – BEST POSSIBLE) ===== */}
+<View style={styles.videoBox}>
+  <WebView
+    allowsFullscreenVideo
+    javaScriptEnabled
+    domStorageEnabled
+    originWhitelist={["*"]}
+    source={{
+      uri:
+        "https://www.youtube.com/watch?v=qYapc_bkfxw",
+    }}
+    style={{
+      height: isWeb ? 360 : isTablet ? 300 : 250,
+      width: "100%",
+    }}
+  />
+</View>
 
-          <View style={styles.videoInfo}>
-            <View>
-              <Text style={styles.videoTitle}>Interactive Learning Platform</Text>
-              <Text style={styles.videoDescription}>
-                Experience the future of education with our AI-powered platform
-              </Text>
-            </View>
-            <TouchableOpacity style={styles.videoActionButton}>
-              <Text style={styles.videoActionText}>Try Free</Text>
-            </TouchableOpacity>
-          </View>
 
-          <View style={styles.videoControls}>
-            <TouchableOpacity
-              onPress={() =>
-                status.isPlaying
-                  ? videoRef.current.pauseAsync()
-                  : videoRef.current.playAsync()
-              }
-              style={styles.controlButton}
-            >
-              <Ionicons
-                name={status.isPlaying ? "pause-circle" : "play-circle"}
-                size={32}
-                color="#0B5ED7"
-              />
-              <Text style={styles.controlText}>
-                {status.isPlaying ? "Pause" : "Play"}
-              </Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.controlButton}>
-              <Ionicons name="share-social-outline" size={26} color="#666" />
-              <Text style={styles.controlText}>Share</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.controlButton}>
-              <Ionicons name="information-circle-outline" size={26} color="#666" />
-              <Text style={styles.controlText}>Info</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={{ height: 90 }} />
+        <View style={{ height: 80 }} />
       </ScrollView>
-      
-      {/* BOTTOM TAB BAR (EMPTY FOR NOW) */}
-      <View
-        style={[
-          styles.bottomTab,
-          { height: isTablet ? 72 : 60 },
-        ]}
-      />
-      <Footer/>
+
+      <Footer />
     </SafeAreaView>
   );
 }
@@ -220,261 +185,111 @@ const styles = StyleSheet.create({
   },
 
   header: {
+    backgroundColor: "#0052A2",
+    padding: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 10,
   },
 
-  headerIcons: {
-    flexDirection: "row",
-    gap: 14,
-  },
-
-  titleContainer: {
-    marginBottom: 12,
-  },
-
-  title: {
-    fontSize: 28,
+  headerTitle: {
+    color: "#fff",
+    fontSize: 22,
     fontWeight: "700",
-    color: "#0B5ED7",
+    marginRight:25,
   },
 
-  subtitle: {
-    fontSize: 14,
-    color: "#666",
-    marginTop: 4,
-  },
-
-  banner: {
-    width: "92%",
-    alignSelf: "center",
-    marginVertical: 14,
+  bannerImage: {
+    width: "100%",
     resizeMode: "cover",
   },
 
-  /* AD BANNER STYLES */
-  adBannerContainer: {
-    marginHorizontal: 16,
-    marginVertical: 12,
-    position: "relative",
-  },
-
-  adLabel: {
-    position: "absolute",
-    top: 8,
-    left: 8,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    color: "#fff",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    fontSize: 10,
-    fontWeight: "600",
-    zIndex: 2,
-  },
-
-  adBanner: {
-    width: "100%",
-    backgroundColor: "#E8F0FF",
-  },
-
-  adOverlay: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    padding: 12,
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
-  },
-
-  adTitle: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-
-  adSubtitle: {
-    color: "#E8F0FF",
-    fontSize: 12,
-    marginTop: 2,
-  },
-
-  adButton: {
-    position: "absolute",
-    bottom: 12,
-    right: 12,
-    backgroundColor: "#0B5ED7",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    zIndex: 2,
-  },
-
-  adButtonText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-
-  /* CARD STYLES */
-  cardWrapper: {
-    marginVertical: 10,
-    gap: 14,
-  },
-
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 14,
-    padding: 14,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    elevation: Platform.OS === "android" ? 3 : 0,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 3 },
-  },
-
-  cardLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-
-  iconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    backgroundColor: "#E8F0FF",
-    alignItems: "center",
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.45)",
+    paddingHorizontal: 20,
     justifyContent: "center",
   },
 
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#000",
+  title: {
+    color: "#E8F0FF",
+    fontSize: 14,
+    marginBottom: 6,
   },
 
-  cardSubtitle: {
-    fontSize: 12,
-    color: "#666",
-    marginTop: 2,
-  },
-
-  /* VIDEO AD STYLES */
-  videoAdContainer: {
-    marginHorizontal: 16,
-    marginVertical: 20,
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 16,
-    elevation: Platform.OS === "android" ? 4 : 0,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-  },
-
-  videoHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-
-  videoAdTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#000",
-  },
-
-  sponsoredBadge: {
-    backgroundColor: "#FF6B6B",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-
-  sponsoredText: {
+  line1: {
     color: "#fff",
-    fontSize: 10,
-    fontWeight: "600",
+    fontSize: 22,
+    fontWeight: "800",
   },
 
-  video: {
-    width: "100%",
-    backgroundColor: "#000",
-  },
-
-  videoInfo: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 12,
-    marginBottom: 16,
-  },
-
-  videoTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#000",
-  },
-
-  videoDescription: {
-    fontSize: 12,
-    color: "#666",
-    marginTop: 4,
-    maxWidth: "70%",
-  },
-
-  videoActionButton: {
-    backgroundColor: "#0B5ED7",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-
-  videoActionText: {
+  line2: {
     color: "#fff",
+    fontSize: 22,
+    fontWeight: "800",
+    marginBottom: 10,
+  },
+
+  info: {
+    color: "#FFD966",
     fontSize: 14,
     fontWeight: "600",
   },
 
-  videoControls: {
+  pagination: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    borderTopWidth: 1,
-    borderTopColor: "#eee",
-    paddingTop: 16,
-  },
-
-  controlButton: {
-    alignItems: "center",
     justifyContent: "center",
+    marginVertical: 10,
   },
 
-  controlText: {
-    fontSize: 11,
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#ccc",
+    marginHorizontal: 4,
+  },
+
+  activeDot: {
+    width: 16,
+    backgroundColor: "#0B5ED7",
+  },
+
+  grid: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    marginTop: 16,
+  },
+
+  gridCard: {
+    width: "49%",
+    height: "100%",
+    backgroundColor: "#fff",
+    borderRadius: 22,
+    padding: 27,
+    alignItems: "center",
+    elevation: 4,
+    marginTop:15,
+  },
+
+  gridTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    marginTop: 10,
+  },
+
+  gridSub: {
+    fontSize: 12,
     color: "#666",
+    textAlign: "center",
     marginTop: 4,
   },
 
-  bottomTab: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderColor: "#eee",
+  videoBox: {
+    marginTop: 55,
+  
+    overflow: "hidden",
+    backgroundColor: "#000",
   },
 });
