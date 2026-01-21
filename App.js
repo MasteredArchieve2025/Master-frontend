@@ -43,6 +43,10 @@ import Extraskills2 from "./pages/Extraskills/Extraskills2";
 import Extraskills3 from "./pages/Extraskills/Extraskills3";
 import Extraskills4 from "./pages/Extraskills/Extraskills4";
 
+import Tution1 from "./pages/Tutions/Tutions1";
+import Tution2 from "./pages/Tutions/Tutions2";
+import Tution3 from "./pages/Tutions/Tutions3";
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -91,6 +95,11 @@ export default function App() {
         <Stack.Screen name="Extraskills2" component={Extraskills2} />
         <Stack.Screen name="Extraskills3" component={Extraskills3} />
         <Stack.Screen name="Extraskills4" component={Extraskills4} />
+
+         <Stack.Screen name="Tutions1" component={Tution1} />
+         <Stack.Screen name="Tutions2" component={Tution2} />
+         <Stack.Screen name="Tutions3" component={Tution3} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );

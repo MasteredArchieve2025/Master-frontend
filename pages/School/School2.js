@@ -1,33 +1,82 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
-  Image,
   TouchableOpacity,
+  FlatList,
+  Image,
+  TextInput,
   Platform,
   StatusBar,
   SafeAreaView,
-  Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import Footer from "../../src/components/Footer";
 
-const { width } = Dimensions.get("window");
-const isTablet = width >= 768;
+const schools = [
+  {
+    id: "1",
+    name: "Josephs Matric HR Sec School, Sasthankari, Colachel",
+    image: require("../../assets/school.png"),
+    category: "Govt.School",
+  },
+  {
+    id: "2",
+    name: "St. Mary’s CBSE School, Nagercoil",
+    image: require("../../assets/school.png"),
+    category: "CBSE",
+  },
+  {
+    id: "3",
+    name: "National Public School, Chennai",
+    image: require("../../assets/school.png"),
+    category: "ICSE",
+  },
+  {
+    id: "4",
+    name: "Velammal State Board School, Madurai",
+    image: require("../../assets/school.png"),
+    category: "State Board",
+  },
+  {
+    id: "5",
+    name: "Govt Higher Secondary School, Trichy",
+    image: require("../../assets/school.png"),
+    category: "Govt.School",
+  },
+];
 
-export default function School2() {
+export default function school2() {
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const navigation = useNavigation();
-  const route = useRoute();
-  const school = route.params?.school;
+
+  const filteredSchools =
+    selectedCategory === "All"
+      ? schools
+      : schools.filter((s) => s.category === selectedCategory);
+
+  const renderSchoolCard = ({ item }) => (
+    <View style={styles.card}>
+      <Image source={item.image} style={styles.schoolImage} />
+      <View style={styles.schoolInfo}>
+        <Text style={styles.schoolName}>{item.name}</Text>
+        <TouchableOpacity
+          style={styles.readMoreBtn}
+          onPress={() => navigation.navigate("School2", { school: item })}
+        >
+          <Text style={styles.readMoreText}>Read more &gt;</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="light-content" backgroundColor="#0052A2" />
 
-      {/* ===== HEADER (SAME AS SCHOOL1) ===== */}
+      {/* Header */}
       <View style={styles.headerWrapper}>
         <View style={styles.header}>
           <TouchableOpacity
@@ -41,89 +90,66 @@ export default function School2() {
             />
           </TouchableOpacity>
 
-          <Text style={styles.headerTitle}>About School</Text>
+          <Text style={styles.headerTitle}>Schools</Text>
 
           <View style={styles.rightSpace} />
         </View>
       </View>
 
-      {/* ===== BODY ===== */}
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.container}
-      >
-       
-
-        {/* School Image */}
-        <View style={styles.imageContainer}>
-          <Image
-            source={school?.image || require("../../assets/school.png")}
-            style={styles.schoolImage}
-          />
+      {/* Body */}
+      <View style={styles.body}>
+        {/* Filters */}
+        <View style={styles.filterRow}>
+          <View style={styles.filterInput}>
+            <TextInput
+              placeholder="Filters"
+              placeholderTextColor="#666"
+              style={{ flex: 1 }}
+            />
+            <Ionicons name="chevron-down-outline" size={16} color="#333" />
+          </View>
+          <View style={styles.filterInput}>
+            <TextInput
+              placeholder="Select"
+              placeholderTextColor="#666"
+              style={{ flex: 1 }}
+            />
+            <Ionicons name="chevron-down-outline" size={16} color="#333" />
+          </View>
         </View>
 
-        {/* School Name */}
-        <Text style={styles.schoolName}>
-          {school?.name || "Josephs Matric HR Sec School"}
-        </Text>
-
-        {/* Description */}
-        <Text style={styles.description}>
-          The school has a private building with 24 classrooms, library,
-          playground, safe drinking water, computer facilities, and a nurturing
-          academic environment for students.
-        </Text>
-
-        {/* Photos */}
-        <Text style={styles.sectionTitle}>Photos</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <Image source={require("../../assets/school1.png")} style={styles.photo} />
-          <Image source={require("../../assets/school2.png")} style={styles.photo} />
-          <Image source={require("../../assets/school3.png")} style={styles.photo} />
-        </ScrollView>
-
-        {/* Vision */}
-        <Text style={styles.sectionTitle}>Our Vision</Text>
-        <Text style={styles.text}>
-          To empower students with confidence, discipline, and lifelong learning
-          skills to face the future.
-        </Text>
-
-        {/* Mission */}
-        <Text style={styles.sectionTitle}>Our Mission</Text>
-        <Text style={styles.text}>
-          We aim to deliver quality education through academic excellence,
-          creativity, innovation, and strong moral values.
-        </Text>
-
-        {/* About */}
-        <Text style={styles.sectionTitle}>About</Text>
-        <View style={styles.aboutContainer}>
-          <Image
-            source={require("../../assets/school1.png")}
-            style={styles.aboutImage}
-          />
-          <Text style={styles.aboutText}>
-            With more than 15 years of excellence in education, the institution
-            stands among the most trusted schools in Tamil Nadu.
-          </Text>
+        {/* Categories */}
+        <View style={styles.categories}>
+          {["All", "Govt.School", "State Board", "CBSE", "ICSE"].map((cat) => (
+            <TouchableOpacity
+              key={cat}
+              style={[
+                styles.categoryBtn,
+                selectedCategory === cat && styles.activeCategory,
+              ]}
+              onPress={() => setSelectedCategory(cat)}
+            >
+              <Text
+                style={[
+                  styles.categoryText,
+                  selectedCategory === cat && styles.activeCategoryText,
+                ]}
+              >
+                {cat}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
-        {/* Contact */}
-        <Text style={styles.sectionTitle}>Contact</Text>
-        <View style={styles.contactRow}>
-          <Image
-            source={require("../../assets/map.png")}
-            style={styles.mapImage}
-          />
-          <Text style={styles.contactText}>
-            Colachel, Kanyakumari{"\n"}
-            Tamil Nadu – 629251{"\n"}
-            Mobile: +91 XXXXX-XXXXX{"\n"}
-            Email: xxx@xxxxxx
-          </Text>
-        </View>
-      </ScrollView>
+        {/* School List */}
+        <FlatList
+          data={filteredSchools}
+          renderItem={renderSchoolCard}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingBottom: 90, paddingTop: 12 }}
+          showsVerticalScrollIndicator={false}
+        />
+      </View>
       <Footer/>
     </SafeAreaView>
   );
@@ -132,21 +158,21 @@ export default function School2() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#fff", // ✅ BODY WHITE
   },
 
-  /* ===== HEADER (MATCHES SCHOOL1) ===== */
+  /* Header Wrapper for SafeArea */
   headerWrapper: {
     backgroundColor: "#0052A2",
   },
 
   header: {
-    height: Platform.OS === "ios" ? 52 : 64,
+    height: Platform.OS === "ios" ? 52 : 64, // ⬆️ more height
     backgroundColor: "#0052A2",
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingVertical: Platform.OS === "ios" ? 6 : 8,
+    paddingVertical: Platform.OS === "ios" ? 6 : 8, // ⬆️ soft padding
   },
 
   backBtn: {
@@ -167,111 +193,110 @@ const styles = StyleSheet.create({
     width: 40,
   },
 
-  /* ===== BODY ===== */
-  container: {
-    padding: 16,
-    paddingBottom: 40,
+  body: {
+    flex: 1,
+    backgroundColor: "#fff",
   },
 
-  greeting: {
-    fontSize: isTablet ? 20 : 16,
-    marginBottom: 10,
+  /* Filters */
+  filterRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 12,
+    marginTop: 14,
+    marginBottom: 14,
   },
 
-  hello: {
-    color: "#0070C0",
+  filterInput: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    flex: 0.48,
   },
 
-  name: {
-    color: "#003366",
+  /* Categories */
+  categories: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+
+  categoryBtn: {
+    paddingHorizontal: 6,
+    paddingBottom: 6,
+  },
+
+  categoryText: {
+    fontSize: 14,
+    color: "#333",
+  },
+
+  activeCategory: {
+    borderBottomWidth: 2,
+    borderBottomColor: "#0052A2",
+  },
+
+  activeCategoryText: {
+    color: "#0052A2",
     fontWeight: "bold",
   },
 
-  imageContainer: {
-    alignItems: "center",
-    marginVertical: 12,
+  /* Card */
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    marginHorizontal: 14,
+    marginBottom: 20,
+    padding: 16,
+    flexDirection: "row",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.12,
+    shadowRadius: 5,
+    elevation: 4,
+    minHeight: 110,
   },
 
   schoolImage: {
-    width: isTablet ? 150 : 100,
-    height: isTablet ? 150 : 100,
-    resizeMode: "contain",
+    width: 75,
+    height: 75,
+    borderRadius: 8,
+    marginRight: 16,
+  },
+
+  schoolInfo: {
+    flex: 1,
+    paddingRight: 70,
   },
 
   schoolName: {
-    textAlign: "center",
-    fontSize: isTablet ? 18 : 15,
-    fontWeight: "bold",
+    fontSize: 16,
+    fontWeight: "600",
     color: "#003366",
-    marginBottom: 12,
-  },
-
-  sectionTitle: {
-    fontSize: isTablet ? 18 : 15,
-    fontWeight: "bold",
-    color: "#003366",
-    marginVertical: 8,
-  },
-
-  description: {
-    fontSize: isTablet ? 16 : 14,
     lineHeight: 22,
-    textAlign: "justify",
-    marginBottom: 16,
-    color: "#333",
   },
 
-  text: {
-    fontSize: isTablet ? 16 : 14,
-    lineHeight: 22,
-    textAlign: "justify",
-    marginBottom: 12,
-    color: "#333",
+  readMoreBtn: {
+    position: "absolute",
+    bottom: -22,
+    right: -18,
+    backgroundColor: "#0052A2",
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderTopLeftRadius: 10,
+    borderBottomRightRadius: 12,
   },
 
-  photo: {
-    width: isTablet ? 120 : 80,
-    height: isTablet ? 120 : 80,
-    borderRadius: 6,
-    marginRight: 10,
-    resizeMode: "cover",
-  },
-
-  aboutContainer: {
-    flexDirection: "row",
-    marginBottom: 16,
-  },
-
-  aboutImage: {
-    width: isTablet ? 140 : 100,
-    height: isTablet ? 140 : 100,
-    borderRadius: 6,
-    marginRight: 10,
-    resizeMode: "cover",
-  },
-
-  aboutText: {
-    flex: 1,
-    fontSize: isTablet ? 16 : 14,
-    lineHeight: 22,
-    textAlign: "justify",
-    color: "#333",
-  },
-
-  contactRow: {
-    flexDirection: "row",
-    marginBottom: 20,
-  },
-
-  mapImage: {
-    width: 100,
-    height: 100,
-    marginRight: 10,
-  },
-
-  contactText: {
-    fontSize: isTablet ? 16 : 14,
-    lineHeight: 22,
-    color: "#333",
+  readMoreText: {
+    color: "#fff",
+    fontSize: 13,
+    fontWeight: "500",
   },
 });
