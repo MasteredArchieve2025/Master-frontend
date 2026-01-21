@@ -77,7 +77,7 @@ const College1 = () => {
       </View>
       <Footer/>
     </SafeAreaView>
-  );
+  )
 };
 
 // Styles

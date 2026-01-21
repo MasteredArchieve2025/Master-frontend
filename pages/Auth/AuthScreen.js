@@ -61,7 +61,6 @@ export default function AuthScreen() {
           );
         }
       }
-
       setLoading(true);
 
       if (mode === "login") {

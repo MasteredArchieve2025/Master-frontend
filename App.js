@@ -35,10 +35,8 @@ import Exam3 from "./pages/Exam/Exam3";
 import Iq1 from "./pages/IqTest/Iq1";
 import Iq2 from "./pages/IqTest/Iq2";
 import Iq3 from "./pages/IqTest/Iq3";
-import Iq4 from "./pages/IqTest/Iq4";
-import Iq5 from "./pages/IqTest/Iq5";
-import Iq6 from "./pages/IqTest/Iq6";
-import Iq7 from "./pages/IqTest/Iq7";
+import IqResult from "./pages/IqTest/IqResult";
+
 
 import Extraskills1 from "./pages/Extraskills/Extraskills1";
 import Extraskills2 from "./pages/Extraskills/Extraskills2";
@@ -85,10 +83,9 @@ export default function App() {
         <Stack.Screen name="Iq1" component={Iq1} />
         <Stack.Screen name="Iq2" component={Iq2} />
         <Stack.Screen name="Iq3" component={Iq3} />
-        <Stack.Screen name="Iq4" component={Iq4} />
-        <Stack.Screen name="Iq5" component={Iq5} />
-        <Stack.Screen name="Iq6" component={Iq6} />
-        <Stack.Screen name="Iq7" component={Iq7} />
+        <Stack.Screen name="IqResult" component={IqResult} />
+
+       
 
         <Stack.Screen name="Extraskills1" component={Extraskills1} />
         <Stack.Screen name="Extraskills2" component={Extraskills2} />
