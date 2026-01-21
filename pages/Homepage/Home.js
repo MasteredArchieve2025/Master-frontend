@@ -22,7 +22,6 @@ import {
 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
-import { Video } from "expo-av";
 import Header from "../../src/components/Header";
 import Footer from "../../src/components/Footer";
 
@@ -35,7 +34,6 @@ const RIBBON_RIGHT = require("../../assets/Ribbonright.png");
 const collegeIcon = require("../../assets/collegeicon.png");
 
 ////////////////////////////////////////
-/////////////////////////////////////////
 // 🔵 BANNER DATA (DEFINE FIRST)
 ////////////////////////////////////////
 const bannerData = [
@@ -236,180 +234,101 @@ const ChoiceItemRibbon = ({ item, index, navigation }) => {
 };
 
 ////////////////////////////////////////
-// Courses Component
+// Blogs Component
 ////////////////////////////////////////
-const COURSES_DATA = [
+const blogsData = [
   {
     id: "1",
-    title: "Web Development",
-    duration: "3 to 6 Months",
-    rating: 4.0,
-    image: "https://picsum.photos/seed/picsum1/300/200",
+    title: "10 Tips for Engineering Students",
+    category: "Education",
+    date: "Jan 15, 2025",
+    readTime: "5 min read",
+    image:
+      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=250&fit=crop",
   },
   {
     id: "2",
-    title: "UI/UX Design",
-    duration: "3 to 6 Months",
-    rating: 4.0,
-    image: "https://picsum.photos/seed/picsum2/300/200",
+    title: "Career Opportunities in AI",
+    category: "Technology",
+    date: "Jan 12, 2025",
+    readTime: "7 min read",
+    image:
+      "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop",
   },
   {
     id: "3",
-    title: "Full Stack",
-    duration: "3 to 6 Months",
-    rating: 4.0,
-    image: "https://picsum.photos/seed/picsum3/300/200",
+    title: "Exam Preparation Strategies",
+    category: "Study Tips",
+    date: "Jan 10, 2025",
+    readTime: "6 min read",
+    image:
+      "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w-400&h=250&fit=crop",
   },
   {
     id: "4",
-    title: "Data Analytics",
-    duration: "3 to 6 Months",
-    rating: 4.0,
-    image: "https://picsum.photos/seed/picsum4/300/200",
-  },
-  {
-    id: "5",
-    title: "DevOps",
-    duration: "2 to 4 Months",
-    rating: 4.5,
-    image: "https://picsum.photos/seed/picsum5/300/200",
-  },
-  {
-    id: "6",
-    title: "Machine Learning",
-    duration: "6 to 12 Months",
-    rating: 4.8,
-    image: "https://picsum.photos/seed/picsum6/300/200",
+    title: "Developing Soft Skills",
+    category: "Personal Development",
+    date: "Jan 8, 2025",
+    readTime: "8 min read",
+    image:
+      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w-400&h=250&fit=crop",
   },
 ];
 
-const CourseCard = ({ course }) => (
-  <View style={styles.courseCard}>
-    <Image source={{ uri: course.image }} style={styles.cardImage} />
-    <View style={styles.cardContent}>
-      <Text style={styles.cardTitle}>{course.title}</Text>
-      <Text style={styles.cardDuration}>Duration: {course.duration}</Text>
-
-      <View style={styles.ratingContainer}>
-        <Text style={styles.ratingText}>
-          {"★".repeat(Math.floor(course.rating))}
-        </Text>
-        <Text style={styles.ratingText}>
-          {"☆".repeat(5 - Math.floor(course.rating))}
-        </Text>
-        <Text style={styles.ratingNumber}> {course.rating.toFixed(1)}</Text>
+const BlogCard = ({ blog }) => (
+  <TouchableOpacity
+    style={styles.blogCard}
+    onPress={() => Alert.alert("Blog", `You selected: ${blog.title}`)}
+    activeOpacity={0.8}
+  >
+    <Image source={{ uri: blog.image }} style={styles.blogImage} />
+    <View style={styles.blogContent}>
+      <View style={styles.blogCategory}>
+        <Text style={styles.blogCategoryText}>{blog.category}</Text>
       </View>
-
-      <TouchableOpacity
-        style={styles.detailsButton}
-        onPress={() => Alert.alert("Details", `You selected ${course.title}`)}
-      >
-        <Text style={styles.detailsButtonText}>Details</Text>
-        <View style={styles.arrowCircle}>
-          <Ionicons name="arrow-forward" size={10} color="#fff" />
+      <Text style={styles.blogTitle} numberOfLines={2}>
+        {blog.title}
+      </Text>
+      <View style={styles.blogMeta}>
+        <View style={styles.blogMetaItem}>
+          <Ionicons name="calendar-outline" size={12} color="#666" />
+          <Text style={styles.blogMetaText}>{blog.date}</Text>
         </View>
-      </TouchableOpacity>
+        <View style={styles.blogMetaItem}>
+          <Ionicons name="time-outline" size={12} color="#666" />
+          <Text style={styles.blogMetaText}>{blog.readTime}</Text>
+        </View>
+      </View>
     </View>
-  </View>
+  </TouchableOpacity>
 );
 
-////////////////////////////////////////
-// Online Tutorials Component
-////////////////////////////////////////
-const tutorialsData = [
-  {
-    id: "1",
-    title: "Canva Graphic Design",
-    subtitle: "Course - Beginner",
-    duration: "2h 30m",
-    videoUrl:
-      "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-  },
-  {
-    id: "2",
-    title: "Canva Graphic Design",
-    subtitle: "Course - Beginner",
-    duration: "2h 30m",
-    videoUrl:
-      "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-  },
-  {
-    id: "3",
-    title: "Canva Graphic Design",
-    subtitle: "Course - Beginner",
-    duration: "2h 30m",
-    videoUrl:
-      "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-  },
-];
-
-const TutorialItem = ({ item }) => {
-  const videoRef = useRef(null);
-  const [paused, setPaused] = useState(true);
-
-  const togglePlay = async () => {
-    if (videoRef.current) {
-      if (paused) {
-        await videoRef.current.playAsync();
-      } else {
-        await videoRef.current.pauseAsync();
-      }
-      setPaused(!paused);
-    }
-  };
+const ViewBlogsSection = () => {
+  const navigation = useNavigation();
 
   return (
-    <View style={tutorialStyles.itemContainer}>
-      <Video
-        ref={videoRef}
-        source={{ uri: item.videoUrl }}
-        style={tutorialStyles.thumbnail}
-        resizeMode="cover"
-        shouldPlay={!paused}
-        isLooping
-        useNativeControls={false}
-        isMuted
-        usePoster
-        posterSource={{ uri: item.thumbnail }}
-        posterStyle={{ resizeMode: "cover" }}
-      />
-
-      <View style={tutorialStyles.bottomContent}>
+    <View style={styles.section}>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>VIEW BLOGS</Text>
         <TouchableOpacity
-          onPress={togglePlay}
-          style={tutorialStyles.playCircle}
-          activeOpacity={0.8}
+          style={styles.viewAllButton}
+          onPress={() => navigation.navigate("BlogsList")}
         >
-          <Feather name={paused ? "play" : "pause"} size={20} color="#fff" />
+          <Text style={styles.viewAllButtonText}>View All</Text>
         </TouchableOpacity>
-
-        <View style={tutorialStyles.textCol}>
-          <Text style={tutorialStyles.title} numberOfLines={1}>
-            {item.title}
-          </Text>
-          <View style={tutorialStyles.durationRow}>
-            <Feather name="clock" size={14} color="#9aa0a6" />
-            <Text style={tutorialStyles.duration}>{item.duration}</Text>
-          </View>
-        </View>
       </View>
+
+      <FlatList
+        data={blogsData}
+        renderItem={({ item }) => <BlogCard blog={item} />}
+        keyExtractor={(item) => item.id}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.blogsList}
+      />
     </View>
   );
 };
-
-const OnlineTutorials = () => (
-  <View style={styles.section}>
-    <Text style={styles.sectionTitle}>ONLINE TUTORIALS</Text>
-    <FlatList
-      data={tutorialsData}
-      renderItem={({ item }) => <TutorialItem item={item} />}
-      keyExtractor={(item) => item.id}
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={tutorialStyles.list}
-    />
-  </View>
-);
 
 ////////////////////////////////////////
 // Top Rated Colleges Component
@@ -500,8 +419,6 @@ const TopRateColleges = () => {
 ////////////////////////////////////////
 const HomeScreen = () => {
   const navigation = useNavigation();
-  const [showAll, setShowAll] = useState(false);
-  const coursesToShow = showAll ? COURSES_DATA : COURSES_DATA.slice(0, 4);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -527,32 +444,10 @@ const HomeScreen = () => {
           ))}
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>RECENTLY UPLOADED COURSES</Text>
-          <FlatList
-            data={coursesToShow}
-            renderItem={({ item }) => <CourseCard course={item} />}
-            keyExtractor={(item) => item.id}
-            numColumns={2}
-            scrollEnabled={false}
-            contentContainerStyle={styles.listContainer}
-            columnWrapperStyle={styles.row}
-          />
-          {COURSES_DATA.length > 4 && (
-            <View style={styles.moreButtonContainer}>
-              <TouchableOpacity
-                style={styles.moreButton}
-                onPress={() => setShowAll(!showAll)}
-              >
-                <Text style={styles.moreButtonText}>
-                  {showAll ? "Less" : "More"}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
+        {/* ADDED: View Blogs Section */}
+        <ViewBlogsSection />
 
-        <OnlineTutorials />
+        {/* Top Rated Colleges Section */}
         <TopRateColleges />
       </ScrollView>
 
@@ -709,114 +604,92 @@ const styles = StyleSheet.create({
   section: {
     paddingHorizontal: 20,
     marginTop: 20,
-    padding: 10,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
     color: TITLE,
-    marginBottom: 18,
   },
-  row: {
-    justifyContent: "space-between",
-    alignItems: "center",
+  // Blogs Styles
+  blogsList: {
+    paddingRight: 20,
   },
-  courseCard: {
-    width: "46%",
-    height: 189,
+  blogCard: {
+    width: 200,
+    marginRight: 16,
     backgroundColor: "#fff",
-    borderRadius: 10,
-    margin: "2%",
+    borderRadius: 12,
     overflow: "hidden",
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
-  cardImage: {
+  blogImage: {
     width: "100%",
-    height: 100,
+    height: 120,
     resizeMode: "cover",
   },
-  cardContent: {
-    paddingLeft: 4,
+  blogContent: {
+    padding: 12,
   },
-  cardTitle: {
-    fontSize: 12,
-    fontWeight: "700",
-    marginBottom: 2,
-    color: "#000",
+  blogCategory: {
+    alignSelf: "flex-start",
+    backgroundColor: "#F0F7FF",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    marginBottom: 8,
   },
-  cardDuration: {
+  blogCategoryText: {
     fontSize: 10,
-    color: "#555",
-    marginBottom: 4,
-  },
-  ratingContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 4,
-  },
-  ratingText: {
-    color: "#FFA500",
-    fontSize: 10,
-  },
-  ratingNumber: {
-    color: "#000",
-    fontSize: 10,
-    marginLeft: 4,
-  },
-  detailsButton: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderTopWidth: 1,
-    borderColor: "#eee",
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    backgroundColor: "#fff",
-  },
-  detailsButtonText: {
-    fontSize: 13,
-    color: "#004377",
     fontWeight: "600",
+    color: "#0072BC",
   },
-  arrowCircle: {
-    width: 20,
-    height: 20,
-    borderRadius: 15,
-    backgroundColor: "#004377",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  moreButtonContainer: {
-    alignItems: "flex-end",
-    marginTop: 10,
-    marginBottom: 20,
-    marginRight: 12,
-  },
-  moreButton: {
-    backgroundColor: "#005AA1",
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 30,
-  },
-  moreButtonText: {
-    color: "#fff",
+  blogTitle: {
     fontSize: 14,
     fontWeight: "600",
+    color: "#003366",
+    lineHeight: 18,
+    marginBottom: 8,
   },
+  blogMeta: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  blogMetaItem: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  blogMetaText: {
+    fontSize: 10,
+    color: "#666",
+    marginLeft: 4,
+  },
+  // Top Colleges Styles
   topCollegeContainer: {
     paddingHorizontal: 20,
-    marginTop: 20,
+    marginTop: 30,
+    marginBottom: 20,
   },
   topCollegeHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 12,
-    paddingTop: 30,
   },
   listItemContainer: {
     flexDirection: "row",
@@ -859,7 +732,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "700",
     color: TITLE,
-    marginBottom: 12,
   },
   viewAllButton: {
     backgroundColor: "#003366",
@@ -872,71 +744,12 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 14,
   },
-});
-
-const tutorialStyles = StyleSheet.create({
-  itemContainer: {
-    marginRight: 16,
-    marginBottom: 20,
-    width: 200,
-    borderRadius: 12,
-    backgroundColor: "#fff",
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    overflow: "hidden",
-  },
-  thumbnail: {
-    width: "100%",
-    height: 120,
-    backgroundColor: "transparent",
-  },
-  bottomContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    backgroundColor: "#fff",
-  },
-  playCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#005AA1",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 10,
-  },
-  textCol: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#000",
-    marginBottom: 3,
-  },
-  durationRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 1,
-  },
-  duration: {
-    marginLeft: 4,
-    fontSize: 12,
-    color: "#757575",
-  },
-
   dotsRow: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     marginTop: 10,
   },
-
   dot: {
     width: 8,
     height: 8,
@@ -944,7 +757,6 @@ const tutorialStyles = StyleSheet.create({
     backgroundColor: "#B0CFEA",
     marginHorizontal: 5,
   },
-
   activeDot: {
     width: 20,
     backgroundColor: "#014B85",
