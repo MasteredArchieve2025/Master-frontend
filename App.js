@@ -48,6 +48,14 @@ import Tution1 from "./pages/Tutions/Tutions1";
 import Tution2 from "./pages/Tutions/Tutions2";
 import Tution3 from "./pages/Tutions/Tutions3";
 
+
+import BlogsScreen from "./pages/Blogs/BlogsScreen";
+import BlogDetailScreen from "./pages/Blogs/BlogDetailScreen";
+
+
+
+
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -72,7 +80,7 @@ export default function App() {
         <Stack.Screen name="School2" component={School2} />
 
       
-        <Stack.Screen name="College0"component={College0}/>
+        
 
         <Stack.Screen name="College1" component={College1} />
         <Stack.Screen name="College2" component={College2} />
@@ -103,6 +111,12 @@ export default function App() {
          <Stack.Screen name="Tutions1" component={Tution1} />
          <Stack.Screen name="Tutions2" component={Tution2} />
          <Stack.Screen name="Tutions3" component={Tution3} />
+
+
+
+         <Stack.Screen name="BlogsScreen" component={BlogsScreen} />
+<Stack.Screen name="BlogDetailScreen" component={BlogDetailScreen} />
+
 
       </Stack.Navigator>
     </NavigationContainer>
