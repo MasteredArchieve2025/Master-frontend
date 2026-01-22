@@ -75,7 +75,7 @@ const College2 = ({ route }) => {
             <TouchableOpacity
               key={index}
               style={styles.card}
-              onPress={() => navigation.navigate("College3", { degree })}
+              onPress={() => navigation.navigate("College0", { degree })}
             >
               <Text style={styles.cardText}>{degree}</Text>
             </TouchableOpacity>

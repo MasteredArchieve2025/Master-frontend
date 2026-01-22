@@ -750,7 +750,8 @@ const styles = StyleSheet.create({
 
   videoBox: {
     margin: 2,
-    marginTop:32,
+    marginTop:32
+    ,
     overflow: "hidden",
     backgroundColor: "#000",
   },
