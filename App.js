@@ -18,7 +18,7 @@ import Feedback from "./pages/Feedback/Feedback";
 import School1 from "./pages/School/School1";
 import School2 from "./pages/School/School2";
 
-
+import College0 from "./pages/College/College0";
 import College1 from "./pages/College/College1";
 import College2 from "./pages/College/College2";
 import College3 from "./pages/College/College3";
@@ -52,9 +52,10 @@ import Tution3 from "./pages/Tutions/Tutions3";
 import BlogsScreen from "./pages/Blogs/BlogsScreen";
 import BlogDetailScreen from "./pages/Blogs/BlogDetailScreen";
 
-
-
-
+import Collegecourse1 from "./pages/Collegecourse.js/Collegecourse1";
+import Collegecourse2 from "./pages/Collegecourse.js/Collegecourse2";
+import Collegecourse3 from "./pages/Collegecourse.js/Collegecourse3";
+import Collegecourse4 from "./pages/Collegecourse.js/Collegecourse4";
 
 const Stack = createNativeStackNavigator();
 
@@ -81,6 +82,7 @@ export default function App() {
 
       
         
+                <Stack.Screen name="College0" component={College0} />
 
         <Stack.Screen name="College1" component={College1} />
         <Stack.Screen name="College2" component={College2} />
@@ -116,6 +118,11 @@ export default function App() {
 
          <Stack.Screen name="BlogsScreen" component={BlogsScreen} />
 <Stack.Screen name="BlogDetailScreen" component={BlogDetailScreen} />
+
+         <Stack.Screen name="Collegecourse1" component={Collegecourse1} />
+                  <Stack.Screen name="Collegecourse2" component={Collegecourse2} />
+                  <Stack.Screen name="Collegecourse3" component={Collegecourse3} />
+                  <Stack.Screen name="Collegecourse4" component={Collegecourse4} />
 
 
       </Stack.Navigator>
