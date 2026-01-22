@@ -236,73 +236,107 @@ const ChoiceItemRibbon = ({ item, index, navigation }) => {
 ////////////////////////////////////////
 // Blogs Component
 ////////////////////////////////////////
+
 const blogsData = [
   {
     id: "1",
-    title: "10 Tips for Engineering Students",
-    category: "Education",
-    date: "Jan 15, 2025",
-    readTime: "5 min read",
+    title: "New Engineering Syllabus Announced",
+    category: "NEWS",
+    date: "2 hrs ago",
+    readTime: "Curriculum Update",
     image:
       "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=250&fit=crop",
+    description:
+      "The University board has released the updated curriculum focusing on AI and sustainable energy.",
   },
   {
     id: "2",
-    title: "Career Opportunities in AI",
-    category: "Technology",
-    date: "Jan 12, 2025",
-    readTime: "7 min read",
+    title: "5 Study Hacks to Boost Your IQ",
+    category: "BLOG",
+    date: "Yesterday",
+    readTime: "Study Tips",
     image:
-      "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop",
+      "https://images.unsplash.com/photo-1456513080510-34499c4359ce?w=400&h=250&fit=crop",
+    description:
+      "Discover scientifically proven methods to enhance memory retention and focus during exams.",
   },
   {
     id: "3",
-    title: "Exam Preparation Strategies",
-    category: "Study Tips",
-    date: "Jan 10, 2025",
-    readTime: "6 min read",
+    title: "Scholarship Applications Now Open",
+    category: "NEWS",
+    date: "Oct 24",
+    readTime: "Scholarship",
     image:
-      "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w-400&h=250&fit=crop",
+      "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=250&fit=crop",
+    description:
+      "Arunachala College announces new merit-based scholarships for top performing students.",
   },
   {
     id: "4",
-    title: "Developing Soft Skills",
-    category: "Personal Development",
-    date: "Jan 8, 2025",
-    readTime: "8 min read",
+    title: "Online Learning Platforms 2025",
+    category: "BLOG",
+    date: "Oct 22",
+    readTime: "Technology",
     image:
-      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w-400&h=250&fit=crop",
+      "https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?w=400&h=250&fit=crop",
+    description:
+      "A comprehensive review of top online education platforms for 2025.",
   },
 ];
 
-const BlogCard = ({ blog }) => (
-  <TouchableOpacity
-    style={styles.blogCard}
-    onPress={() => Alert.alert("Blog", `You selected: ${blog.title}`)}
-    activeOpacity={0.8}
-  >
-    <Image source={{ uri: blog.image }} style={styles.blogImage} />
-    <View style={styles.blogContent}>
-      <View style={styles.blogCategory}>
-        <Text style={styles.blogCategoryText}>{blog.category}</Text>
-      </View>
-      <Text style={styles.blogTitle} numberOfLines={2}>
-        {blog.title}
-      </Text>
-      <View style={styles.blogMeta}>
-        <View style={styles.blogMetaItem}>
-          <Ionicons name="calendar-outline" size={12} color="#666" />
-          <Text style={styles.blogMetaText}>{blog.date}</Text>
-        </View>
-        <View style={styles.blogMetaItem}>
-          <Ionicons name="time-outline" size={12} color="#666" />
-          <Text style={styles.blogMetaText}>{blog.readTime}</Text>
-        </View>
-      </View>
-    </View>
-  </TouchableOpacity>
-);
+////////////////////////////////////////
+// BLOG CARD COMPONENT
+////////////////////////////////////////
+const BlogCard = ({ blog }) => {
+  const navigation = useNavigation();
 
+  // Determine badge color based on category
+  const getBadgeStyle = (category) => {
+    return category === "NEWS" ? styles.newsBadge : styles.blogBadge;
+  };
+
+  return (
+    <TouchableOpacity
+      style={styles.blogCard}
+      onPress={() =>
+        navigation.navigate("BlogDetailScreen", {
+          blogId: blog.id,
+          blogTitle: blog.title,
+          blogType: blog.category,
+          blogTime: blog.date,
+          blogDate: blog.date,
+          blogCategory: blog.readTime,
+          blogImage: blog.image,
+          blogDescription: blog.description,
+        })
+      }
+      activeOpacity={0.8}
+    >
+      <Image source={{ uri: blog.image }} style={styles.blogImage} />
+      <View style={styles.blogContent}>
+        <View style={styles.blogHeader}>
+          <View style={[styles.blogCategory, getBadgeStyle(blog.category)]}>
+            <Text style={styles.blogCategoryText}>{blog.category}</Text>
+          </View>
+          <Text style={styles.blogTime}>{blog.date}</Text>
+        </View>
+        <Text style={styles.blogTitle} numberOfLines={2}>
+          {blog.title}
+        </Text>
+        <View style={styles.blogMeta}>
+          <View style={styles.blogMetaItem}>
+            <Ionicons name="document-text-outline" size={12} color="#666" />
+            <Text style={styles.blogMetaText}>{blog.readTime}</Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+////////////////////////////////////////
+// VIEW BLOGS SECTION COMPONENT
+////////////////////////////////////////
 const ViewBlogsSection = () => {
   const navigation = useNavigation();
 
@@ -312,7 +346,7 @@ const ViewBlogsSection = () => {
         <Text style={styles.sectionTitle}>VIEW BLOGS</Text>
         <TouchableOpacity
           style={styles.viewAllButton}
-          onPress={() => navigation.navigate("BlogsList")}
+          onPress={() => navigation.navigate("BlogsScreen")}
         >
           <Text style={styles.viewAllButtonText}>View All</Text>
         </TouchableOpacity>
