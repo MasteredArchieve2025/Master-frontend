@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,10 +10,20 @@ import {
   Platform,
   StatusBar,
   SafeAreaView,
+  ScrollView,
+  useWindowDimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { WebView } from "react-native-webview";
 import Footer from "../../src/components/Footer";
+
+/* ===== AD BANNERS (SAME AS TUTION2) ===== */
+const bannerAds = [
+  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
+  "https://images.unsplash.com/photo-1509062522246-3755977927d7",
+  "https://images.unsplash.com/photo-1551650975-87deedd944c3",
+];
 
 const schools = [
   {
@@ -48,9 +58,26 @@ const schools = [
   },
 ];
 
-export default function school2() {
+export default function School2() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const navigation = useNavigation();
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 768;
+
+  /* Banner logic */
+  const bannerRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => {
+        const next = (prev + 1) % bannerAds.length;
+        bannerRef.current?.scrollTo({ x: next * width, animated: true });
+        return next;
+      });
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [width]);
 
   const filteredSchools =
     selectedCategory === "All"
@@ -64,7 +91,7 @@ export default function school2() {
         <Text style={styles.schoolName}>{item.name}</Text>
         <TouchableOpacity
           style={styles.readMoreBtn}
-          onPress={() => navigation.navigate("School2", { school: item })}
+          onPress={() => navigation.navigate("School3", { school: item })}
         >
           <Text style={styles.readMoreText}>Read more &gt;</Text>
         </TouchableOpacity>
@@ -76,7 +103,7 @@ export default function school2() {
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="light-content" backgroundColor="#0052A2" />
 
-      {/* Header */}
+      {/* HEADER */}
       <View style={styles.headerWrapper}>
         <View style={styles.header}>
           <TouchableOpacity
@@ -91,14 +118,48 @@ export default function school2() {
           </TouchableOpacity>
 
           <Text style={styles.headerTitle}>Schools</Text>
-
           <View style={styles.rightSpace} />
         </View>
       </View>
 
-      {/* Body */}
-      <View style={styles.body}>
-        {/* Filters */}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* ===== TOP AD BANNER ===== */}
+        <ScrollView
+          ref={bannerRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={(e) =>
+            setActiveIndex(Math.round(e.nativeEvent.contentOffset.x / width))
+          }
+        >
+          {bannerAds.map((img, i) => (
+            <Image
+              key={i}
+              source={{ uri: img }}
+              style={{
+                width,
+                height: isTablet ? 150 : 180,
+              }}
+              resizeMode="cover"
+            />
+          ))}
+        </ScrollView>
+
+        {/* DOTS */}
+        <View style={styles.dots}>
+          {bannerAds.map((_, i) => (
+            <View
+              key={i}
+              style={[
+                styles.dot,
+                activeIndex === i && styles.activeDot,
+              ]}
+            />
+          ))}
+        </View>
+
+        {/* FILTERS */}
         <View style={styles.filterRow}>
           <View style={styles.filterInput}>
             <TextInput
@@ -118,7 +179,7 @@ export default function school2() {
           </View>
         </View>
 
-        {/* Categories */}
+        {/* CATEGORIES */}
         <View style={styles.categories}>
           {["All", "Govt.School", "State Board", "CBSE", "ICSE"].map((cat) => (
             <TouchableOpacity
@@ -132,7 +193,8 @@ export default function school2() {
               <Text
                 style={[
                   styles.categoryText,
-                  selectedCategory === cat && styles.activeCategoryText,
+                  selectedCategory === cat &&
+                    styles.activeCategoryText,
                 ]}
               >
                 {cat}
@@ -141,102 +203,105 @@ export default function school2() {
           ))}
         </View>
 
-        {/* School List */}
+        {/* SCHOOL LIST */}
         <FlatList
           data={filteredSchools}
           renderItem={renderSchoolCard}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingBottom: 90, paddingTop: 12 }}
-          showsVerticalScrollIndicator={false}
+          scrollEnabled={false}
+          contentContainerStyle={{ paddingTop: 12 }}
         />
-      </View>
-      <Footer/>
+
+        {/* ===== VIDEO AD ===== */}
+        <View style={styles.videoBox}>
+          <WebView
+            allowsFullscreenVideo
+            source={{
+              uri: "https://www.youtube.com/watch?v=NONufn3jgXI",
+            }}
+            style={{ height: isTablet ? 260 : 220 }}
+          />
+        </View>
+
+        <View style={{ height: 120 }} />
+      </ScrollView>
+
+      <Footer />
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: "#fff", // ✅ BODY WHITE
-  },
+/* ================= STYLES ================= */
 
-  /* Header Wrapper for SafeArea */
-  headerWrapper: {
-    backgroundColor: "#0052A2",
-  },
+const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: "#fff" },
+
+  headerWrapper: { backgroundColor: "#0052A2" },
 
   header: {
-    height: Platform.OS === "ios" ? 52 : 64, // ⬆️ more height
-    backgroundColor: "#0052A2",
+    height: Platform.OS === "ios" ? 52 : 64,
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingVertical: Platform.OS === "ios" ? 6 : 8, // ⬆️ soft padding
   },
 
-  backBtn: {
-    width: 40,
-    justifyContent: "center",
-    alignItems: "flex-start",
-  },
+  backBtn: { width: 40 },
+  rightSpace: { width: 40 },
 
   headerTitle: {
     flex: 1,
     textAlign: "center",
-    fontSize: Platform.OS === "ios" ? 17 : 18,
-    fontWeight: Platform.OS === "ios" ? "600" : "700",
+    fontSize: 18,
+    fontWeight: "700",
     color: "#fff",
   },
 
-  rightSpace: {
-    width: 40,
+  dots: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginVertical: 8,
   },
 
-  body: {
-    flex: 1,
-    backgroundColor: "#fff",
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#ccc",
+    marginHorizontal: 4,
   },
 
-  /* Filters */
+  activeDot: {
+    width: 16,
+    backgroundColor: "#0B5ED7",
+  },
+
   filterRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 12,
-    marginTop: 14,
-    marginBottom: 14,
+    marginVertical: 14,
   },
 
   filterInput: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 20,
     paddingHorizontal: 10,
-    paddingVertical: 4,
     flex: 0.48,
   },
 
-  /* Categories */
   categories: {
     flexDirection: "row",
     justifyContent: "space-around",
-    paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
+    paddingVertical: 8,
   },
 
-  categoryBtn: {
-    paddingHorizontal: 6,
-    paddingBottom: 6,
-  },
-
-  categoryText: {
-    fontSize: 14,
-    color: "#333",
-  },
+  categoryBtn: { paddingBottom: 6 },
+  categoryText: { fontSize: 14, color: "#333" },
 
   activeCategory: {
     borderBottomWidth: 2,
@@ -248,7 +313,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
-  /* Card */
   card: {
     backgroundColor: "#fff",
     borderRadius: 12,
@@ -256,12 +320,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     padding: 16,
     flexDirection: "row",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.12,
-    shadowRadius: 5,
     elevation: 4,
-    minHeight: 110,
   },
 
   schoolImage: {
@@ -271,16 +330,12 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
 
-  schoolInfo: {
-    flex: 1,
-    paddingRight: 70,
-  },
+  schoolInfo: { flex: 1, paddingRight: 70 },
 
   schoolName: {
     fontSize: 16,
     fontWeight: "600",
     color: "#003366",
-    lineHeight: 22,
   },
 
   readMoreBtn: {
@@ -298,5 +353,13 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 13,
     fontWeight: "500",
+  },
+
+  videoBox: {
+    marginHorizontal: 16,
+    marginTop: 30,
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: "#000",
   },
 });

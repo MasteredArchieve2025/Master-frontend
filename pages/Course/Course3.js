@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -13,12 +13,22 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { WebView } from "react-native-webview";
 import Footer from "../../src/components/Footer";
+
 const { width } = Dimensions.get("window");
 const isTablet = width >= 768;
 
 const logo = require("../../assets/AKlogo.png");
 
+/* -------- BANNER ADS -------- */
+const bannerAds = [
+  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
+  "https://images.unsplash.com/photo-1509062522246-3755977927d7",
+  "https://images.unsplash.com/photo-1551650975-87deedd944c3",
+];
+
+/* -------- COURSE DATA -------- */
 const coursesData = [
   {
     id: 1,
@@ -61,8 +71,26 @@ const coursesData = [
 
 export default function Course3({ route }) {
   const navigation = useNavigation();
-  const { title } = route.params || {};
   const [selectedMode, setSelectedMode] = useState("All");
+
+  /* -------- BANNER LOGIC -------- */
+  const bannerRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => {
+        const next = (prev + 1) % bannerAds.length;
+        bannerRef.current?.scrollTo({
+          x: next * width,
+          animated: true,
+        });
+        return next;
+      });
+    }, 3000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -83,96 +111,149 @@ export default function Course3({ route }) {
           </TouchableOpacity>
 
           <Text style={styles.headerTitle}>Course Information</Text>
-
           <View style={styles.rightSpace} />
         </View>
       </View>
 
-      {/* ---------- BODY ---------- */}
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={{ paddingBottom: 30 }}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Mode Tabs */}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* ---------- TOP BANNER ---------- */}
         <ScrollView
+          ref={bannerRef}
           horizontal
+          pagingEnabled
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.tabs}
+          onMomentumScrollEnd={(e) =>
+            setActiveIndex(
+              Math.round(e.nativeEvent.contentOffset.x / width)
+            )
+          }
         >
-          {["All", "Offline", "Online"].map((t) => (
-            <TouchableOpacity
-              key={t}
-              onPress={() => setSelectedMode(t)}
-              style={styles.tab}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  selectedMode === t && styles.activeTabText,
-                ]}
-              >
-                {t}
-              </Text>
-              {selectedMode === t && <View style={styles.underline} />}
-            </TouchableOpacity>
+          {bannerAds.map((img, i) => (
+            <Image
+              key={i}
+              source={{ uri: img }}
+              style={{ width, height: isTablet ? 160 : 190 }}
+              resizeMode="cover"
+            />
           ))}
         </ScrollView>
 
-        {/* Courses List */}
-        {coursesData.map((course) => {
-          const displayedCourses = course.offered.filter((off) =>
-            selectedMode === "All"
-              ? true
-              : off.mode.toLowerCase().includes(selectedMode.toLowerCase())
-          );
+        {/* DOT INDICATORS */}
+        <View style={styles.dots}>
+          {bannerAds.map((_, i) => (
+            <View
+              key={i}
+              style={[styles.dot, activeIndex === i && styles.activeDot]}
+            />
+          ))}
+        </View>
 
-          return (
-            <View key={course.id} style={styles.courseBlock}>
-              <View style={styles.logoCard}>
-                <Image source={course.logo} style={styles.logo} />
-              </View>
-
-              <View style={styles.courseInfo}>
-                <Text style={styles.provider}>{course.provider}</Text>
-
-                <Text style={styles.offeredLine}>
-                  <Text style={{ fontWeight: "700" }}>Courses Offered: </Text>
-                  {displayedCourses.map((c) => c.name).join(", ")}
+        {/* ---------- BODY ---------- */}
+        <View style={styles.container}>
+          {/* MODE TABS */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.tabs}
+          >
+            {["All", "Offline", "Online"].map((t) => (
+              <TouchableOpacity
+                key={t}
+                onPress={() => setSelectedMode(t)}
+                style={styles.tab}
+              >
+                <Text
+                  style={[
+                    styles.tabText,
+                    selectedMode === t && styles.activeTabText,
+                  ]}
+                >
+                  {t}
                 </Text>
+                {selectedMode === t && <View style={styles.underline} />}
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
 
-                <Text style={styles.mode}>
-                  <Text style={{ fontWeight: "700" }}>Mode: </Text>
-                  {selectedMode === "All" ? course.mode : selectedMode}
-                </Text>
+          {/* COURSE CARDS */}
+          {coursesData.map((course) => {
+            const displayedCourses = course.offered.filter((off) =>
+              selectedMode === "All"
+                ? true
+                : off.mode
+                    .toLowerCase()
+                    .includes(selectedMode.toLowerCase())
+            );
 
-                <Text style={styles.website}>
-                  <Text style={{ fontWeight: "700" }}>Website: </Text>
-                  {course.website}
-                </Text>
-
-                <View style={styles.footer}>
-                  <Text style={styles.footerItem}>📄 Certificate</Text>
-                  <Text style={styles.footerItem}>🛠 Technical Training</Text>
-                  <TouchableOpacity
-                    style={styles.moreButton}
-                    onPress={() =>
-                      navigation.navigate("Course4", { course })
-                    }
-                  >
-                    <Text style={styles.moreText}>More</Text>
-                  </TouchableOpacity>
+            return (
+              <TouchableOpacity
+                key={course.id}
+                activeOpacity={0.85}
+                style={styles.courseBlock}
+                onPress={() =>
+                  navigation.navigate("Course4", { course })
+                }
+              >
+                <View style={styles.logoCard}>
+                  <Image source={course.logo} style={styles.logo} />
                 </View>
-              </View>
-            </View>
-          );
-        })}
+
+                <View style={styles.courseInfo}>
+                  <Text style={styles.provider}>{course.provider}</Text>
+
+                  <Text style={styles.offeredLine}>
+                    <Text style={{ fontWeight: "700" }}>
+                      Courses Offered:{" "}
+                    </Text>
+                    {displayedCourses.map((c) => c.name).join(", ")}
+                  </Text>
+
+                  <Text style={styles.mode}>
+                    <Text style={{ fontWeight: "700" }}>Mode: </Text>
+                    {selectedMode === "All"
+                      ? course.mode
+                      : selectedMode}
+                  </Text>
+
+                  <Text style={styles.website}>
+                    <Text style={{ fontWeight: "700" }}>
+                      Website:{" "}
+                    </Text>
+                    {course.website}
+                  </Text>
+
+                  <View style={styles.footerRow}>
+                    <Text style={styles.footerItem}>📄 Certificate</Text>
+                    <Text style={styles.footerItem}>
+                      🛠 Technical Training
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {/* ---------- VIDEO AD ---------- */}
+        <View style={styles.videoBox}>
+          <WebView
+            allowsFullscreenVideo
+            source={{
+              uri: "https://www.youtube.com/watch?v=NONufn3jgXI",
+            }}
+            style={{ height: isTablet ? 260 : 220 }}
+          />
+        </View>
+
+        <View style={{ height: 120 }} />
       </ScrollView>
-      <Footer/>
+
+      <Footer />
     </SafeAreaView>
   );
 }
 
+/* ---------------- STYLES ---------------- */
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#fff" },
 
@@ -183,64 +264,74 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
   },
-  backBtn: { width: 40, justifyContent: "center" },
+  backBtn: { width: 40 },
   headerTitle: {
     flex: 1,
     textAlign: "center",
-    fontSize: Platform.OS === "ios" ? 17 : 18,
-    fontWeight: Platform.OS === "ios" ? "600" : "700",
+    fontSize: 18,
+    fontWeight: "700",
     color: "#fff",
   },
   rightSpace: { width: 40 },
 
-  container: { flex: 1, backgroundColor: "#FAFAFA" },
+  dots: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginVertical: 8,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#ccc",
+    marginHorizontal: 4,
+  },
+  activeDot: {
+    width: 16,
+    backgroundColor: "#0B5ED7",
+  },
+
+  container: { backgroundColor: "#FAFAFA" },
 
   tabs: { flexDirection: "row", paddingHorizontal: 16, marginVertical: 12 },
-  tab: { alignItems: "center", marginRight: 20, paddingVertical: 6 },
-  tabText: { color: "#555", fontSize: isTablet ? 18 : 16 },
+  tab: { alignItems: "center", marginRight: 20 },
+  tabText: { fontSize: isTablet ? 18 : 16, color: "#555" },
   activeTabText: { color: "#007BFF", fontWeight: "600" },
-  underline: { height: 2, backgroundColor: "#007BFF", width: "100%", marginTop: 2, borderRadius: 1 },
+  underline: { height: 2, backgroundColor: "#007BFF", width: "100%", marginTop: 2 },
 
   courseBlock: {
     flexDirection: "row",
-    marginHorizontal: isTablet ? 24 : 16,
+    marginHorizontal: 16,
     marginVertical: 8,
-    alignItems: "flex-start",
     backgroundColor: "#fff",
     borderRadius: 10,
-    padding: isTablet ? 16 : 12,
+    padding: 12,
     elevation: 2,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 2,
   },
 
   logoCard: {
-    width: isTablet ? 90 : 70,
-    height: isTablet ? 90 : 70,
-    backgroundColor: "#fff",
+    width: 70,
+    height: 70,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 8,
-    elevation: 1,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 2,
     marginRight: 12,
   },
-  logo: { width: isTablet ? 80 : 60, height: isTablet ? 80 : 60, resizeMode: "contain" },
+  logo: { width: 60, height: 60, resizeMode: "contain" },
 
   courseInfo: { flex: 1 },
+  provider: { fontSize: 16, fontWeight: "700", color: "#007BFF" },
+  offeredLine: { fontSize: 14, color: "#1F6FC4", marginVertical: 4 },
+  mode: { fontSize: 14, color: "#333" },
+  website: { fontSize: 14, color: "#333", marginBottom: 8 },
 
-  provider: { fontSize: isTablet ? 18 : 16, fontWeight: "700", marginBottom: 4, color: "#007BFF" },
-  offeredLine: { fontSize: isTablet ? 16 : 14, color: "#1F6FC4", marginBottom: 4, flexWrap: "wrap" },
-  mode: { fontSize: isTablet ? 16 : 14, color: "#333", marginBottom: 4 },
-  website: { fontSize: isTablet ? 16 : 14, color: "#333", marginBottom: 8 },
+  footerRow: { flexDirection: "row", flexWrap: "wrap" },
+  footerItem: { fontSize: 12, color: "#555", marginRight: 14 },
 
-  footer: { flexDirection: "row", alignItems: "center", marginTop: 8, flexWrap: "wrap" },
-  footerItem: { fontSize: isTablet ? 14 : 12, color: "#555", fontWeight: "500", marginRight: 16, marginBottom: 4 },
-  moreButton: { backgroundColor: "#007BFF", paddingHorizontal: 12, paddingVertical: 4, borderRadius: 6 },
-  moreText: { color: "#fff", fontWeight: "bold", fontSize: isTablet ? 14 : 12 },
+  videoBox: {
+    marginHorizontal: 16,
+    marginTop: 30,
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: "#000",
+  },
 });
