@@ -13,6 +13,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Footer from "../../src/components/Footer";
+import { fp, hp, wp, normalize } from "../../src/utils/Normalize";
 
 // Categories data
 const categories = [
@@ -26,7 +27,7 @@ const categories = [
 
 const College1 = () => {
   const navigation = useNavigation();
-  
+
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="light-content" backgroundColor="#0052A2" />
@@ -40,7 +41,7 @@ const College1 = () => {
           >
             <Ionicons
               name={Platform.OS === "ios" ? "chevron-back" : "arrow-back"}
-              size={24}
+              size={fp(24)}
               color="#fff"
             />
           </TouchableOpacity>
@@ -75,7 +76,7 @@ const College1 = () => {
           ))}
         </ScrollView>
       </View>
-      <Footer/>
+      <Footer />
     </SafeAreaView>
   )
 };
@@ -93,16 +94,16 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    height: Platform.OS === "ios" ? 52 : 64,
+    height: Platform.OS === "ios" ? hp(52) : hp(64),
     backgroundColor: "#0052A2",
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: Platform.OS === "ios" ? 6 : 8,
+    paddingHorizontal: wp(16),
+    paddingVertical: Platform.OS === "ios" ? hp(6) : hp(8),
   },
 
   backBtn: {
-    width: 40,
+    width: wp(40),
     justifyContent: "center",
     alignItems: "flex-start",
   },
@@ -110,13 +111,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     textAlign: "center",
-    fontSize: Platform.OS === "ios" ? 17 : 18,
+    fontSize: Platform.OS === "ios" ? fp(17) : fp(18),
     fontWeight: Platform.OS === "ios" ? "600" : "700",
     color: "#fff",
   },
 
   rightSpace: {
-    width: 40,
+    width: wp(40),
   },
 
   /* Body */
@@ -126,10 +127,10 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    fontSize: 20,
+    fontSize: fp(20),
     fontWeight: "700",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: wp(20),
+    paddingVertical: hp(16),
     color: "#0c2f63",
   },
 
@@ -137,36 +138,36 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-evenly",
-    paddingHorizontal: 10,
-    paddingBottom: 40,
+    paddingHorizontal: wp(10),
+    paddingBottom: hp(40),
   },
 
   card: {
     width: "45%",
     backgroundColor: "#f2f2f2",
-    borderRadius: 12,
-    paddingTop: 30,
-    padding: 15,
+    borderRadius: normalize(12),
+    paddingTop: hp(30),
+    padding: wp(15),
     alignItems: "center",
-    marginBottom: 30,
+    marginBottom: hp(30),
   },
 
   categoryImage: {
-    width: 60,
-    height: 60,
-    marginBottom: 10,
+    width: wp(60),
+    height: wp(60),
+    marginBottom: hp(10),
   },
 
   cardText: {
-    fontSize: 16,
+    fontSize: fp(16),
     fontWeight: "bold",
-    marginBottom: 5,
+    marginBottom: hp(5),
     textAlign: "center",
     color: "#0c2f63",
   },
 
   cardDescription: {
-    fontSize: 12,
+    fontSize: fp(12),
     textAlign: "center",
     color: "gray",
   },
