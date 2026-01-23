@@ -19,7 +19,6 @@ import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Footer from "../../src/components/Footer";
 import { LinearGradient } from 'expo-linear-gradient';
-import { fp, hp, wp, normalize } from "../../src/utils/Normalize";
 
 const { width } = Dimensions.get('window');
 
@@ -116,7 +115,7 @@ export default function Profile() {
             >
               <Ionicons
                 name={Platform.OS === "ios" ? "chevron-back" : "arrow-back"}
-                size={fp(24)}
+                size={24}
                 color="#fff"
               />
             </TouchableOpacity>
@@ -128,7 +127,7 @@ export default function Profile() {
           </View>
 
           {/* Profile Avatar */}
-          <Animated.View
+          <Animated.View 
             style={[
               styles.profileAvatarContainer,
               {
@@ -140,7 +139,7 @@ export default function Profile() {
             <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
               <Image
                 source={{
-                  uri: user?.profilePic ||
+                  uri: user?.profilePic || 
                     "https://ui-avatars.com/api/?name=" +
                     (user?.username || "User") +
                     "&background=0B5394&color=fff&size=150&bold=true"
@@ -148,7 +147,7 @@ export default function Profile() {
                 style={styles.headerAvatar}
               />
             </Animated.View>
-
+            
             <Text style={styles.headerName}>{user?.username || "—"}</Text>
             {/* <Text style={styles.headerRole}>Student</Text> */}
           </Animated.View>
@@ -161,7 +160,7 @@ export default function Profile() {
         showsVerticalScrollIndicator={false}
       >
         {/* Personal Information Card - FIRST */}
-        <Animated.View
+        <Animated.View 
           style={[
             styles.infoCard,
             {
@@ -171,7 +170,7 @@ export default function Profile() {
           ]}
         >
           <Text style={styles.cardTitle}>Personal Information</Text>
-
+          
           <View style={styles.infoSection}>
             <View style={styles.infoIcon}>
               <Ionicons name="person" size={20} color="#0B5394" />
@@ -219,7 +218,7 @@ export default function Profile() {
         </Animated.View>
 
         {/* IQ Score Card - SECOND */}
-        <Animated.View
+        <Animated.View 
           style={[
             styles.iqCard,
             {
@@ -240,7 +239,7 @@ export default function Profile() {
                 <Text style={styles.iqDetails}>View History →</Text>
               </TouchableOpacity>
             </View>
-
+            
             <View style={styles.iqContent}>
               <View style={styles.iqCircleContainer}>
                 <View style={styles.iqCircle}>
@@ -248,14 +247,14 @@ export default function Profile() {
                   <Text style={styles.iqLabel}>IQ</Text>
                 </View>
               </View>
-
+              
               <View style={styles.iqInfo}>
                 <Text style={styles.iqResult}>
                   Higher than <Text style={styles.iqHighlight}>79%</Text> of users
                 </Text>
-
+                
                 <Text style={styles.iqCategory}>Category: Intelligent</Text>
-
+                
                 {/* Animated Progress Bar */}
                 <View style={styles.progressContainer}>
                   <View style={styles.progressLabels}>
@@ -263,7 +262,7 @@ export default function Profile() {
                     <Text style={styles.progressLabel}>Gifted</Text>
                   </View>
                   <View style={styles.progressBarBackground}>
-                    <Animated.View
+                    <Animated.View 
                       style={[
                         styles.progressBarFill,
                         {
@@ -283,7 +282,7 @@ export default function Profile() {
         </Animated.View>
 
         {/* Quick Actions */}
-        <Animated.View
+        <Animated.View 
           style={[
             styles.actionsCard,
             {
@@ -293,7 +292,7 @@ export default function Profile() {
           ]}
         >
           <Text style={styles.cardTitle}>Settings</Text>
-
+          
           <View style={styles.actionsList}>
             <TouchableOpacity style={styles.actionItem} activeOpacity={0.7}>
               <View style={[styles.actionIcon, { backgroundColor: 'rgba(52, 199, 89, 0.1)' }]}>
@@ -319,8 +318,8 @@ export default function Profile() {
               <Ionicons name="chevron-forward" size={20} color="#999" />
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.actionItem}
+            <TouchableOpacity 
+              style={styles.actionItem} 
               activeOpacity={0.7}
               onPress={handleLogout}
             >
@@ -340,20 +339,20 @@ export default function Profile() {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: '#f8f9fa'
+  safe: { 
+    flex: 1, 
+    backgroundColor: '#f8f9fa' 
   },
 
   // Header
   headerGradient: {
-    borderBottomLeftRadius: normalize(30),
-    borderBottomRightRadius: normalize(30),
-    paddingTop: Platform.OS === 'ios' ? hp(10) : StatusBar.currentHeight + hp(10),
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    paddingTop: Platform.OS === 'ios' ? 10 : StatusBar.currentHeight + 10,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: hp(10) },
+        shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.2,
         shadowRadius: 20,
       },
@@ -364,39 +363,39 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    paddingHorizontal: wp(20),
-    paddingBottom: hp(30),
+    paddingHorizontal: 20,
+    paddingBottom: 30,
   },
 
   headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: hp(25),
+    marginBottom: 25,
   },
 
   backBtn: {
-    width: wp(40),
-    height: wp(40),
+    width: 40,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: normalize(20),
+    borderRadius: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
 
   headerTitle: {
     color: '#fff',
-    fontSize: Platform.OS === 'ios' ? fp(20) : fp(22),
+    fontSize: Platform.OS === 'ios' ? 20 : 22,
     fontWeight: '800',
     letterSpacing: 0.5,
   },
 
   settingsBtn: {
-    width: wp(40),
-    height: wp(40),
+    width: 40,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: normalize(20),
+    borderRadius: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
 
@@ -405,43 +404,43 @@ const styles = StyleSheet.create({
   },
 
   headerAvatar: {
-    width: wp(100),
-    height: wp(100),
-    borderRadius: normalize(50),
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     borderWidth: 4,
     borderColor: 'rgba(255, 255, 255, 0.3)',
-    marginBottom: hp(15),
+    marginBottom: 15,
   },
 
   headerName: {
-    fontSize: fp(24),
+    fontSize: 24,
     fontWeight: '800',
     color: '#fff',
-    marginBottom: hp(4),
+    marginBottom: 4,
   },
 
   headerRole: {
-    fontSize: fp(16),
+    fontSize: 16,
     color: 'rgba(255, 255, 255, 0.9)',
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    paddingHorizontal: wp(16),
-    paddingVertical: hp(6),
-    borderRadius: normalize(15),
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 15,
   },
 
   // Content
   content: {
-    paddingTop: hp(20),
-    paddingBottom: hp(100),
-    paddingHorizontal: wp(20),
+    paddingTop: 20,
+    paddingBottom: 100,
+    paddingHorizontal: 20,
   },
 
   // Personal Info Card
   infoCard: {
     backgroundColor: '#fff',
-    borderRadius: normalize(20),
-    padding: wp(20),
-    marginBottom: hp(20),
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -456,26 +455,26 @@ const styles = StyleSheet.create({
   },
 
   cardTitle: {
-    fontSize: fp(20),
+    fontSize: 20,
     fontWeight: '800',
     color: '#0B5394',
-    marginBottom: hp(20),
+    marginBottom: 20,
   },
 
   infoSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: hp(20),
+    marginBottom: 20,
   },
 
   infoIcon: {
-    width: wp(40),
-    height: wp(40),
-    borderRadius: normalize(20),
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: 'rgba(11, 83, 148, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: wp(15),
+    marginRight: 15,
   },
 
   infoContent: {
@@ -483,13 +482,13 @@ const styles = StyleSheet.create({
   },
 
   infoLabel: {
-    fontSize: fp(12),
+    fontSize: 12,
     color: '#666',
-    marginBottom: hp(4),
+    marginBottom: 4,
   },
 
   infoValue: {
-    fontSize: fp(16),
+    fontSize: 16,
     fontWeight: '600',
     color: '#333',
   },
@@ -499,9 +498,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#0B5394',
-    borderRadius: normalize(12),
-    paddingVertical: hp(14),
-    marginTop: hp(10),
+    borderRadius: 12,
+    paddingVertical: 14,
+    marginTop: 10,
     ...Platform.select({
       ios: {
         shadowColor: '#0B5394',
@@ -517,15 +516,15 @@ const styles = StyleSheet.create({
 
   editProfileText: {
     color: '#fff',
-    fontSize: fp(16),
+    fontSize: 16,
     fontWeight: '600',
-    marginLeft: wp(8),
+    marginLeft: 8,
   },
 
   // IQ Card
   iqCard: {
-    borderRadius: normalize(20),
-    marginBottom: hp(20),
+    borderRadius: 20,
+    marginBottom: 20,
     overflow: 'hidden',
     ...Platform.select({
       ios: {
@@ -541,24 +540,24 @@ const styles = StyleSheet.create({
   },
 
   iqGradient: {
-    padding: wp(20),
+    padding: 20,
   },
 
   iqHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: hp(20),
+    marginBottom: 20,
   },
 
   iqTitle: {
-    fontSize: fp(20),
+    fontSize: 20,
     fontWeight: '800',
     color: '#fff',
   },
 
   iqDetails: {
-    fontSize: fp(14),
+    fontSize: 14,
     color: 'rgba(255, 255, 255, 0.9)',
     fontWeight: '600',
   },
@@ -569,13 +568,13 @@ const styles = StyleSheet.create({
   },
 
   iqCircleContainer: {
-    marginRight: wp(20),
+    marginRight: 20,
   },
 
   iqCircle: {
-    width: wp(100),
-    height: wp(100),
-    borderRadius: normalize(50),
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
     borderWidth: 4,
     borderColor: 'rgba(255, 255, 255, 0.3)',
@@ -584,13 +583,13 @@ const styles = StyleSheet.create({
   },
 
   iqScore: {
-    fontSize: fp(32),
+    fontSize: 32,
     fontWeight: '900',
     color: '#fff',
   },
 
   iqLabel: {
-    fontSize: fp(14),
+    fontSize: 14,
     color: 'rgba(255, 255, 255, 0.9)',
     fontWeight: '600',
   },
@@ -600,9 +599,9 @@ const styles = StyleSheet.create({
   },
 
   iqResult: {
-    fontSize: fp(16),
+    fontSize: 16,
     color: '#fff',
-    marginBottom: hp(8),
+    marginBottom: 8,
   },
 
   iqHighlight: {
@@ -611,44 +610,44 @@ const styles = StyleSheet.create({
   },
 
   iqCategory: {
-    fontSize: fp(14),
+    fontSize: 14,
     color: 'rgba(255, 255, 255, 0.9)',
-    marginBottom: hp(15),
+    marginBottom: 15,
     fontWeight: '600',
   },
 
   progressContainer: {
-    marginTop: hp(10),
+    marginTop: 10,
   },
 
   progressLabels: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: hp(8),
+    marginBottom: 8,
   },
 
   progressLabel: {
-    fontSize: fp(12),
+    fontSize: 12,
     color: 'rgba(255, 255, 255, 0.7)',
     fontWeight: '600',
   },
 
   progressBarBackground: {
-    height: hp(8),
+    height: 8,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: normalize(4),
+    borderRadius: 4,
     overflow: 'hidden',
-    marginBottom: hp(8),
+    marginBottom: 8,
   },
 
   progressBarFill: {
     height: '100%',
     backgroundColor: '#FFD700',
-    borderRadius: normalize(4),
+    borderRadius: 4,
   },
 
   progressText: {
-    fontSize: fp(12),
+    fontSize: 12,
     color: 'rgba(255, 255, 255, 0.7)',
     textAlign: 'center',
   },
@@ -656,8 +655,8 @@ const styles = StyleSheet.create({
   // Actions Card
   actionsCard: {
     backgroundColor: '#fff',
-    borderRadius: normalize(20),
-    padding: wp(20),
+    borderRadius: 20,
+    padding: 20,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -672,29 +671,29 @@ const styles = StyleSheet.create({
   },
 
   actionsList: {
-    marginTop: hp(10),
+    marginTop: 10,
   },
 
   actionItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: hp(16),
+    paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
 
   actionIcon: {
-    width: wp(40),
-    height: wp(40),
-    borderRadius: normalize(20),
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: wp(15),
+    marginRight: 15,
   },
 
   actionLabel: {
     flex: 1,
-    fontSize: fp(16),
+    fontSize: 16,
     fontWeight: '600',
     color: '#333',
   },

@@ -18,7 +18,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { loginApi, signupApi } from "../Auth/Authapi";
-import { fp, hp, wp, normalize } from "../../src/utils/Normalize";
 
 const { width, height } = Dimensions.get("window");
 
@@ -112,7 +111,7 @@ export default function AuthScreen() {
         >
           {/* 🔵 TOP WAVE */}
           <Animated.View style={{ transform: [{ translateX: slideAnim }] }}>
-            <Svg width={width * 1.5} height={hp(160)} viewBox="0 0 1440 320">
+            <Svg width={width * 1.5} height={160} viewBox="0 0 1440 320">
               <Path
                 fill="#0B66C3"
                 d="M0,96L120,128C240,160,480,224,720,218.7C960,213,1200,139,1320,112L1440,96L1440,0L0,0Z"
@@ -198,8 +197,8 @@ export default function AuthScreen() {
                     {loading
                       ? "Please wait..."
                       : mode === "login"
-                        ? "Login"
-                        : "Register"}
+                      ? "Login"
+                      : "Register"}
                   </Text>
                 </TouchableOpacity>
 
@@ -229,7 +228,7 @@ export default function AuthScreen() {
 
           {/* 🔵 BOTTOM WAVE */}
           <View style={styles.bottomWave}>
-            <Svg width={width} height={hp(140)} viewBox="0 0 1440 320">
+            <Svg width={width} height={140} viewBox="0 0 1440 320">
               <Path
                 fill="#0B66C3"
                 d="M0,256L120,224C240,192,480,128,720,117.3C960,107,1200,149,1320,170.7L1440,192L1440,320L0,320Z"
@@ -252,7 +251,7 @@ const Input = ({
   keyboardType,
 }) => (
   <View style={styles.inputBox}>
-    <Ionicons name={icon} size={fp(20)} color="#000" />
+    <Ionicons name={icon} size={20} color="#000" />
     <TextInput
       placeholder={placeholder}
       placeholderTextColor="#aaa"
@@ -274,40 +273,39 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     minHeight: height * 0.6,
   },
-  formContainer: { flex: 1, justifyContent: "center", paddingHorizontal: wp(30) },
+  formContainer: { flex: 1, justifyContent: "center", paddingHorizontal: 30 },
   tabRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: wp(50),
-    marginTop: hp(20),
-    marginBottom: hp(30),
+    paddingHorizontal: 50,
+    marginTop: 20,
+    marginBottom: 30,
   },
-  activeTab: { fontWeight: "700", color: "#0B66C3", fontSize: fp(16) },
-  inactiveTab: { fontWeight: "600", color: "#aaa", fontSize: fp(16) },
-  form: { width: "100%", maxWidth: normalize(400), alignSelf: "center" },
+  activeTab: { fontWeight: "700", color: "#0B66C3", fontSize: 16 },
+  inactiveTab: { fontWeight: "600", color: "#aaa", fontSize: 16 },
+  form: { width: "100%", maxWidth: 400, alignSelf: "center" },
   inputBox: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#fff",
-    borderRadius: normalize(10),
-    paddingHorizontal: wp(15),
-    height: hp(52),
-    marginBottom: hp(16),
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    height: 52,
+    marginBottom: 16,
     elevation: 3,
   },
-  input: { flex: 1, marginLeft: wp(10), fontSize: fp(14) },
+  input: { flex: 1, marginLeft: 10, fontSize: 14 },
   button: {
     backgroundColor: "#0B66C3",
-    height: hp(48),
-    borderRadius: normalize(6),
+    height: 48,
+    borderRadius: 6,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: hp(12),
+    marginTop: 12,
   },
-  buttonText: { color: "#fff", fontSize: fp(16), fontWeight: "600" },
-  link: { color: "#0B66C3", textAlign: "center", marginTop: hp(16), fontSize: fp(14) },
-  bottomText: { textAlign: "center", marginTop: hp(12), fontSize: fp(13) },
+  buttonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+  link: { color: "#0B66C3", textAlign: "center", marginTop: 16 },
+  bottomText: { textAlign: "center", marginTop: 12, fontSize: 13 },
   signup: { color: "#0B66C3", fontWeight: "600" },
   bottomWave: { marginTop: "auto" },
 });
-

@@ -12,7 +12,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { WebView } from "react-native-webview";
 import Footer from "../../src/components/Footer";
-import { fp, hp, wp, normalize } from "../../src/utils/Normalize";
 
 /* ===== ASSETS ===== */
 const collegeBannerImage = require("../../assets/Global.png");
@@ -75,7 +74,7 @@ export default function School1({ navigation }) {
         </TouchableOpacity>
 
         <Text style={styles.headerTitle}>School</Text>
-        <View style={{ width: wp(24) }} />
+        <View style={{ width: 24 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -86,9 +85,7 @@ export default function School1({ navigation }) {
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           onMomentumScrollEnd={(e) => {
-            const index = Math.round(
-              e.nativeEvent.contentOffset.x / width
-            );
+            const index = Math.round(e.nativeEvent.contentOffset.x / width);
             setActiveIndex(index);
           }}
         >
@@ -96,10 +93,7 @@ export default function School1({ navigation }) {
             <View key={index} style={{ width }}>
               <Image
                 source={item.image}
-                style={[
-                  styles.bannerImage,
-                  { height: isTablet ? hp(260) : hp(200) },
-                ]}
+                style={[styles.bannerImage, { height: isTablet ? 260 : 200 }]}
               />
 
               <View style={styles.overlay}>
@@ -117,10 +111,7 @@ export default function School1({ navigation }) {
           {bannerData.map((_, index) => (
             <View
               key={index}
-              style={[
-                styles.dot,
-                activeIndex === index && styles.activeDot,
-              ]}
+              style={[styles.dot, activeIndex === index && styles.activeDot]}
             />
           ))}
         </View>
@@ -132,7 +123,7 @@ export default function School1({ navigation }) {
             activeOpacity={0.85}
             onPress={() => navigation.navigate("School2")}
           >
-            <Ionicons name="business" size={fp(40)} color="#0B5ED7" />
+            <Ionicons name="business" size={40} color="#0B5ED7" />
             <Text style={styles.gridTitle}>View School</Text>
             <Text style={styles.gridSub}>Explore Schools for you</Text>
           </TouchableOpacity>
@@ -142,7 +133,7 @@ export default function School1({ navigation }) {
             activeOpacity={0.85}
             onPress={() => navigation.navigate("Tutions1")}
           >
-            <Ionicons name="book" size={fp(40)} color="#0B5ED7" />
+            <Ionicons name="book" size={40} color="#0B5ED7" />
             <Text style={styles.gridTitle}>View Tuitions</Text>
             <Text style={styles.gridSub}>
               Explore Tuitions for all Standards
@@ -158,16 +149,14 @@ export default function School1({ navigation }) {
             domStorageEnabled
             originWhitelist={["*"]}
             source={{
-              uri:
-                "https://www.youtube.com/watch?v=qYapc_bkfxw",
+              uri: "https://www.youtube.com/watch?v=qYapc_bkfxw",
             }}
             style={{
-              height: isWeb ? hp(360) : isTablet ? hp(300) : hp(250),
+              height: isWeb ? 360 : isTablet ? 300 : 250,
               width: "100%",
             }}
           />
         </View>
-
 
         <View style={{ height: 80 }} />
       </ScrollView>
@@ -187,7 +176,7 @@ const styles = StyleSheet.create({
 
   header: {
     backgroundColor: "#0052A2",
-    padding: wp(16),
+    padding: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -195,9 +184,9 @@ const styles = StyleSheet.create({
 
   headerTitle: {
     color: "#fff",
-    fontSize: fp(22),
+    fontSize: 22,
     fontWeight: "700",
-    marginRight: wp(25),
+    marginRight: 25,
   },
 
   bannerImage: {
@@ -208,87 +197,87 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(0,0,0,0.45)",
-    paddingHorizontal: wp(20),
+    paddingHorizontal: 20,
     justifyContent: "center",
   },
 
   title: {
     color: "#E8F0FF",
-    fontSize: fp(14),
-    marginBottom: hp(6),
+    fontSize: 14,
+    marginBottom: 6,
   },
 
   line1: {
     color: "#fff",
-    fontSize: fp(22),
+    fontSize: 22,
     fontWeight: "800",
   },
 
   line2: {
     color: "#fff",
-    fontSize: fp(22),
+    fontSize: 22,
     fontWeight: "800",
-    marginBottom: hp(10),
+    marginBottom: 10,
   },
 
   info: {
     color: "#FFD966",
-    fontSize: fp(14),
+    fontSize: 14,
     fontWeight: "600",
   },
 
   pagination: {
     flexDirection: "row",
     justifyContent: "center",
-    marginVertical: hp(10),
+    marginVertical: 10,
   },
 
   dot: {
-    width: wp(8),
-    height: hp(8), // Circle assumption
-    borderRadius: normalize(4),
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: "#ccc",
-    marginHorizontal: wp(4),
+    marginHorizontal: 4,
   },
 
   activeDot: {
-    width: wp(16),
+    width: 16,
     backgroundColor: "#0B5ED7",
   },
 
   grid: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: wp(16),
-    marginTop: hp(16),
+    paddingHorizontal: 16,
+    marginTop: 16,
   },
 
   gridCard: {
     width: "49%",
     height: "100%",
     backgroundColor: "#fff",
-    borderRadius: normalize(22),
-    padding: wp(27),
+    borderRadius: 22,
+    padding: 27,
     alignItems: "center",
     elevation: 4,
-    marginTop: hp(15),
+    marginTop: 15,
   },
 
   gridTitle: {
-    fontSize: fp(16),
+    fontSize: 16,
     fontWeight: "700",
-    marginTop: hp(10),
+    marginTop: 10,
   },
 
   gridSub: {
-    fontSize: fp(12),
+    fontSize: 12,
     color: "#666",
     textAlign: "center",
-    marginTop: hp(4),
+    marginTop: 4,
   },
 
   videoBox: {
-    marginTop: hp(55),
+    marginTop: 55,
 
     overflow: "hidden",
     backgroundColor: "#000",

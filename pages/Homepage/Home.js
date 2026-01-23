@@ -24,7 +24,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import Header from "../../src/components/Header";
 import Footer from "../../src/components/Footer";
-import { fp, hp, wp, normalize } from "../../src/utils/Normalize";
 
 const { width } = Dimensions.get("window");
 
@@ -64,7 +63,7 @@ const bannerData = [
 ////////////////////////////////////////
 // 🔵 STABLE AUTO SCROLL COLLEGE BANNER
 ////////////////////////////////////////
-const BANNER_WIDTH = wp(343); // width - 32 approx
+const BANNER_WIDTH = width - 32;
 
 const CollegeBanner = () => {
   const listRef = useRef(null);
@@ -149,17 +148,17 @@ const choices = [
   {
     id: 1,
     title: "School",
-    icon: <MaterialCommunityIcons name="school" size={fp(28)} color="#1a73e8" />,
+    icon: <MaterialCommunityIcons name="school" size={28} color="#1a73e8" />,
   },
   {
     id: 2,
     title: "College",
-    icon: <FontAwesome5 name="graduation-cap" size={fp(26)} color="#1a73e8" />,
+    icon: <FontAwesome5 name="graduation-cap" size={26} color="#1a73e8" />,
   },
   {
     id: 3,
     title: "Course",
-    icon: <FontAwesome5 name="laptop" size={fp(26)} color="#1a73e8" />,
+    icon: <FontAwesome5 name="laptop" size={26} color="#1a73e8" />,
   },
   {
     id: 4,
@@ -167,7 +166,7 @@ const choices = [
     icon: (
       <MaterialCommunityIcons
         name="file-document-edit-outline"
-        size={fp(28)}
+        size={28}
         color="#1a73e8"
       />
     ),
@@ -178,7 +177,7 @@ const choices = [
     icon: (
       <MaterialCommunityIcons
         name="head-cog-outline"
-        size={fp(28)}
+        size={28}
         color="#1a73e8"
       />
     ),
@@ -187,7 +186,7 @@ const choices = [
     id: 6,
     title: "Extra-Skills",
     icon: (
-      <MaterialCommunityIcons name="music-note" size={fp(26)} color="#1a73e8" />
+      <MaterialCommunityIcons name="music-note" size={26} color="#1a73e8" />
     ),
   },
 ];
@@ -326,7 +325,7 @@ const BlogCard = ({ blog }) => {
         </Text>
         <View style={styles.blogMeta}>
           <View style={styles.blogMetaItem}>
-            <Ionicons name="document-text-outline" size={fp(12)} color="#666" />
+            <Ionicons name="document-text-outline" size={12} color="#666" />
             <Text style={styles.blogMetaText}>{blog.readTime}</Text>
           </View>
         </View>
@@ -383,14 +382,14 @@ const LeftIconsCollege = () => (
     style={{
       flexDirection: "row",
       alignItems: "center",
-      width: wp(70),
-      marginRight: wp(12),
+      width: 70,
+      marginRight: 12,
     }}
   >
-    <Text style={{ color: "green", fontSize: fp(18), marginRight: wp(5) }}>▲</Text>
+    <Text style={{ color: "green", fontSize: 18, marginRight: 5 }}>▲</Text>
     <Image
       source={collegeIcon}
-      style={{ width: wp(42), height: wp(42), marginLeft: wp(6) }}
+      style={{ width: 42, height: 42, marginLeft: 6 }}
       resizeMode="contain"
     />
   </View>
@@ -399,13 +398,13 @@ const LeftIconsCollege = () => (
 const CollegeCardFull = ({ rank, name }) => (
   <View style={styles.collegeCardWrapper}>
     <View style={{ flex: 1, justifyContent: "center" }}>
-      <Text style={[styles.collegeName, { fontSize: fp(12), textAlign: "left" }]}>
+      <Text style={[styles.collegeName, { fontSize: 12, textAlign: "left" }]}>
         {name}
       </Text>
     </View>
     <View style={styles.rankContainer}>
-      <Text style={[styles.rankText, { fontSize: fp(14) }]}>{rank}</Text>
-      <Text style={[styles.trophyIcon, { fontSize: fp(20) }]}>🏆</Text>
+      <Text style={[styles.rankText, { fontSize: 14 }]}>{rank}</Text>
+      <Text style={[styles.trophyIcon, { fontSize: 20 }]}>🏆</Text>
     </View>
   </View>
 );
@@ -494,14 +493,14 @@ const HomeScreen = () => {
 ////////////////////////////////////////
 // Styles
 ////////////////////////////////////////
-const CARD_WIDTH = wp(295);
-const CARD_HEIGHT = hp(59);
-const SIDE_SLOT_WIDTH = wp(40);
-const RIBBON_W = wp(140);
-const RIBBON_H = hp(46);
+const CARD_WIDTH = 295;
+const CARD_HEIGHT = 59;
+const SIDE_SLOT_WIDTH = 40;
+const RIBBON_W = 140;
+const RIBBON_H = 46;
 const BLUE = "#0077B6";
 const TITLE = "#003366";
-const RIBBON_OFFSET = wp(18);
+const RIBBON_OFFSET = 18;
 
 const styles = StyleSheet.create({
   safe: {
@@ -509,31 +508,31 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   scrollViewContent: {
-    paddingBottom: hp(40),
+    paddingBottom: 40,
   },
   greetingContainer: {
-    height: hp(10), // Was 10, seems small? keeping logic
+    height: 10,
     paddingTop: 0,
   },
   greeting: {
-    fontSize: fp(24),
+    fontSize: 24,
     fontWeight: "bold",
-    paddingHorizontal: wp(20),
-    paddingVertical: hp(10),
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     color: "#2A6B9D",
-    paddingBottom: hp(10),
+    paddingBottom: 10,
   },
   bannerWrapper: {
-    paddingHorizontal: wp(16),
-    paddingTop: hp(16),
-    paddingBottom: hp(6),
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 6,
     backgroundColor: "#fff",
   },
 
   banner: {
-    height: hp(175),
-    borderRadius: normalize(16),
-    padding: wp(16),
+    height: 175,
+    borderRadius: 16,
+    padding: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -541,33 +540,33 @@ const styles = StyleSheet.create({
 
   textContainer: {
     flex: 1,
-    paddingRight: wp(12),
+    paddingRight: 12,
   },
   bannertitle: {
     color: "#D0F1FB",
-    fontSize: fp(20),
+    fontSize: 20,
     fontWeight: "bold",
     textAlign: "left",
-    lineHeight: fp(22),
+    lineHeight: 22,
     flexShrink: 1,
-    marginBottom: hp(8),
+    marginBottom: 8,
   },
   bannerSubtitle: {
     color: "#fff",
-    fontSize: fp(20),
+    fontSize: 20,
     fontWeight: "bold",
     textAlign: "left",
-    lineHeight: fp(22),
+    lineHeight: 22,
     flexShrink: 1,
-    marginBottom: hp(8),
+    marginBottom: 8,
   },
   bannerInfo: {
     color: "#fff",
-    fontSize: fp(12),
-    paddingTop: hp(10),
+    fontSize: 12,
+    paddingTop: 10,
   },
   bannerImage: {
-    width: width * 0.55, // Keeping percentage of screen width relative
+    width: width * 0.55,
     height: width * 0.4,
     position: "absolute",
     bottom: -width * 0.14,
@@ -576,7 +575,7 @@ const styles = StyleSheet.create({
   },
   choiceRow: {
     alignItems: "center",
-    marginVertical: hp(8),
+    marginVertical: 8,
     height: CARD_HEIGHT,
     position: "relative",
   },
@@ -585,7 +584,7 @@ const styles = StyleSheet.create({
     color: "#F3F5F5",
     width: RIBBON_W,
     height: RIBBON_H,
-    top: (hp(59) - RIBBON_H) / 2, // Manually calc or just use flex centering; using logic
+    top: (CARD_HEIGHT - RIBBON_H) / 2,
     zIndex: 1,
     resizeMode: "stretch",
   },
@@ -599,11 +598,11 @@ const styles = StyleSheet.create({
     zIndex: 2,
     height: CARD_HEIGHT,
     backgroundColor: "#F3F5F5",
-    borderRadius: normalize(12),
+    borderRadius: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: wp(12),
+    paddingHorizontal: 12,
     ...Platform.select({
       ios: {
         shadowColor: "#000",
@@ -632,34 +631,34 @@ const styles = StyleSheet.create({
   choiceTitle: {
     flex: 1,
     textAlign: "center",
-    fontSize: fp(16),
+    fontSize: 16,
     fontWeight: "700",
     color: TITLE,
   },
   section: {
-    paddingHorizontal: wp(20),
-    marginTop: hp(20),
+    paddingHorizontal: 20,
+    marginTop: 20,
   },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: hp(16),
+    marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: fp(18),
+    fontSize: 18,
     fontWeight: "700",
     color: TITLE,
   },
   // Blogs Styles
   blogsList: {
-    paddingRight: wp(20),
+    paddingRight: 20,
   },
   blogCard: {
-    width: wp(200),
-    marginRight: wp(16),
+    width: 200,
+    marginRight: 16,
     backgroundColor: "#fff",
-    borderRadius: normalize(12),
+    borderRadius: 12,
     overflow: "hidden",
     ...Platform.select({
       ios: {
@@ -675,31 +674,31 @@ const styles = StyleSheet.create({
   },
   blogImage: {
     width: "100%",
-    height: hp(120),
+    height: 120,
     resizeMode: "cover",
   },
   blogContent: {
-    padding: wp(12),
+    padding: 12,
   },
   blogCategory: {
     alignSelf: "flex-start",
     backgroundColor: "#F0F7FF",
-    paddingHorizontal: wp(8),
-    paddingVertical: hp(4),
-    borderRadius: normalize(4),
-    marginBottom: hp(8),
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    marginBottom: 8,
   },
   blogCategoryText: {
-    fontSize: fp(10),
+    fontSize: 10,
     fontWeight: "600",
     color: "#0072BC",
   },
   blogTitle: {
-    fontSize: fp(14),
+    fontSize: 14,
     fontWeight: "600",
     color: "#003366",
-    lineHeight: fp(18),
-    marginBottom: hp(8),
+    lineHeight: 18,
+    marginBottom: 8,
   },
   blogMeta: {
     flexDirection: "row",
@@ -710,35 +709,35 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   blogMetaText: {
-    fontSize: fp(10),
+    fontSize: 10,
     color: "#666",
-    marginLeft: wp(4),
+    marginLeft: 4,
   },
   // Top Colleges Styles
   topCollegeContainer: {
-    paddingHorizontal: wp(20),
-    marginTop: hp(30),
-    marginBottom: hp(20),
+    paddingHorizontal: 20,
+    marginTop: 30,
+    marginBottom: 20,
   },
   topCollegeHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: hp(12),
+    marginBottom: 12,
   },
   listItemContainer: {
     flexDirection: "row",
-    marginBottom: hp(12),
+    marginBottom: 12,
     alignItems: "center",
   },
   collegeCardWrapper: {
-    width: wp(280),
+    width: 280,
     flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
-    padding: wp(12),
+    padding: 12,
     backgroundColor: "#fff",
-    borderRadius: normalize(4),
+    borderRadius: 4,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -746,7 +745,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   collegeName: {
-    fontSize: fp(14),
+    fontSize: 14,
     fontWeight: "600",
     justifyContent: "center",
   },
@@ -756,44 +755,44 @@ const styles = StyleSheet.create({
   },
   rankText: {
     fontWeight: "700",
-    fontSize: fp(16),
-    marginBottom: hp(2),
+    fontSize: 16,
+    marginBottom: 2,
   },
   trophyIcon: {
-    fontSize: fp(18),
+    fontSize: 18,
     color: "#FFD700",
   },
   title: {
-    fontSize: fp(18),
+    fontSize: 18,
     fontWeight: "700",
     color: TITLE,
   },
   viewAllButton: {
     backgroundColor: "#003366",
-    borderRadius: normalize(4),
-    paddingVertical: hp(6),
-    paddingHorizontal: wp(16),
+    borderRadius: 4,
+    paddingVertical: 6,
+    paddingHorizontal: 16,
   },
   viewAllButtonText: {
     color: "#fff",
     fontWeight: "600",
-    fontSize: fp(14),
+    fontSize: 14,
   },
   dotsRow: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: hp(10),
+    marginTop: 10,
   },
   dot: {
-    width: wp(8),
-    height: wp(8),
-    borderRadius: wp(4),
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: "#B0CFEA",
-    marginHorizontal: wp(5),
+    marginHorizontal: 5,
   },
   activeDot: {
-    width: wp(20),
+    width: 20,
     backgroundColor: "#014B85",
   },
 });
