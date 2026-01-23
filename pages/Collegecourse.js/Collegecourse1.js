@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import Footer from "../../src/components/Footer";
 
 /* ---------------- DATA ---------------- */
 const departments = [
@@ -32,6 +33,11 @@ export default function Collegecourse1({ navigation }) {
         { width: isTablet ? "48%" : "47%" },
       ]}
       activeOpacity={0.85}
+       onPress={() =>
+      navigation.navigate("Collegecourse2", {
+        department: item.title,
+      })
+    }
     >
       <View style={styles.iconBox}>
         <Ionicons name={item.icon} size={28} color="#0B5ED7" />
@@ -51,12 +57,12 @@ export default function Collegecourse1({ navigation }) {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#0B5ED7" />
+          <Ionicons name="arrow-back" size={24} color="#e9ebee" />
         </TouchableOpacity>
 
         <View>
           <Text style={styles.headerTitle}>Departments</Text>
-          <Text style={styles.subTitle}>Global Institute of Technology</Text>
+         
         </View>
 
         <View style={{ width: 24 }} />
@@ -80,6 +86,7 @@ export default function Collegecourse1({ navigation }) {
         contentContainerStyle={{ paddingBottom: 30 }}
         showsVerticalScrollIndicator={false}
       />
+      <Footer/>
     </SafeAreaView>
   );
 }
@@ -96,13 +103,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     padding: 16,
-    backgroundColor: "#fff",
+    backgroundColor: "#0052A2",
   },
 
   headerTitle: {
     fontSize: 18,
     fontWeight: "700",
     textAlign: "center",
+    color : "white"
   },
 
   subTitle: {
