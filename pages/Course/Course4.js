@@ -11,6 +11,8 @@ import {
   Platform,
   Dimensions,
   StatusBar,
+  TextInput,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { WebView } from "react-native-webview";
@@ -32,6 +34,17 @@ export default function Course4({ navigation }) {
   const bannerRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
+  /* ===== REVIEW STATES ===== */
+  const [rating, setRating] = useState(0);
+  const [reviewText, setReviewText] = useState("");
+  const [reviews, setReviews] = useState([
+    {
+      name: "Student Review",
+      rating: 5,
+      comment: "Good training quality and practical sessions.",
+    },
+  ]);
+
   /* AUTO SCROLL ADS */
   useEffect(() => {
     const timer = setInterval(() => {
@@ -47,6 +60,25 @@ export default function Course4({ navigation }) {
   /* ACTIONS */
   const callNow = () => Linking.openURL("tel:919384152923");
   const openWhatsApp = () => Linking.openURL("https://wa.me/919384152923");
+
+  const submitReview = () => {
+    if (rating === 0 || reviewText.trim() === "") {
+      Alert.alert("Incomplete", "Please give rating and write review");
+      return;
+    }
+
+    setReviews([
+      {
+        name: "Anonymous User",
+        rating,
+        comment: reviewText,
+      },
+      ...reviews,
+    ]);
+
+    setRating(0);
+    setReviewText("");
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -72,9 +104,6 @@ export default function Course4({ navigation }) {
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={(e) =>
-            setActiveIndex(Math.round(e.nativeEvent.contentOffset.x / width))
-          }
         >
           {bannerAds.map((img, i) => (
             <Image
@@ -95,15 +124,11 @@ export default function Course4({ navigation }) {
           ))}
         </View>
 
-        {/* ===== HERO CARD (SCHOOL3 STYLE) ===== */}
+        {/* ===== HERO CARD ===== */}
         <View style={styles.heroCard}>
           <Image source={STUDIO_LOGO} style={styles.logo} />
-
           <Text style={styles.courseName}>AK Technologies</Text>
-
-          <Text style={styles.tagline}>
-            IT Training & Placement Support
-          </Text>
+          <Text style={styles.tagline}>IT Training & Placement Support</Text>
 
           <View style={styles.infoRow}>
             <Ionicons name="laptop-outline" size={16} color="#E8F0FF" />
@@ -122,10 +147,9 @@ export default function Course4({ navigation }) {
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>About Institute</Text>
           <Text style={styles.aboutText}>
-            Founded in 2015, AK Technologies focuses on IT training and
-            placement support. The institute offers technical courses
-            including Python, Machine Learning, and live project
-            training for engineering students.
+            Founded in 2015, AK Technologies focuses on IT training and placement
+            support. The institute offers technical courses including Python,
+            Machine Learning, and live project training.
           </Text>
         </View>
 
@@ -162,9 +186,7 @@ export default function Course4({ navigation }) {
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>Benefits</Text>
           <Text style={styles.aboutText}>
-            • Career growth{"\n"}
-            • Industry-ready skills{"\n"}
-            • Flexible learning
+            • Career growth{"\n"}• Industry-ready skills{"\n"}• Flexible learning
           </Text>
         </View>
 
@@ -175,13 +197,64 @@ export default function Course4({ navigation }) {
             <Text style={styles.actionText}>Call</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.whatsappBtn}
-            onPress={openWhatsApp}
-          >
+          <TouchableOpacity style={styles.whatsappBtn} onPress={openWhatsApp}>
             <Ionicons name="logo-whatsapp" size={18} color="#fff" />
             <Text style={styles.actionText}>WhatsApp</Text>
           </TouchableOpacity>
+        </View>
+
+        {/* ===== RATE & REVIEW ===== */}
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>Rate & Review</Text>
+
+          <View style={styles.starRow}>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <TouchableOpacity key={i} onPress={() => setRating(i)}>
+                <Ionicons
+                  name={i <= rating ? "star" : "star-outline"}
+                  size={28}
+                  color="#FFD700"
+                />
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <TextInput
+            placeholder="Write your review..."
+            value={reviewText}
+            onChangeText={setReviewText}
+            multiline
+            style={styles.reviewInput}
+          />
+
+          <TouchableOpacity style={styles.reviewBtn} onPress={submitReview}>
+            <Ionicons name="send" size={18} color="#fff" />
+            <Text style={styles.reviewBtnText}>Submit Review</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* ===== REVIEWS LIST ===== */}
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>Student Reviews</Text>
+
+          {reviews.map((r, i) => (
+            <View key={i} style={styles.reviewBox}>
+              <View style={styles.reviewHeader}>
+                <Text style={styles.reviewName}>{r.name}</Text>
+                <View style={{ flexDirection: "row" }}>
+                  {[1, 2, 3, 4, 5].map((x) => (
+                    <Ionicons
+                      key={x}
+                      name={x <= r.rating ? "star" : "star-outline"}
+                      size={14}
+                      color="#FFD700"
+                    />
+                  ))}
+                </View>
+              </View>
+              <Text style={styles.reviewText}>{r.comment}</Text>
+            </View>
+          ))}
         </View>
 
         {/* ===== VIDEO ===== */}
@@ -202,183 +275,39 @@ export default function Course4({ navigation }) {
 }
 
 /* ================= STYLES ================= */
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F6F9FF" },
-
-  header: {
-    backgroundColor: "#0052A2",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 16,
-  },
-
-  headerTitle: {
-    color: "#fff",
-    fontSize: 22,
-    fontWeight: "700",
-  },
-
-  dots: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginVertical: 8,
-  },
-
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#ccc",
-    marginHorizontal: 4,
-  },
-
-  activeDot: {
-    width: 16,
-    backgroundColor: "#0B5ED7",
-  },
-
-  heroCard: {
-    backgroundColor: "#4c73ac",
-    margin: 16,
-    borderRadius: 18,
-    padding: 16,
-    alignItems: "center",
-  },
-
-  logo: {
-    width: 90,
-    height: 60,
-    resizeMode: "contain",
-    marginBottom: 10,
-  },
-
-  courseName: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "800",
-  },
-
-  tagline: {
-    color: "#DCE8FF",
-    fontSize: 12,
-    marginTop: 4,
-    marginBottom: 10,
-  },
-
-  infoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 6,
-  },
-
-  infoText: {
-    color: "#E8F0FF",
-    fontSize: 12,
-    marginLeft: 6,
-  },
-
-  sectionCard: {
-    backgroundColor: "#fff",
-    marginHorizontal: 16,
-    marginTop: 16,
-    borderRadius: 16,
-    padding: 16,
-  },
-
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    marginBottom: 10,
-  },
-
-  aboutText: {
-    fontSize: 13,
-    color: "#5F6F81",
-    lineHeight: 20,
-  },
-
-  chips: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-
-  chip: {
-    backgroundColor: "#E8F0FF",
-    color: "#0B5ED7",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 10,
-    fontSize: 12,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-
-  modeRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-
-  modeCard: {
-    width: "48%",
-    backgroundColor: "#F8FAFF",
-    borderRadius: 14,
-    padding: 14,
-    alignItems: "center",
-  },
-
-  modeTitle: {
-    marginTop: 6,
-    fontSize: 14,
-    fontWeight: "700",
-  },
-
-  modeSub: {
-    fontSize: 11,
-    color: "#5F6F81",
-    marginTop: 2,
-  },
-
-  actionRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginHorizontal: 16,
-    marginTop: 16,
-  },
-
-  callBtn: {
-    backgroundColor: "#e51515ee",
-    flex: 1,
-    marginRight: 8,
-    paddingVertical: 14,
-    borderRadius: 14,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  whatsappBtn: {
-    backgroundColor: "#25D366",
-    flex: 1,
-    marginLeft: 8,
-    paddingVertical: 14,
-    borderRadius: 14,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  actionText: {
-    color: "#fff",
-    fontWeight: "700",
-    marginLeft: 6,
-  },
-
-  videoBox: {
-    margin: 2,
-    marginTop: 32,
-    overflow: "hidden",
-    backgroundColor: "#000",
-  },
+  header:{backgroundColor:"#0052A2",flexDirection:"row",alignItems:"center",justifyContent:"space-between",padding:16},
+  headerTitle:{color:"#fff",fontSize:22,fontWeight:"700"},
+  dots:{flexDirection:"row",justifyContent:"center",marginVertical:8},
+  dot:{width:8,height:8,borderRadius:4,backgroundColor:"#ccc",marginHorizontal:4},
+  activeDot:{width:16,backgroundColor:"#0B5ED7"},
+  heroCard:{backgroundColor:"#4c73ac",margin:16,borderRadius:18,padding:16,alignItems:"center"},
+  logo:{width:90,height:60,resizeMode:"contain",marginBottom:10},
+  courseName:{color:"#fff",fontSize:20,fontWeight:"800"},
+  tagline:{color:"#DCE8FF",fontSize:12,marginTop:4,marginBottom:10},
+  infoRow:{flexDirection:"row",alignItems:"center",marginTop:6},
+  infoText:{color:"#E8F0FF",fontSize:12,marginLeft:6},
+  sectionCard:{backgroundColor:"#fff",marginHorizontal:16,marginTop:16,borderRadius:16,padding:16},
+  sectionTitle:{fontSize:16,fontWeight:"700",marginBottom:10},
+  aboutText:{fontSize:13,color:"#5F6F81",lineHeight:20},
+  chips:{flexDirection:"row",flexWrap:"wrap"},
+  chip:{backgroundColor:"#E8F0FF",color:"#0B5ED7",paddingHorizontal:12,paddingVertical:6,borderRadius:10,fontSize:12,marginRight:8,marginBottom:8},
+  modeRow:{flexDirection:"row",justifyContent:"space-between"},
+  modeCard:{width:"48%",backgroundColor:"#F8FAFF",borderRadius:14,padding:14,alignItems:"center"},
+  modeTitle:{marginTop:6,fontSize:14,fontWeight:"700"},
+  modeSub:{fontSize:11,color:"#5F6F81",marginTop:2},
+  actionRow:{flexDirection:"row",justifyContent:"space-between",marginHorizontal:16,marginTop:16},
+  callBtn:{backgroundColor:"#e51515ee",flex:1,marginRight:8,paddingVertical:14,borderRadius:14,flexDirection:"row",justifyContent:"center",alignItems:"center"},
+  whatsappBtn:{backgroundColor:"#25D366",flex:1,marginLeft:8,paddingVertical:14,borderRadius:14,flexDirection:"row",justifyContent:"center",alignItems:"center"},
+  actionText:{color:"#fff",fontWeight:"700",marginLeft:6},
+  starRow:{flexDirection:"row",marginBottom:10},
+  reviewInput:{backgroundColor:"#F8FAFF",borderRadius:10,padding:12,minHeight:80,marginBottom:10},
+  reviewBtn:{backgroundColor:"#0B5ED7",paddingVertical:12,borderRadius:30,flexDirection:"row",justifyContent:"center",alignItems:"center"},
+  reviewBtnText:{color:"#fff",fontWeight:"700",marginLeft:6},
+  reviewBox:{backgroundColor:"#F8FAFF",borderRadius:12,padding:12,marginBottom:10},
+  reviewHeader:{flexDirection:"row",justifyContent:"space-between",marginBottom:6},
+  reviewName:{fontSize:14,fontWeight:"700",color:"#004780"},
+  reviewText:{fontSize:13,color:"#5F6F81"},
+  videoBox:{margin:2,marginTop:32,overflow:"hidden",backgroundColor:"#000"},
 });

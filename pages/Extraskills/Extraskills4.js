@@ -11,6 +11,8 @@ import {
   Platform,
   StatusBar,
   useWindowDimensions,
+  TextInput,
+  Alert,
 } from "react-native";
 import { FontAwesome, Feather, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -42,6 +44,17 @@ export default function Extraskills4() {
   const adRef = useRef(null);
   const [activeAd, setActiveAd] = useState(0);
 
+  /* ===== REVIEW STATE ===== */
+  const [rating, setRating] = useState(0);
+  const [reviewText, setReviewText] = useState("");
+  const [reviews, setReviews] = useState([
+    {
+      name: "Student",
+      rating: 5,
+      comment: "Great studio with professional trainers!",
+    },
+  ]);
+
   /* AUTO SCROLL ADS */
   useEffect(() => {
     const timer = setInterval(() => {
@@ -60,6 +73,21 @@ export default function Extraskills4() {
 
   const handleCall = () =>
     Linking.openURL("tel:+123456789");
+
+  const submitReview = () => {
+    if (rating === 0 || reviewText.trim() === "") {
+      Alert.alert("Incomplete", "Please give rating and write review");
+      return;
+    }
+
+    setReviews([
+      { name: "Anonymous", rating, comment: reviewText },
+      ...reviews,
+    ]);
+
+    setRating(0);
+    setReviewText("");
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -86,11 +114,6 @@ export default function Extraskills4() {
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={(e) =>
-            setActiveAd(
-              Math.round(e.nativeEvent.contentOffset.x / width)
-            )
-          }
         >
           {ads.map((img, i) => (
             <Image
@@ -116,14 +139,7 @@ export default function Extraskills4() {
 
         {/* ===== HERO CARD ===== */}
         <View style={styles.heroCard}>
-          <Image
-            source={STUDIO_LOGO}
-            style={[
-              styles.heroLogo,
-              isTablet && { width: 110, height: 110 },
-            ]}
-          />
-
+          <Image source={STUDIO_LOGO} style={styles.heroLogo} />
           <Text style={styles.heroTitle}>eMotion Dance Studio</Text>
           <Text style={styles.heroTagline}>
             Dance · Fitness · Fine Arts
@@ -131,9 +147,7 @@ export default function Extraskills4() {
 
           <View style={styles.infoRow}>
             <Ionicons name="location-outline" size={16} color="#E8F0FF" />
-            <Text style={styles.infoText}>
-              Nagercoil, Tamil Nadu
-            </Text>
+            <Text style={styles.infoText}>Nagercoil, Tamil Nadu</Text>
           </View>
         </View>
 
@@ -174,14 +188,7 @@ export default function Extraskills4() {
           <Text style={styles.sectionTitle}>Gallery</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {galleryImages.map((img, i) => (
-              <Image
-                key={i}
-                source={img}
-                style={[
-                  styles.galleryImage,
-                  isTablet && { width: 140, height: 140 },
-                ]}
-              />
+              <Image key={i} source={img} style={styles.galleryImage} />
             ))}
           </ScrollView>
         </View>
@@ -192,9 +199,60 @@ export default function Extraskills4() {
           <Text style={styles.sectionText}>
             Mr. Ram Ranjith is a visionary artistic director and accomplished
             fitness instructor with over two decades of experience in dance and
-            fine arts. He is a certified Zumba trainer and a proud alumnus of
-            Kalaamandalam.
+            fine arts.
           </Text>
+        </View>
+
+        {/* ===== RATE & REVIEW ===== */}
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>Rate & Review</Text>
+
+          <View style={styles.starRow}>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <TouchableOpacity key={i} onPress={() => setRating(i)}>
+                <Ionicons
+                  name={i <= rating ? "star" : "star-outline"}
+                  size={28}
+                  color="#FFD700"
+                />
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <TextInput
+            placeholder="Write your review..."
+            value={reviewText}
+            onChangeText={setReviewText}
+            multiline
+            style={styles.reviewInput}
+          />
+
+          <TouchableOpacity style={styles.reviewBtn} onPress={submitReview}>
+            <Ionicons name="send" size={18} color="#fff" />
+            <Text style={styles.reviewBtnText}>Submit Review</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* ===== REVIEWS LIST ===== */}
+        <View style={styles.sectionCard}>
+          {reviews.map((r, i) => (
+            <View key={i} style={styles.reviewCard}>
+              <View style={styles.reviewHeader}>
+                <Text style={styles.reviewName}>{r.name}</Text>
+                <View style={{ flexDirection: "row" }}>
+                  {[1, 2, 3, 4, 5].map((x) => (
+                    <Ionicons
+                      key={x}
+                      name={x <= r.rating ? "star" : "star-outline"}
+                      size={14}
+                      color="#FFD700"
+                    />
+                  ))}
+                </View>
+              </View>
+              <Text style={styles.reviewText}>{r.comment}</Text>
+            </View>
+          ))}
         </View>
 
         {/* ===== CALL & WHATSAPP ===== */}
@@ -393,6 +451,58 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "700",
     marginLeft: 6,
+  },
+
+  starRow: {
+    flexDirection: "row",
+    marginBottom: 10,
+  },
+
+  reviewInput: {
+    backgroundColor: "#F6F9FF",
+    borderRadius: 12,
+    padding: 12,
+    minHeight: 80,
+    marginBottom: 10,
+  },
+
+  reviewBtn: {
+    backgroundColor: "#0B5ED7",
+    paddingVertical: 12,
+    borderRadius: 30,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  reviewBtnText: {
+    color: "#fff",
+    fontWeight: "700",
+    marginLeft: 6,
+  },
+
+  reviewCard: {
+    backgroundColor: "#F8FAFF",
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 10,
+  },
+
+  reviewHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 6,
+  },
+
+  reviewName: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#0B5ED7",
+  },
+
+  reviewText: {
+    fontSize: 13,
+    color: "#4B5563",
   },
 
   videoBox: {
