@@ -1,224 +1,361 @@
-import React from 'react';
+// Exam3.js - Based on your reference code
+import React, { useRef, useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
-  SafeAreaView,
-  Linking,
+  Image,
   TouchableOpacity,
-  Platform,
-  StatusBar,
+  ScrollView,
   useWindowDimensions,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import Footer from '../../src/components/Footer';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { WebView } from "react-native-webview";
+import Footer from "../../src/components/Footer";
 
-export default function Exam3() {
-  const navigation = useNavigation();
+/* ===== BANNER DATA ===== */
+const bannerData = [
+  {
+    title: "Build Your Career With",
+    line1: "TOP TUITION CENTRE",
+    line2: "PROGRAMS",
+    info: "Apply Now",
+    image: require("../../assets/Global.png"),
+  },
+  {
+    title: "Exam Preparation Made Easy",
+    line1: "EXPERT GUIDANCE",
+    line2: "& SUPPORT",
+    info: "Enroll Today",
+    image: require("../../assets/Global.png"),
+  },
+  {
+    title: "Learn. Innovate. Succeed.",
+    line1: "QUALITY",
+    line2: "EDUCATION",
+    info: "Join Now",
+    image: require("../../assets/Global.png"),
+  },
+];
+
+export default function Exam3({ navigation }) {
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
+  const isWeb = width >= 1024;
+
+  const scrollRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  /* ===== AUTO SCROLL BANNER ===== */
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => {
+        const next = (prev + 1) % bannerData.length;
+        scrollRef.current?.scrollTo({
+          x: next * width,
+          animated: true,
+        });
+        return next;
+      });
+    }, 3500);
+
+    return () => clearInterval(timer);
+  }, [width]);
 
   return (
-    <SafeAreaView style={styles.safe}>
-      {/* Status Bar */}
-      <StatusBar barStyle="light-content" backgroundColor="#0052A2" />
+    <SafeAreaView style={styles.container}>
+      {/* ===== HEADER ===== */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="#fff" />
+        </TouchableOpacity>
 
-      {/* Header (Same as Exam2) */}
-      <View style={styles.headerWrapper}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backBtn}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons
-              name={Platform.OS === 'ios' ? 'chevron-back' : 'arrow-back'}
-              size={24}
-              color="#fff"
-            />
-          </TouchableOpacity>
-
-          <Text style={styles.headerTitle}>Exam Details</Text>
-
-          {/* Spacer for centering */}
-          <View style={styles.rightSpace} />
-        </View>
+        <Text style={styles.headerTitle}>Exam Details</Text>
+        <View style={{ width: 24 }} />
       </View>
 
-      {/* Content */}
-      <ScrollView
-        style={[
-          styles.container,
-          isTablet && styles.tabletContainer,
-        ]}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Blue Banner */}
-        <View style={styles.banner}>
-          <Text
-            style={[
-              styles.bannerText,
-              isTablet && { fontSize: 22 },
-            ]}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* ===== BANNER SLIDER ===== */}
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={(e) => {
+            const index = Math.round(
+              e.nativeEvent.contentOffset.x / width
+            );
+            setActiveIndex(index);
+          }}
+        >
+          {bannerData.map((item, index) => (
+            <View key={index} style={{ width }}>
+              <Image
+                source={item.image}
+                style={[
+                  styles.bannerImage,
+                  { height: isTablet ? 260 : 200 },
+                ]}
+              />
+
+              <View style={styles.overlay}>
+                <Text style={styles.title}>{item.title}</Text>
+                <Text style={styles.line1}>{item.line1}</Text>
+                <Text style={styles.line2}>{item.line2}</Text>
+                <Text style={styles.info}>{item.info}</Text>
+              </View>
+            </View>
+          ))}
+        </ScrollView>
+
+        {/* ===== PAGINATION DOTS ===== */}
+        <View style={styles.pagination}>
+          {bannerData.map((_, index) => (
+            <View
+              key={index}
+              style={[
+                styles.dot,
+                activeIndex === index && styles.activeDot,
+              ]}
+            />
+          ))}
+        </View>
+
+        {/* ===== 2 COLUMN GRID ===== */}
+        <View style={styles.grid}>
+          <TouchableOpacity
+            style={styles.gridCard}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate("ExamDetailsFull")}
           >
-            Class 12 Public Exams
+            <Ionicons name="document-text" size={40} color="#4A90E2" />
+            <Text style={styles.gridTitle}>Exam Details</Text>
+            <Text style={styles.gridSub}>Explore complete exam information</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.gridCard}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate("InstitutionsList")}
+          >
+            <Ionicons name="business" size={40} color="#50C878" />
+            <Text style={styles.gridTitle}>Institutions</Text>
+            <Text style={styles.gridSub}>
+              Explore top tuition centers
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* ===== YOUTUBE VIDEO ===== */}
+        <View style={styles.videoSection}>
+          <View style={styles.videoHeader}>
+            <View style={styles.youtubeIcon}>
+              <Ionicons name="logo-youtube" size={24} color="#FF0000" />
+              <Text style={styles.youtubeText}>YouTube</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.openAppButton}
+              onPress={() => Linking.openURL("https://www.youtube.com")}
+            >
+              <Text style={styles.openAppText}>Open App</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <View style={styles.videoBox}>
+            <WebView
+              allowsFullscreenVideo
+              javaScriptEnabled
+              domStorageEnabled
+              originWhitelist={["*"]}
+              source={{
+                uri: "https://www.youtube.com/embed/L2zqTYgcpfg",
+              }}
+              style={{
+                height: isWeb ? 360 : isTablet ? 300 : 250,
+                width: "100%",
+              }}
+            />
+          </View>
+          
+          <Text style={styles.videoDescription}>
+            Horizon School Ad | A Heartfelt Journey of Learning and Growth
           </Text>
         </View>
 
-        {/* Websites Section */}
-        <Text style={styles.sectionTitle}>
-          Tamil Nadu Directorate of Government Examinations (TNDGE)
-        </Text>
-
-        <Text style={styles.subTitle}>Official websites:</Text>
-
-        <TouchableOpacity onPress={() => Linking.openURL('https://dge.tn.gov.in')}>
-          <Text style={styles.linkText}>• dge.tn.gov.in</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => Linking.openURL('https://tnresults.nic.in')}>
-          <Text style={styles.linkText}>• tnresults.nic.in</Text>
-        </TouchableOpacity>
-
-        {/* Exam Schedule */}
-        <Text style={styles.sectionTitle}>Exam Schedule – 2025</Text>
-        <Text>(As per official timetable released)</Text>
-        <Text>• Starts: March 5, 2025</Text>
-        <Text>• Ends: March 25, 2025</Text>
-        <Text>• Time: 10:00 AM to 1:15 PM</Text>
-
-        {/* Syllabus & Groups */}
-        <Text style={styles.sectionTitle}>Syllabus & Groups</Text>
-        <Text>Tamil Nadu offers several HSC academic streams:</Text>
-
-        <Text style={styles.bullet}>
-          • Science: Physics, Chemistry, Biology / Computer Science / Maths
-        </Text>
-        <Text style={styles.bullet}>
-          • Commerce: Accountancy, Economics, Business Maths, Computer Applications
-        </Text>
-        <Text style={styles.bullet}>
-          • Arts: History, Political Science, Sociology, etc.
-        </Text>
-        <Text style={styles.bullet}>
-          • Vocational Courses: Agriculture, Textile, IT, etc.
-        </Text>
-
-        <Text>
-          Full syllabus is available at:{' '}
-          <Text
-            style={styles.linkText}
-            onPress={() => Linking.openURL('https://dge.tn.gov.in')}
-          >
-            dge.tn.gov.in → HSC → Curriculum/Syllabus
-          </Text>
-        </Text>
-
-        {/* Exam Pattern */}
-        <Text style={styles.sectionTitle}>Exam Pattern & Marks</Text>
-        <Text>• Each subject: 100 marks</Text>
-        <Text>• Theory: 70–90 marks | Practical/Internal: 10–30 marks</Text>
-        <Text>• Pass Mark: 35% in each subject</Text>
-        <Text>• Language papers also require minimum 35 marks</Text>
+        <View style={{ height: 80 }} />
       </ScrollView>
-      <Footer/>
+
+      <Footer />
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  /* Safe */
-  safe: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
+/* ================= STYLES ================= */
 
-  /* Header */
-  headerWrapper: {
-    backgroundColor: '#0052A2',
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F4F8FF",
   },
 
   header: {
-    height: Platform.OS === 'ios' ? 52 : 64,
-    backgroundColor: '#0052A2',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: Platform.OS === 'ios' ? 6 : 8,
-  },
-
-  backBtn: {
-    width: 40,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
+    backgroundColor: "#0052A2",
+    padding: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
 
   headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: Platform.OS === 'ios' ? 17 : 18,
-    fontWeight: Platform.OS === 'ios' ? '600' : '700',
-    color: '#fff',
+    color: "#fff",
+    fontSize: 22,
+    fontWeight: "700",
+    marginRight: 25,
   },
 
-  rightSpace: {
-    width: 40,
+  bannerImage: {
+    width: "100%",
+    resizeMode: "cover",
   },
 
-  /* Containers */
-  container: {
-    flex: 1,
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.45)",
+    paddingHorizontal: 20,
+    justifyContent: "center",
+  },
+
+  title: {
+    color: "#E8F0FF",
+    fontSize: 14,
+    marginBottom: 6,
+  },
+
+  line1: {
+    color: "#fff",
+    fontSize: 22,
+    fontWeight: "800",
+  },
+
+  line2: {
+    color: "#fff",
+    fontSize: 22,
+    fontWeight: "800",
+    marginBottom: 10,
+  },
+
+  info: {
+    color: "#FFD966",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+
+  pagination: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginVertical: 10,
+  },
+
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#ccc",
+    marginHorizontal: 4,
+  },
+
+  activeDot: {
+    width: 16,
+    backgroundColor: "#0B5ED7",
+  },
+
+  grid: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    marginTop: 16,
+  },
+
+  gridCard: {
+    width: "49%",
+    height: "100%",
+    backgroundColor: "#fff",
+    borderRadius: 22,
+    padding: 27,
+    alignItems: "center",
+    elevation: 4,
+    marginTop: 15,
+  },
+
+  gridTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    marginTop: 10,
+    color: "#003366",
+  },
+
+  gridSub: {
+    fontSize: 12,
+    color: "#666",
+    textAlign: "center",
+    marginTop: 4,
+  },
+
+  videoSection: {
+    marginTop: 55,
     paddingHorizontal: 16,
   },
 
-  tabletContainer: {
-    paddingHorizontal: 40,
+  videoHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 16,
   },
 
-  /* Banner */
-  banner: {
-    backgroundColor: '#014F89',
-    paddingVertical: 22,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 24,
-    marginBottom: 24,
+  youtubeIcon: {
+    flexDirection: "row",
+    alignItems: "center",
   },
 
-  bannerText: {
-    color: '#fff',
+  youtubeText: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: "700",
+    color: "#333",
+    marginLeft: 8,
   },
 
-  /* Content */
-  content: {
-    paddingBottom: 40,
+  openAppButton: {
+    backgroundColor: "#FF0000",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
   },
 
-  sectionTitle: {
+  openAppText: {
+    color: "#fff",
     fontSize: 14,
-    fontWeight: '700',
-    color: '#003366',
+    fontWeight: "600",
+  },
+
+  videoBox: {
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: "#000",
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+
+  videoDescription: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
     marginTop: 12,
-    marginBottom: 10,
-  },
-
-  subTitle: {
-    fontWeight: '600',
-    marginBottom: 5,
-  },
-
-  linkText: {
-    color: '#005aa7',
-    textDecorationLine: 'underline',
-    marginBottom: 5,
-  },
-
-  bullet: {
-    marginLeft: 4,
-    marginBottom: 10,
+    fontStyle: "italic",
+    lineHeight: 20,
   },
 });

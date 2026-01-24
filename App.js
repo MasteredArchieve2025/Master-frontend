@@ -32,12 +32,14 @@ import Course4 from "./pages/Course/Course4";
 import Exam1 from "./pages/Exam/Exam1";
 import Exam2 from "./pages/Exam/Exam2";
 import Exam3 from "./pages/Exam/Exam3";
+import ExamDetailsFull from "./pages/Exam/ExamDetailsFull";
+import InstituteDetails from "./pages/Tutions/Tutions3";
+import InstitutionsList from "./pages/Exam/InstitutionsList";
 
 import Iq1 from "./pages/IqTest/Iq1";
 import Iq2 from "./pages/IqTest/Iq2";
 import Iq3 from "./pages/IqTest/Iq3";
 import IqResult from "./pages/IqTest/IqResult";
-
 
 import Extraskills1 from "./pages/Extraskills/Extraskills1";
 import Extraskills2 from "./pages/Extraskills/Extraskills2";
@@ -47,7 +49,6 @@ import Extraskills4 from "./pages/Extraskills/Extraskills4";
 import Tution1 from "./pages/Tutions/Tutions1";
 import Tution2 from "./pages/Tutions/Tutions2";
 import Tution3 from "./pages/Tutions/Tutions3";
-
 
 import BlogsScreen from "./pages/Blogs/BlogsScreen";
 import BlogDetailScreen from "./pages/Blogs/BlogDetailScreen";
@@ -80,9 +81,7 @@ export default function App() {
         <Stack.Screen name="School1" component={School1} />
         <Stack.Screen name="School2" component={School2} />
 
-      
-        
-                <Stack.Screen name="College0" component={College0} />
+        <Stack.Screen name="College0" component={College0} />
 
         <Stack.Screen name="College1" component={College1} />
         <Stack.Screen name="College2" component={College2} />
@@ -97,34 +96,31 @@ export default function App() {
         <Stack.Screen name="Exam1" component={Exam1} />
         <Stack.Screen name="Exam2" component={Exam2} />
         <Stack.Screen name="Exam3" component={Exam3} />
+        <Stack.Screen name="ExamDetailsFull" component={ExamDetailsFull} />
+        <Stack.Screen name="InstituteDetails" component={InstituteDetails} />
+        <Stack.Screen name="InstitutionsList" component={InstitutionsList} />
 
         <Stack.Screen name="Iq1" component={Iq1} />
         <Stack.Screen name="Iq2" component={Iq2} />
         <Stack.Screen name="Iq3" component={Iq3} />
         <Stack.Screen name="IqResult" component={IqResult} />
 
-       
-
         <Stack.Screen name="Extraskills1" component={Extraskills1} />
         <Stack.Screen name="Extraskills2" component={Extraskills2} />
         <Stack.Screen name="Extraskills3" component={Extraskills3} />
         <Stack.Screen name="Extraskills4" component={Extraskills4} />
 
-         <Stack.Screen name="Tutions1" component={Tution1} />
-         <Stack.Screen name="Tutions2" component={Tution2} />
-         <Stack.Screen name="Tutions3" component={Tution3} />
+        <Stack.Screen name="Tutions1" component={Tution1} />
+        <Stack.Screen name="Tutions2" component={Tution2} />
+        <Stack.Screen name="Tutions3" component={Tution3} />
 
+        <Stack.Screen name="BlogsScreen" component={BlogsScreen} />
+        <Stack.Screen name="BlogDetailScreen" component={BlogDetailScreen} />
 
-
-         <Stack.Screen name="BlogsScreen" component={BlogsScreen} />
-<Stack.Screen name="BlogDetailScreen" component={BlogDetailScreen} />
-
-         <Stack.Screen name="Collegecourse1" component={Collegecourse1} />
-                  <Stack.Screen name="Collegecourse2" component={Collegecourse2} />
-                  <Stack.Screen name="Collegecourse3" component={Collegecourse3} />
-                  <Stack.Screen name="Collegecourse4" component={Collegecourse4} />
-
-
+        <Stack.Screen name="Collegecourse1" component={Collegecourse1} />
+        <Stack.Screen name="Collegecourse2" component={Collegecourse2} />
+        <Stack.Screen name="Collegecourse3" component={Collegecourse3} />
+        <Stack.Screen name="Collegecourse4" component={Collegecourse4} />
       </Stack.Navigator>
     </NavigationContainer>
   );
