@@ -47,7 +47,6 @@ export default function Tution1({ navigation }) {
       <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
     </TouchableOpacity>
   );
-
   return (
     <SafeAreaView style={styles.container}>
       {/* ===== HEADER (SAME AS OTHER PAGES) ===== */}

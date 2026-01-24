@@ -17,6 +17,7 @@ import Feedback from "./pages/Feedback/Feedback";
 
 import School1 from "./pages/School/School1";
 import School2 from "./pages/School/School2";
+import School3 from "./pages/School/School3";
 
 import College0 from "./pages/College/College0";
 import College1 from "./pages/College/College1";
@@ -80,6 +81,8 @@ export default function App() {
 
         <Stack.Screen name="School1" component={School1} />
         <Stack.Screen name="School2" component={School2} />
+                <Stack.Screen name="School3" component={School3} />
+
 
         <Stack.Screen name="College0" component={College0} />
 

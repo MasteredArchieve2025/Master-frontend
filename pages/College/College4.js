@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -13,15 +13,42 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { WebView } from "react-native-webview";
 import Footer from "../../src/components/Footer";
 
 const { width } = Dimensions.get("window");
 const isTablet = width >= 768;
 
+/* ===== AD BANNERS (SAME AS TUTION2) ===== */
+const bannerAds = [
+  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
+  "https://images.unsplash.com/photo-1509062522246-3755977927d7",
+  "https://images.unsplash.com/photo-1551650975-87deedd944c3",
+];
+
 const College4 = ({ route }) => {
   const navigation = useNavigation();
   const { college } = route?.params || {};
   const [activeTab, setActiveTab] = useState("Placement");
+
+  const bannerRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  /* AUTO SCROLL BANNERS */
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => {
+        const next = (prev + 1) % bannerAds.length;
+        bannerRef.current?.scrollTo({
+          x: next * width,
+          animated: true,
+        });
+        return next;
+      });
+    }, 3000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const renderContent = () => {
     if (activeTab !== "Placement") {
@@ -68,7 +95,9 @@ const College4 = ({ route }) => {
           competencies.
         </Text>
 
-        <Text style={styles.holisticTitle}>Holistic Career Preparation</Text>
+        <Text style={styles.holisticTitle}>
+          Holistic Career Preparation
+        </Text>
       </View>
     );
   };
@@ -77,10 +106,13 @@ const College4 = ({ route }) => {
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="light-content" backgroundColor="#0052A2" />
 
-      {/* ---------- HEADER (COMMON) ---------- */}
+      {/* ===== HEADER ===== */}
       <View style={styles.headerWrapper}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backBtn}
+          >
             <Ionicons
               name={Platform.OS === "ios" ? "chevron-back" : "arrow-back"}
               size={24}
@@ -89,16 +121,48 @@ const College4 = ({ route }) => {
           </TouchableOpacity>
 
           <Text style={styles.headerTitle}>College Details</Text>
-
           <View style={{ width: 40 }} />
         </View>
       </View>
 
-      {/* ---------- BODY ---------- */}
       <ScrollView showsVerticalScrollIndicator={false}>
-       
+        {/* ===== TOP AUTO SCROLL BANNER ===== */}
+        <ScrollView
+          ref={bannerRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={(e) =>
+            setActiveIndex(Math.round(e.nativeEvent.contentOffset.x / width))
+          }
+        >
+          {bannerAds.map((img, index) => (
+            <Image
+              key={index}
+              source={{ uri: img }}
+              style={{
+                width,
+                height: isTablet ? 150 : 180,
+              }}
+              resizeMode="cover"
+            />
+          ))}
+        </ScrollView>
 
-        {/* Logo */}
+        {/* DOTS */}
+        <View style={styles.dots}>
+          {bannerAds.map((_, i) => (
+            <View
+              key={i}
+              style={[
+                styles.dot,
+                activeIndex === i && styles.activeDot,
+              ]}
+            />
+          ))}
+        </View>
+
+        {/* LOGO */}
         <View style={styles.logoContainer}>
           <Image
             source={require("../../assets/collegeicon.png")}
@@ -106,7 +170,7 @@ const College4 = ({ route }) => {
           />
         </View>
 
-        {/* College Name */}
+        {/* COLLEGE NAME */}
         <Text style={styles.collegeName}>
           Arunachala College of Engineering
         </Text>
@@ -114,7 +178,7 @@ const College4 = ({ route }) => {
           For Women, Nagercoil
         </Text>
 
-        {/* Tabs */}
+        {/* TABS */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -137,52 +201,77 @@ const College4 = ({ route }) => {
         </ScrollView>
 
         {renderContent()}
+
+        {/* ===== VIDEO AD (SAME AS TUTION2) ===== */}
+        <View style={styles.videoBox}>
+          <WebView
+            allowsFullscreenVideo
+            source={{
+              uri: "https://www.youtube.com/watch?v=NONufn3jgXI",
+            }}
+            style={{
+              height: isTablet ? 260 : 220,
+              width: "100%",
+            }}
+          />
+        </View>
+
+        <View style={{ height: 120 }} />
       </ScrollView>
-      <Footer/>
+
+      <Footer />
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: "#FCFCFC",
-  },
+/* ================= STYLES ================= */
 
-  /* ---------- HEADER ---------- */
-  headerWrapper: {
-    backgroundColor: "#0052A2",
-  },
+const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: "#FCFCFC" },
+
+  headerWrapper: { backgroundColor: "#0052A2" },
+
   header: {
     height: Platform.OS === "ios" ? 52 : 64,
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
   },
-  backBtn: {
-    width: 40,
-  },
+
+  backBtn: { width: 40 },
+
   headerTitle: {
     flex: 1,
     textAlign: "center",
     color: "#fff",
-    fontSize: Platform.OS === "ios" ? 17 : 18,
+    fontSize: 18,
     fontWeight: "700",
   },
 
-  /* ---------- BODY ---------- */
-  greeting: {
-    fontSize: isTablet ? 28 : 24,
-    fontWeight: "bold",
-    color: "#005AA1",
-    paddingHorizontal: 20,
-    marginTop: 15,
+  dots: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginVertical: 8,
+  },
+
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#ccc",
+    marginHorizontal: 4,
+  },
+
+  activeDot: {
+    width: 16,
+    backgroundColor: "#0B5ED7",
   },
 
   logoContainer: {
     alignItems: "center",
     marginVertical: 20,
   },
+
   logo: {
     width: isTablet ? 220 : 170,
     height: isTablet ? 240 : 190,
@@ -195,6 +284,7 @@ const styles = StyleSheet.create({
     color: "#005AA1",
     textAlign: "center",
   },
+
   collegeSubName: {
     fontSize: isTablet ? 18 : 16,
     fontWeight: "600",
@@ -203,13 +293,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
-  /* Tabs */
   tabsContainer: {
     paddingHorizontal: 20,
     paddingBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#E0E0E0",
   },
+
   tabText: {
     fontSize: isTablet ? 16 : 14,
     color: "#757575",
@@ -217,22 +307,22 @@ const styles = StyleSheet.create({
     marginRight: 20,
     paddingBottom: 6,
   },
+
   activeTabText: {
     color: "#005AA1",
     borderBottomWidth: 2,
     borderBottomColor: "#005AA1",
   },
 
-  /* Content */
-  contentContainer: {
-    padding: 20,
-  },
+  contentContainer: { padding: 20 },
+
   contentTitle: {
     fontSize: isTablet ? 24 : 22,
     fontWeight: "bold",
     color: "#333",
     marginBottom: 10,
   },
+
   contentSubtitle: {
     fontSize: isTablet ? 18 : 16,
     fontWeight: "bold",
@@ -241,24 +331,22 @@ const styles = StyleSheet.create({
     marginVertical: 15,
   },
 
-  placementContent: {
-    flexDirection: "row",
-    marginBottom: 15,
-  },
+  placementContent: { flexDirection: "row", marginBottom: 15 },
+
   officerImage: {
     width: isTablet ? 140 : 100,
     height: isTablet ? 170 : 120,
     borderRadius: 8,
   },
-  placementText: {
-    flex: 1,
-    marginLeft: 15,
-  },
+
+  placementText: { flex: 1, marginLeft: 15 },
+
   officerName: {
     fontSize: isTablet ? 18 : 16,
     fontWeight: "bold",
     color: "#333",
   },
+
   officerTitle: {
     fontSize: isTablet ? 16 : 14,
     color: "#757575",
@@ -278,6 +366,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#005AA1",
     marginTop: 20,
+  },
+
+  videoBox: {
+    marginHorizontal: 16,
+    marginTop: 30,
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: "#000",
   },
 });
 
