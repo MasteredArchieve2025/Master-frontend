@@ -18,41 +18,57 @@ import { useNavigation } from "@react-navigation/native";
 import { WebView } from "react-native-webview";
 import Footer from "../../src/components/Footer";
 
-/* ===== AD BANNERS (SAME AS TUTION2) ===== */
+/* ===== AD BANNERS ===== */
 const bannerAds = [
   "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
   "https://images.unsplash.com/photo-1509062522246-3755977927d7",
   "https://images.unsplash.com/photo-1551650975-87deedd944c3",
 ];
 
+/* ===== SCHOOL DATA ===== */
 const schools = [
   {
     id: "1",
-    name: "Josephs Matric HR Sec School, Sasthankari, Colachel",
+    name: "Josephs Matric HR Sec School",
+    location: "Colachel · 1.2 km",
+    board: "Govt.School",
+    type: "Public",
     image: require("../../assets/school.png"),
     category: "Govt.School",
   },
   {
     id: "2",
-    name: "St. Mary’s CBSE School, Nagercoil",
+    name: "St. Mary’s CBSE School",
+    location: "Nagercoil · 2.5 km",
+    board: "CBSE",
+    type: "Private",
     image: require("../../assets/school.png"),
     category: "CBSE",
   },
   {
     id: "3",
-    name: "National Public School, Chennai",
+    name: "National Public School",
+    location: "Chennai · 4.0 km",
+    board: "ICSE",
+    type: "Day School",
     image: require("../../assets/school.png"),
     category: "ICSE",
   },
   {
     id: "4",
-    name: "Velammal State Board School, Madurai",
+    name: "Velammal State Board School",
+    location: "Madurai · 3.2 km",
+    board: "State Board",
+    type: "Private",
     image: require("../../assets/school.png"),
     category: "State Board",
   },
   {
     id: "5",
-    name: "Govt Higher Secondary School, Trichy",
+    name: "Govt Higher Secondary School",
+    location: "Trichy · 5.0 km",
+    board: "Govt.School",
+    type: "Public",
     image: require("../../assets/school.png"),
     category: "Govt.School",
   },
@@ -64,7 +80,7 @@ export default function School2() {
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
 
-  /* Banner logic */
+  /* ===== BANNER LOGIC ===== */
   const bannerRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -72,7 +88,10 @@ export default function School2() {
     const timer = setInterval(() => {
       setActiveIndex((prev) => {
         const next = (prev + 1) % bannerAds.length;
-        bannerRef.current?.scrollTo({ x: next * width, animated: true });
+        bannerRef.current?.scrollTo({
+          x: next * width,
+          animated: true,
+        });
         return next;
       });
     }, 3000);
@@ -84,53 +103,57 @@ export default function School2() {
       ? schools
       : schools.filter((s) => s.category === selectedCategory);
 
+  /* ===== TUTION2 STYLE CARD ===== */
   const renderSchoolCard = ({ item }) => (
-    <View style={styles.card}>
-      <Image source={item.image} style={styles.schoolImage} />
-      <View style={styles.schoolInfo}>
-        <Text style={styles.schoolName}>{item.name}</Text>
-        <TouchableOpacity
-          style={styles.readMoreBtn}
-          onPress={() => navigation.navigate("School3", { school: item })}
-        >
-          <Text style={styles.readMoreText}>Read more &gt;</Text>
-        </TouchableOpacity>
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.85}
+      onPress={() => navigation.navigate("School3", { school: item })}
+    >
+      <Image source={item.image} style={styles.image} />
+
+      <View style={styles.cardContent}>
+        <Text style={styles.name}>{item.name}</Text>
+        <Text style={styles.location}>📍 {item.location}</Text>
+
+        <View style={styles.tags}>
+          <Text style={styles.tagBlue}>{item.board}</Text>
+          <Text style={styles.tagGray}>{item.type}</Text>
+        </View>
       </View>
-    </View>
+
+      <Ionicons name="chevron-forward" size={18} color="#0B5ED7" />
+    </TouchableOpacity>
   );
 
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="light-content" backgroundColor="#0052A2" />
 
-      {/* HEADER */}
-      <View style={styles.headerWrapper}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backBtn}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons
-              name={Platform.OS === "ios" ? "chevron-back" : "arrow-back"}
-              size={24}
-              color="#fff"
-            />
-          </TouchableOpacity>
-
-          <Text style={styles.headerTitle}>Schools</Text>
-          <View style={styles.rightSpace} />
-        </View>
+      {/* ===== HEADER ===== */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons
+            name={Platform.OS === "ios" ? "chevron-back" : "arrow-back"}
+            size={24}
+            color="#fff"
+          />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Schools</Text>
+        <View style={{ width: 24 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* ===== TOP AD BANNER ===== */}
+        {/* ===== TOP ADS ===== */}
         <ScrollView
           ref={bannerRef}
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           onMomentumScrollEnd={(e) =>
-            setActiveIndex(Math.round(e.nativeEvent.contentOffset.x / width))
+            setActiveIndex(
+              Math.round(e.nativeEvent.contentOffset.x / width)
+            )
           }
         >
           {bannerAds.map((img, i) => (
@@ -159,7 +182,7 @@ export default function School2() {
           ))}
         </View>
 
-        {/* FILTERS */}
+        {/* FILTERS (UNCHANGED) */}
         <View style={styles.filterRow}>
           <View style={styles.filterInput}>
             <TextInput
@@ -167,7 +190,11 @@ export default function School2() {
               placeholderTextColor="#666"
               style={{ flex: 1 }}
             />
-            <Ionicons name="chevron-down-outline" size={16} color="#333" />
+            <Ionicons
+              name="chevron-down-outline"
+              size={16}
+              color="#333"
+            />
           </View>
           <View style={styles.filterInput}>
             <TextInput
@@ -175,35 +202,42 @@ export default function School2() {
               placeholderTextColor="#666"
               style={{ flex: 1 }}
             />
-            <Ionicons name="chevron-down-outline" size={16} color="#333" />
+            <Ionicons
+              name="chevron-down-outline"
+              size={16}
+              color="#333"
+            />
           </View>
         </View>
 
-        {/* CATEGORIES */}
+        {/* ===== CATEGORIES ===== */}
         <View style={styles.categories}>
-          {["All", "Govt.School", "State Board", "CBSE", "ICSE"].map((cat) => (
-            <TouchableOpacity
-              key={cat}
-              style={[
-                styles.categoryBtn,
-                selectedCategory === cat && styles.activeCategory,
-              ]}
-              onPress={() => setSelectedCategory(cat)}
-            >
-              <Text
+          {["All", "Govt.School", "State Board", "CBSE", "ICSE"].map(
+            (cat) => (
+              <TouchableOpacity
+                key={cat}
                 style={[
-                  styles.categoryText,
+                  styles.categoryBtn,
                   selectedCategory === cat &&
-                    styles.activeCategoryText,
+                    styles.activeCategory,
                 ]}
+                onPress={() => setSelectedCategory(cat)}
               >
-                {cat}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                <Text
+                  style={[
+                    styles.categoryText,
+                    selectedCategory === cat &&
+                      styles.activeCategoryText,
+                  ]}
+                >
+                  {cat}
+                </Text>
+              </TouchableOpacity>
+            )
+          )}
         </View>
 
-        {/* SCHOOL LIST */}
+        {/* ===== SCHOOL LIST ===== */}
         <FlatList
           data={filteredSchools}
           renderItem={renderSchoolCard}
@@ -212,7 +246,7 @@ export default function School2() {
           contentContainerStyle={{ paddingTop: 12 }}
         />
 
-        {/* ===== VIDEO AD ===== */}
+        {/* ===== VIDEO ===== */}
         <View style={styles.videoBox}>
           <WebView
             allowsFullscreenVideo
@@ -236,24 +270,18 @@ export default function School2() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#fff" },
 
-  headerWrapper: { backgroundColor: "#0052A2" },
-
   header: {
-    height: Platform.OS === "ios" ? 52 : 64,
+    backgroundColor: "#0052A2",
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
+    justifyContent: "space-between",
+    padding: 16,
   },
 
-  backBtn: { width: 40 },
-  rightSpace: { width: 40 },
-
   headerTitle: {
-    flex: 1,
-    textAlign: "center",
+    color: "#fff",
     fontSize: 18,
     fontWeight: "700",
-    color: "#fff",
   },
 
   dots: {
@@ -301,6 +329,7 @@ const styles = StyleSheet.create({
   },
 
   categoryBtn: { paddingBottom: 6 },
+
   categoryText: { fontSize: 14, color: "#333" },
 
   activeCategory: {
@@ -313,46 +342,63 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
+  /* ===== TUTION2 CARD STYLE ===== */
   card: {
     backgroundColor: "#fff",
-    borderRadius: 12,
-    marginHorizontal: 14,
-    marginBottom: 20,
-    padding: 16,
+    marginHorizontal: 16,
+    marginBottom: 14,
+    borderRadius: 16,
     flexDirection: "row",
-    elevation: 4,
+    alignItems: "center",
+    padding: 12,
+    elevation: Platform.OS === "android" ? 3 : 0,
   },
 
-  schoolImage: {
-    width: 75,
-    height: 75,
+  image: {
+    width: 70,
+    height: 70,
+    borderRadius: 12,
+  },
+
+  cardContent: {
+    flex: 1,
+    marginLeft: 12,
+  },
+
+  name: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#000",
+  },
+
+  location: {
+    fontSize: 12,
+    color: "#5F6F81",
+    marginTop: 4,
+  },
+
+  tags: {
+    flexDirection: "row",
+    marginTop: 8,
+  },
+
+  tagBlue: {
+    backgroundColor: "#E8F1FF",
+    color: "#0B5ED7",
+    fontSize: 11,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 8,
-    marginRight: 16,
+    marginRight: 8,
   },
 
-  schoolInfo: { flex: 1, paddingRight: 70 },
-
-  schoolName: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#003366",
-  },
-
-  readMoreBtn: {
-    position: "absolute",
-    bottom: -22,
-    right: -18,
-    backgroundColor: "#0052A2",
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderTopLeftRadius: 10,
-    borderBottomRightRadius: 12,
-  },
-
-  readMoreText: {
-    color: "#fff",
-    fontSize: 13,
-    fontWeight: "500",
+  tagGray: {
+    backgroundColor: "#F1F3F6",
+    color: "#5F6F81",
+    fontSize: 11,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
 
   videoBox: {

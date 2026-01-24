@@ -1,262 +1,365 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
+  FlatList,
   TouchableOpacity,
   Platform,
   StatusBar,
   SafeAreaView,
-} from 'react-native';
-import { MaterialIcons, Ionicons } from '@expo/vector-icons';
-import Button from '../../src/components/Button';
-import Footer from '../../src/components/Footer';
+  Dimensions,
+  Image,
+  ScrollView,
+} from "react-native";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
+import { WebView } from "react-native-webview";
+import Footer from "../../src/components/Footer";
+
+const { width } = Dimensions.get("window");
+const isTablet = width >= 768;
+
+/* ---------------- BANNER ADS ---------------- */
+const bannerAds = [
+  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
+  "https://images.unsplash.com/photo-1509062522246-3755977927d7",
+  "https://images.unsplash.com/photo-1551650975-87deedd944c3",
+];
+
+/* ---------------- EXTRA SKILLS DATA ---------------- */
 const activities = [
   {
-    title: 'Fine Arts',
-    icon: 'palette',
+    id: 1,
+    title: "Fine Arts",
+    icon: "palette",
     sections: [
       {
-        title: 'Dance Classes',
+        title: "Dance Classes",
         items: [
-          'Classical Dance',
-          'Western Dance',
-          'Folk Dance',
-          'Zumba / Fitness Dance',
-          'Freestyle & Choreography Training',
+          "Classical Dance",
+          "Western Dance",
+          "Folk Dance",
+          "Zumba / Fitness Dance",
+          "Freestyle & Choreography Training",
         ],
       },
       {
-        title: 'Music Classes',
+        title: "Music Classes",
         items: [
-          'Classical Vocal',
-          'Western Vocal',
-          'Devotional / Bhajan Singing',
-          'Folk Music Singing',
-          'Voice Culture & Training',
+          "Classical Vocal",
+          "Western Vocal",
+          "Devotional / Bhajan Singing",
+          "Folk Music Singing",
+          "Voice Culture & Training",
         ],
       },
       {
-        title: 'Drawing Classes',
+        title: "Drawing Classes",
         items: [
-          'Basic Drawing & Sketching',
-          'Creative Art & Imagination Drawing',
-          'Thematic & Subject Drawing',
-          'Professional Art Techniques',
-          'Art for School & Hobby',
-        ],
-      },
-    ],
-  },
-  {
-    title: 'Driving Class',
-    icon: 'directions-car',
-    sections: [
-      {
-        title: 'Driving Lessons',
-        items: [
-          'Two Wheeler',
-          'Four Wheeler',
-          'Heavy Vehicle',
-          'Driving Rules',
-          'Practical Lessons',
+          "Basic Drawing & Sketching",
+          "Creative Art & Imagination Drawing",
+          "Thematic & Subject Drawing",
+          "Professional Art Techniques",
+          "Art for School & Hobby",
         ],
       },
     ],
   },
   {
-    title: 'Athlete',
-    icon: 'directions-run',
+    id: 2,
+    title: "Driving Class",
+    icon: "directions-car",
     sections: [
       {
-        title: 'Athletics',
-        items: ['Track Running', 'Marathon Prep', 'High Jump', 'Long Jump'],
+        title: "Driving Lessons",
+        items: [
+          "Two Wheeler",
+          "Four Wheeler",
+          "Heavy Vehicle",
+          "Driving Rules",
+          "Practical Lessons",
+        ],
       },
     ],
   },
   {
-    title: 'Sports & Fitness Classes',
-    icon: 'sports-soccer',
-    sections: [
-      { title: 'Sports', items: ['Football', 'Cricket', 'Yoga', 'Gym', 'Swimming'] },
-    ],
-  },
-  {
-    title: 'Home Science',
-    icon: 'local-laundry-service',
+    id: 3,
+    title: "Athlete",
+    icon: "directions-run",
     sections: [
       {
-        title: 'Home Science',
-        items: ['Cooking', 'Sewing', 'Home Management', 'Interior Design'],
+        title: "Athletics",
+        items: [
+          "Track Running",
+          "Marathon Prep",
+          "High Jump",
+          "Long Jump",
+        ],
       },
     ],
   },
   {
-    title: 'Other Unique Classes',
-    icon: 'library-music',
+    id: 4,
+    title: "Sports & Fitness",
+    icon: "sports-soccer",
     sections: [
       {
-        title: 'Unique Classes',
-        items: ['Music Production', 'Creative Writing', 'Photography', 'Film Making'],
+        title: "Sports",
+        items: ["Football", "Cricket", "Yoga", "Gym", "Swimming"],
+      },
+    ],
+  },
+  {
+    id: 5,
+    title: "Home Science",
+    icon: "local-laundry-service",
+    sections: [
+      {
+        title: "Home Science",
+        items: [
+          "Cooking",
+          "Sewing",
+          "Home Management",
+          "Interior Design",
+        ],
+      },
+    ],
+  },
+  {
+    id: 6,
+    title: "Other Classes",
+    icon: "library-music",
+    sections: [
+      {
+        title: "Unique Classes",
+        items: [
+          "Music Production",
+          "Creative Writing",
+          "Photography",
+          "Film Making",
+        ],
       },
     ],
   },
 ];
 
 export default function Extraskills1({ navigation }) {
-  const handleDetailsPress = (category) => {
-    navigation.navigate('Extraskills2', {
-      categoryTitle: category.title,
-      sections: category.sections,
-    });
-  };
+  const bannerRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  /* AUTO SCROLL BANNERS */
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => {
+        const next = (prev + 1) % bannerAds.length;
+        bannerRef.current?.scrollTo({ x: next * width, animated: true });
+        return next;
+      });
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      activeOpacity={0.85}
+      style={styles.card}
+      onPress={() =>
+        navigation.navigate("Extraskills2", {
+          categoryTitle: item.title,
+          sections: item.sections,
+        })
+      }
+    >
+      {/* ICON WITH GRADIENT (SAME AS COURSE1) */}
+      <LinearGradient
+        colors={["#2295D2", "#284598"]}
+        style={styles.iconContainer}
+      >
+        <Icon name={item.icon} size={26} color="#fff" />
+      </LinearGradient>
+
+      <Text style={styles.title}>{item.title}</Text>
+
+      <Text style={styles.description}>
+        Explore creative and practical skill development programs
+      </Text>
+    </TouchableOpacity>
+  );
 
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="light-content" backgroundColor="#0052A2" />
 
-      {/* Header */}
+      {/* HEADER */}
       <View style={styles.headerWrapper}>
         <View style={styles.header}>
           <TouchableOpacity
-            style={styles.backBtn}
             onPress={() => navigation.goBack()}
+            style={styles.backBtn}
           >
             <Ionicons
-              name={Platform.OS === 'ios' ? 'chevron-back' : 'arrow-back'}
+              name={Platform.OS === "ios" ? "chevron-back" : "arrow-back"}
               size={24}
               color="#fff"
             />
           </TouchableOpacity>
 
           <Text style={styles.headerTitle}>Extra Skills</Text>
-
-          <View style={styles.rightSpace} />
+          <View style={{ width: 40 }} />
         </View>
       </View>
 
-      {/* Body */}
-      <ScrollView
-        style={styles.container}
-        showsVerticalScrollIndicator={false}
-      >
-        {activities.map((item, index) => (
-          <View key={index} style={styles.card}>
-            <View style={styles.leftSection}>
-              <Text style={styles.title}>{item.title}</Text>
-              <Text style={styles.description}>
-                Extra-curricular activities help students explore their interests
-                beyond academics, enhancing creativity, teamwork, and leadership
-                skills.
-              </Text>
-            </View>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* ===== TOP BANNER ADS ===== */}
+        <ScrollView
+          ref={bannerRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={(e) =>
+            setActiveIndex(Math.round(e.nativeEvent.contentOffset.x / width))
+          }
+        >
+          {bannerAds.map((img, i) => (
+            <Image
+              key={i}
+              source={{ uri: img }}
+              style={{ width, height: isTablet ? 160 : 190 }}
+              resizeMode="cover"
+            />
+          ))}
+        </ScrollView>
 
-            <View style={styles.rightSection}>
-              <MaterialIcons name={item.icon} size={50} color="#004780" />
-            </View>
+        {/* DOTS */}
+        <View style={styles.dots}>
+          {bannerAds.map((_, i) => (
+            <View
+              key={i}
+              style={[
+                styles.dot,
+                activeIndex === i && styles.activeDot,
+              ]}
+            />
+          ))}
+        </View>
 
-            <View style={styles.buttonContainer}>
-              <Button title="Details" onPress={() => handleDetailsPress(item)} />
-            </View>
-          </View>
-        ))}
+        {/* ===== EXTRA SKILLS GRID ===== */}
+        <FlatList
+          data={activities}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
+          contentContainerStyle={styles.list}
+          scrollEnabled={false}
+        />
+
+        {/* ===== VIDEO AD ===== */}
+        <View style={styles.videoBox}>
+          <WebView
+            allowsFullscreenVideo
+            source={{ uri: "https://www.youtube.com/watch?v=NONufn3jgXI" }}
+            style={{ height: isTablet ? 260 : 220 }}
+          />
+        </View>
+
+        <View style={{ height: 120 }} />
       </ScrollView>
-      <Footer/>
+
+      <Footer />
     </SafeAreaView>
   );
 }
 
+/* ---------------- STYLES (SAME AS COURSE1) ---------------- */
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: '#f8f8f8',
-  },
+  safe: { flex: 1, backgroundColor: "#fff" },
 
-  /* Header */
-  headerWrapper: {
-    backgroundColor: '#0052A2',
-  },
-
+  headerWrapper: { backgroundColor: "#0052A2" },
   header: {
-    height: Platform.OS === 'ios' ? 52 : 64,
-    backgroundColor: '#0052A2',
-    flexDirection: 'row',
-    alignItems: 'center',
+    height: Platform.OS === "ios" ? 52 : 64,
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
-    paddingVertical: Platform.OS === 'ios' ? 6 : 8,
   },
-
-  backBtn: {
-    width: 40,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-  },
-
+  backBtn: { width: 40 },
   headerTitle: {
     flex: 1,
-    textAlign: 'center',
-    fontSize: Platform.OS === 'ios' ? 17 : 18,
-    fontWeight: Platform.OS === 'ios' ? '600' : '700',
-    color: '#fff',
+    textAlign: "center",
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#fff",
   },
 
-  rightSpace: {
-    width: 40,
+  dots: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginVertical: 8,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#ccc",
+    marginHorizontal: 4,
+  },
+  activeDot: {
+    width: 16,
+    backgroundColor: "#0B5ED7",
   },
 
-  /* Body */
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f8f8',
+  list: {
     padding: 12,
   },
 
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 20,
-    paddingBottom: 40,
-    marginBottom: 16,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowOffset: { width: 2, height: 3 },
-    shadowRadius: 20,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    position: 'relative',
+  row: {
+    justifyContent: "space-between",
   },
 
-  leftSection: {
-    flex: 1,
-    paddingRight: 16,
+  card: {
+    backgroundColor: "#fff",
+    width: isTablet ? "48%" : "47%",
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 14,
+    alignItems: "center",
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+  },
+
+  iconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
   },
 
   title: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#004780',
-    marginBottom: 4,
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#004780",
+    textAlign: "center",
+    marginBottom: 6,
   },
 
   description: {
-    fontSize: 10,
-    color: '#000',
-    lineHeight: 13,
-    marginTop: 4,
+    fontSize: 11,
+    color: "#555",
+    textAlign: "center",
   },
 
-  rightSection: {
-    width: 60,
-    alignItems: 'center',
-    paddingBottom: 20,
-    justifyContent: 'center',
-  },
-
-  buttonContainer: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
+  videoBox: {
+    marginHorizontal: 16,
+    marginTop: 30,
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: "#000",
   },
 });

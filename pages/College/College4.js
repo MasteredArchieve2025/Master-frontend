@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   StatusBar,
   Dimensions,
+  Linking,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -19,14 +20,14 @@ import Footer from "../../src/components/Footer";
 const { width } = Dimensions.get("window");
 const isTablet = width >= 768;
 
-/* ===== AD BANNERS (SAME AS TUTION2) ===== */
+/* ===== AD BANNERS ===== */
 const bannerAds = [
   "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
   "https://images.unsplash.com/photo-1509062522246-3755977927d7",
   "https://images.unsplash.com/photo-1551650975-87deedd944c3",
 ];
 
-const College4 = ({ route }) => {
+export default function College4({ route }) {
   const navigation = useNavigation();
   const { college } = route?.params || {};
   const [activeTab, setActiveTab] = useState("Placement");
@@ -39,23 +40,31 @@ const College4 = ({ route }) => {
     const timer = setInterval(() => {
       setActiveIndex((prev) => {
         const next = (prev + 1) % bannerAds.length;
-        bannerRef.current?.scrollTo({
-          x: next * width,
-          animated: true,
-        });
+        bannerRef.current?.scrollTo({ x: next * width, animated: true });
         return next;
       });
     }, 3000);
-
     return () => clearInterval(timer);
   }, []);
 
+  /* ACTIONS */
+  const openMap = () =>
+    Linking.openURL(
+      "https://www.google.com/maps/search/?api=1&query=Arunachala+College+of+Engineering"
+    );
+
+  const callNow = () => Linking.openURL("tel:9876543210");
+
+  const openWhatsApp = () =>
+    Linking.openURL("https://wa.me/919876543210");
+
+  /* TAB CONTENT */
   const renderContent = () => {
     if (activeTab !== "Placement") {
       return (
-        <View style={styles.contentContainer}>
-          <Text style={styles.contentTitle}>{activeTab}</Text>
-          <Text style={styles.paragraph}>
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>{activeTab}</Text>
+          <Text style={styles.aboutText}>
             Details about {activeTab} will be available here.
           </Text>
         </View>
@@ -63,70 +72,61 @@ const College4 = ({ route }) => {
     }
 
     return (
-      <View style={styles.contentContainer}>
-        <Text style={styles.contentTitle}>Placement</Text>
+      <View style={styles.sectionCard}>
+        <Text style={styles.sectionTitle}>Placement</Text>
 
-        <Text style={styles.contentSubtitle}>
-          Training & Placement: Shaping Future-Ready Women Engineers
+        <Text style={styles.highlightText}>
+          Training & Placement: Shaping Future-Ready Engineers
         </Text>
 
-        <View style={styles.placementContent}>
+        <View style={styles.placementRow}>
           <Image
             source={require("../../assets/principal.jpg")}
             style={styles.officerImage}
           />
 
-          <View style={styles.placementText}>
+          <View style={{ flex: 1, marginLeft: 12 }}>
             <Text style={styles.officerName}>Mr. C.D. Prabakar</Text>
-            <Text style={styles.officerTitle}>Placement Officer</Text>
+            <Text style={styles.officerTitle}>
+              Training & Placement Officer
+            </Text>
 
-            <Text style={styles.paragraph}>
-              Led by Mr. C.D. Prabakar, the Training & Placement Department at
-              Arunachala College of Engineering for Women is dedicated to
-              preparing students for success in today’s fast-paced,
-              technology-driven world.
+            <Text style={styles.aboutText}>
+              The Training & Placement Department prepares students
+              for professional success through skill development,
+              industry exposure, and placement assistance.
             </Text>
           </View>
         </View>
 
-        <Text style={styles.paragraph}>
-          We are proud to be a leading institution for producing industry-ready
-          graduates who excel in technical skills and professional
-          competencies.
-        </Text>
-
-        <Text style={styles.holisticTitle}>
-          Holistic Career Preparation
+        <Text style={styles.aboutText}>
+          The institution consistently produces industry-ready
+          graduates with strong technical and professional skills.
         </Text>
       </View>
     );
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0052A2" />
 
       {/* ===== HEADER ===== */}
-      <View style={styles.headerWrapper}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backBtn}
-          >
-            <Ionicons
-              name={Platform.OS === "ios" ? "chevron-back" : "arrow-back"}
-              size={24}
-              color="#fff"
-            />
-          </TouchableOpacity>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons
+            name={Platform.OS === "ios" ? "chevron-back" : "arrow-back"}
+            size={24}
+            color="#fff"
+          />
+        </TouchableOpacity>
 
-          <Text style={styles.headerTitle}>College Details</Text>
-          <View style={{ width: 40 }} />
-        </View>
+        <Text style={styles.headerTitle}>College Details</Text>
+        <View style={{ width: 24 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* ===== TOP AUTO SCROLL BANNER ===== */}
+        {/* ===== TOP ADS ===== */}
         <ScrollView
           ref={bannerRef}
           horizontal
@@ -140,11 +140,7 @@ const College4 = ({ route }) => {
             <Image
               key={index}
               source={{ uri: img }}
-              style={{
-                width,
-                height: isTablet ? 150 : 180,
-              }}
-              resizeMode="cover"
+              style={{ width, height: isTablet ? 160 : 180 }}
             />
           ))}
         </ScrollView>
@@ -162,57 +158,98 @@ const College4 = ({ route }) => {
           ))}
         </View>
 
-        {/* LOGO */}
-        <View style={styles.logoContainer}>
-          <Image
-            source={require("../../assets/collegeicon.png")}
-            style={styles.logo}
-          />
+        {/* ===== HERO CARD (SCHOOL3 STYLE) ===== */}
+        <View style={styles.heroCard}>
+          <Text style={styles.collegeName}>
+            Arunachala College of Engineering
+          </Text>
+
+          <Text style={styles.tagline}>
+            For Women · Autonomous Institution
+          </Text>
+
+          <View style={styles.infoRow}>
+            <Ionicons name="school-outline" size={16} color="#E8F0FF" />
+            <Text style={styles.infoText}>
+              Engineering & Technology Programs
+            </Text>
+          </View>
+
+          <View style={styles.infoRow}>
+            <Ionicons name="location-outline" size={16} color="#E8F0FF" />
+            <Text style={styles.infoText}>
+              Nagercoil, Tamil Nadu
+            </Text>
+          </View>
         </View>
 
-        {/* COLLEGE NAME */}
-        <Text style={styles.collegeName}>
-          Arunachala College of Engineering
-        </Text>
-        <Text style={styles.collegeSubName}>
-          For Women, Nagercoil
-        </Text>
-
-        {/* TABS */}
+        {/* ===== TABS ===== */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.tabsContainer}
+          style={styles.tabs}
         >
-          {["All", "Dept", "Placement", "Academic", "Facilities", "Admission", "About"].map(
-            (tab) => (
-              <TouchableOpacity key={tab} onPress={() => setActiveTab(tab)}>
-                <Text
-                  style={[
-                    styles.tabText,
-                    activeTab === tab && styles.activeTabText,
-                  ]}
-                >
-                  {tab}
-                </Text>
-              </TouchableOpacity>
-            )
-          )}
+          {[
+            "All",
+            "Dept",
+            "Placement",
+            "Academic",
+            "Facilities",
+            "Admission",
+            "About",
+          ].map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              style={[
+                styles.tabBtn,
+                activeTab === tab && styles.activeTab,
+              ]}
+              onPress={() => setActiveTab(tab)}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === tab && styles.activeTabText,
+                ]}
+              >
+                {tab}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </ScrollView>
 
         {renderContent()}
 
-        {/* ===== VIDEO AD (SAME AS TUTION2) ===== */}
+        {/* ===== MAP BUTTON ===== */}
+        <TouchableOpacity style={styles.mapButton} onPress={openMap}>
+          <Ionicons name="map-outline" size={18} color="#fff" />
+          <Text style={styles.mapText}>View on Map</Text>
+        </TouchableOpacity>
+
+        {/* ===== CALL & WHATSAPP ===== */}
+        <View style={styles.actionRow}>
+          <TouchableOpacity style={styles.callBtn} onPress={callNow}>
+            <Ionicons name="call" size={18} color="#fff" />
+            <Text style={styles.actionText}>Call</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.whatsappBtn}
+            onPress={openWhatsApp}
+          >
+            <Ionicons name="logo-whatsapp" size={18} color="#fff" />
+            <Text style={styles.actionText}>WhatsApp</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* ===== VIDEO ===== */}
         <View style={styles.videoBox}>
           <WebView
             allowsFullscreenVideo
             source={{
               uri: "https://www.youtube.com/watch?v=NONufn3jgXI",
             }}
-            style={{
-              height: isTablet ? 260 : 220,
-              width: "100%",
-            }}
+            style={{ height: isTablet ? 260 : 220 }}
           />
         </View>
 
@@ -222,29 +259,24 @@ const College4 = ({ route }) => {
       <Footer />
     </SafeAreaView>
   );
-};
+}
 
 /* ================= STYLES ================= */
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#FCFCFC" },
-
-  headerWrapper: { backgroundColor: "#0052A2" },
+  container: { flex: 1, backgroundColor: "#F6F9FF" },
 
   header: {
-    height: Platform.OS === "ios" ? 52 : 64,
+    backgroundColor: "#0052A2",
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
+    justifyContent: "space-between",
+    padding: 16,
   },
 
-  backBtn: { width: 40 },
-
   headerTitle: {
-    flex: 1,
-    textAlign: "center",
     color: "#fff",
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: "700",
   },
 
@@ -267,114 +299,170 @@ const styles = StyleSheet.create({
     backgroundColor: "#0B5ED7",
   },
 
-  logoContainer: {
-    alignItems: "center",
-    marginVertical: 20,
-  },
-
-  logo: {
-    width: isTablet ? 220 : 170,
-    height: isTablet ? 240 : 190,
-    resizeMode: "contain",
+  heroCard: {
+    backgroundColor: "#4c73ac",
+    margin: 16,
+    borderRadius: 18,
+    padding: 16,
   },
 
   collegeName: {
-    fontSize: isTablet ? 20 : 18,
-    fontWeight: "bold",
-    color: "#005AA1",
-    textAlign: "center",
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "800",
   },
 
-  collegeSubName: {
-    fontSize: isTablet ? 18 : 16,
-    fontWeight: "600",
-    color: "#005AA1",
-    textAlign: "center",
-    marginBottom: 20,
+  tagline: {
+    color: "#DCE8FF",
+    fontSize: 12,
+    marginTop: 4,
+    marginBottom: 10,
   },
 
-  tabsContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 6,
+  },
+
+  infoText: {
+    color: "#E8F0FF",
+    fontSize: 12,
+    marginLeft: 6,
+  },
+
+  tabs: {
+    paddingHorizontal: 12,
+    marginTop: 10,
+  },
+
+  tabBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: "#E8F0FF",
+    marginRight: 10,
+  },
+
+  activeTab: {
+    backgroundColor: "#0B5ED7",
   },
 
   tabText: {
-    fontSize: isTablet ? 16 : 14,
-    color: "#757575",
-    fontWeight: "bold",
-    marginRight: 20,
-    paddingBottom: 6,
+    fontSize: 14,
+    color: "#0B5ED7",
+    fontWeight: "600",
   },
 
   activeTabText: {
-    color: "#005AA1",
-    borderBottomWidth: 2,
-    borderBottomColor: "#005AA1",
+    color: "#fff",
   },
 
-  contentContainer: { padding: 20 },
+  sectionCard: {
+    backgroundColor: "#fff",
+    marginHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 16,
+    padding: 16,
+  },
 
-  contentTitle: {
-    fontSize: isTablet ? 24 : 22,
-    fontWeight: "bold",
-    color: "#333",
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "700",
     marginBottom: 10,
   },
 
-  contentSubtitle: {
-    fontSize: isTablet ? 18 : 16,
-    fontWeight: "bold",
-    color: "#005AA1",
+  highlightText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#0052A2",
     textAlign: "center",
-    marginVertical: 15,
+    marginBottom: 12,
   },
 
-  placementContent: { flexDirection: "row", marginBottom: 15 },
+  placementRow: {
+    flexDirection: "row",
+    marginBottom: 12,
+  },
 
   officerImage: {
-    width: isTablet ? 140 : 100,
-    height: isTablet ? 170 : 120,
+    width: isTablet ? 120 : 90,
+    height: isTablet ? 150 : 120,
     borderRadius: 8,
   },
 
-  placementText: { flex: 1, marginLeft: 15 },
-
   officerName: {
-    fontSize: isTablet ? 18 : 16,
-    fontWeight: "bold",
-    color: "#333",
+    fontSize: 15,
+    fontWeight: "700",
   },
 
   officerTitle: {
-    fontSize: isTablet ? 16 : 14,
-    color: "#757575",
-    marginBottom: 8,
+    fontSize: 12,
+    color: "#5F6F81",
+    marginBottom: 6,
   },
 
-  paragraph: {
-    fontSize: isTablet ? 16 : 14,
-    lineHeight: 22,
-    color: "#333",
-    textAlign: "justify",
-    marginBottom: 10,
+  aboutText: {
+    fontSize: 13,
+    color: "#5F6F81",
+    lineHeight: 20,
   },
 
-  holisticTitle: {
-    fontSize: isTablet ? 20 : 18,
-    fontWeight: "bold",
-    color: "#005AA1",
-    marginTop: 20,
+  mapButton: {
+    margin: 16,
+    backgroundColor: "#0B5ED7",
+    paddingVertical: 14,
+    borderRadius: 30,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  mapText: {
+    color: "#fff",
+    fontWeight: "700",
+    marginLeft: 8,
+  },
+
+  actionRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginHorizontal: 16,
+    marginTop: 10,
+  },
+
+  callBtn: {
+    backgroundColor: "#e51515ee",
+    flex: 1,
+    marginRight: 8,
+    paddingVertical: 14,
+    borderRadius: 14,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  whatsappBtn: {
+    backgroundColor: "#25D366",
+    flex: 1,
+    marginLeft: 8,
+    paddingVertical: 14,
+    borderRadius: 14,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  actionText: {
+    color: "#fff",
+    fontWeight: "700",
+    marginLeft: 6,
   },
 
   videoBox: {
-    marginHorizontal: 16,
-    marginTop: 30,
-    borderRadius: 12,
+    margin: 2,
+    marginTop: 32,
     overflow: "hidden",
     backgroundColor: "#000",
   },
 });
-
-export default College4;

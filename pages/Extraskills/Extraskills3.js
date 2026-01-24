@@ -1,52 +1,83 @@
 // Extraskills3.js
-import React from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  Image,
   ScrollView,
+  Image,
   TouchableOpacity,
   SafeAreaView,
   Platform,
+  Dimensions,
   StatusBar,
-  useWindowDimensions,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import Footer from '../../src/components/Footer';
-// Common studio logo
-const STUDIO_LOGO = require('../../assets/DanceStudio.png');
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { WebView } from "react-native-webview";
+import Footer from "../../src/components/Footer";
 
+const { width } = Dimensions.get("window");
+const isTablet = width >= 768;
+
+/* -------- COMMON LOGO -------- */
+const STUDIO_LOGO = require("../../assets/DanceStudio.png");
+
+/* -------- BANNER ADS -------- */
+const bannerAds = [
+  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
+  "https://images.unsplash.com/photo-1509062522246-3755977927d7",
+  "https://images.unsplash.com/photo-1551650975-87deedd944c3",
+];
+
+/* -------- STUDIO DATA -------- */
 const studios = [
   {
-    name: 'eMotion Dance Studio',
-    description:
-      'Extra-curricular activities help students explore their interests beyond academics, enhancing creativity, teamwork, and leadership skills.',
+    id: 1,
+    name: "eMotion Dance Studio",
+    location: "Nagercoil, Tamil Nadu",
+    logo: STUDIO_LOGO,
   },
   {
-    name: 'StepUp Dance Academy',
-    description:
-      'Learn a variety of dance forms from expert instructors while improving coordination and confidence.',
+    id: 2,
+    name: "StepUp Dance Academy",
+    location: "Marthandam, Tamil Nadu",
+    logo: STUDIO_LOGO,
   },
   {
-    name: 'Rhythm & Beats',
-    description:
-      'Enjoy energetic sessions that keep you fit and entertained, with performances every term.',
+    id: 3,
+    name: "Rhythm & Beats Studio",
+    location: "Kanyakumari, Tamil Nadu",
+    logo: STUDIO_LOGO,
   },
 ];
 
 export default function Extraskills3() {
   const navigation = useNavigation();
-  const { width } = useWindowDimensions();
-  const isTablet = width >= 768;
+  const [activeIndex, setActiveIndex] = useState(0);
+  const bannerRef = useRef(null);
+
+  /* -------- AUTO SCROLL BANNER -------- */
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => {
+        const next = (prev + 1) % bannerAds.length;
+        bannerRef.current?.scrollTo({
+          x: next * width,
+          animated: true,
+        });
+        return next;
+      });
+    }, 3000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <SafeAreaView style={styles.safe}>
-      {/* Status Bar */}
       <StatusBar barStyle="light-content" backgroundColor="#0052A2" />
 
-      {/* Header (same as other screens) */}
+      {/* ---------- HEADER ---------- */}
       <View style={styles.headerWrapper}>
         <View style={styles.header}>
           <TouchableOpacity
@@ -54,185 +85,202 @@ export default function Extraskills3() {
             onPress={() => navigation.goBack()}
           >
             <Ionicons
-              name={Platform.OS === 'ios' ? 'chevron-back' : 'arrow-back'}
+              name={Platform.OS === "ios" ? "chevron-back" : "arrow-back"}
               size={24}
               color="#fff"
             />
           </TouchableOpacity>
 
           <Text style={styles.headerTitle}>Studios</Text>
-
-          {/* Spacer */}
           <View style={styles.rightSpace} />
         </View>
       </View>
 
-      {/* Content */}
-      <ScrollView
-        style={[
-          styles.container,
-          isTablet && styles.tabletContainer,
-        ]}
-        contentContainerStyle={{ paddingBottom: 24 }}
-        showsVerticalScrollIndicator={false}
-      >
-        {studios.map((studio, index) => (
-          <View key={index} style={styles.itemContainer}>
-            {/* Logo */}
-            <View style={styles.logoWrapper}>
-              <Image
-                source={STUDIO_LOGO}
-                style={[
-                  styles.logo,
-                  isTablet && { width: 90, height: 130 },
-                ]}
-              />
-            </View>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* ---------- TOP BANNER ---------- */}
+        <ScrollView
+          ref={bannerRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={(e) =>
+            setActiveIndex(
+              Math.round(e.nativeEvent.contentOffset.x / width)
+            )
+          }
+        >
+          {bannerAds.map((img, i) => (
+            <Image
+              key={i}
+              source={{ uri: img }}
+              style={{ width, height: isTablet ? 160 : 190 }}
+              resizeMode="cover"
+            />
+          ))}
+        </ScrollView>
 
-            {/* Text + Button */}
-            <View style={styles.textContent}>
-              <Text
-                style={[
-                  styles.studioName,
-                  isTablet && { fontSize: 18 },
-                ]}
-              >
-                {studio.name}
-              </Text>
+        {/* DOTS */}
+        <View style={styles.dots}>
+          {bannerAds.map((_, i) => (
+            <View
+              key={i}
+              style={[styles.dot, activeIndex === i && styles.activeDot]}
+            />
+          ))}
+        </View>
 
-              <Text
-                style={[
-                  styles.description,
-                  isTablet && { fontSize: 16 },
-                ]}
-              >
-                {studio.description}
-              </Text>
+        {/* ---------- BODY ---------- */}
+        <View style={styles.container}>
+          {studios.map((studio) => (
+            <TouchableOpacity
+              key={studio.id}
+              activeOpacity={0.85}
+              style={styles.studioCard}
+              onPress={() =>
+                navigation.navigate("Extraskills4", { studio })
+              }
+            >
+              {/* LOGO */}
+              <View style={styles.logoCard}>
+                <Image source={studio.logo} style={styles.logo} />
+              </View>
 
-              <TouchableOpacity
-                style={styles.moreButton}
-                onPress={() => navigation.navigate('Extraskills4', { studio })}
-              >
-                <Text
-                  style={[
-                    styles.moreText,
-                    isTablet && { fontSize: 14 },
-                  ]}
-                >
-                  More
+              {/* INFO */}
+              <View style={styles.info}>
+                <Text style={styles.name}>{studio.name}</Text>
+
+                <Text style={styles.location}>
+                  📍 {studio.location}
                 </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        ))}
+
+                <View style={styles.footerRow}>
+                  <Text style={styles.footerItem}>🎵 Certified Trainers</Text>
+                  <Text style={styles.footerItem}>💃 Practical Sessions</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* ---------- VIDEO AD ---------- */}
+        <View style={styles.videoBox}>
+          <WebView
+            allowsFullscreenVideo
+            source={{
+              uri: "https://www.youtube.com/watch?v=NONufn3jgXI",
+            }}
+            style={{ height: isTablet ? 260 : 220 }}
+          />
+        </View>
+
+        <View style={{ height: 120 }} />
       </ScrollView>
-      <Footer/>
+
+      <Footer />
     </SafeAreaView>
   );
 }
 
+/* ---------------- STYLES (MATCH COURSE3) ---------------- */
 const styles = StyleSheet.create({
-  /* Safe Area */
-  safe: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
+  safe: { flex: 1, backgroundColor: "#fff" },
 
-  /* Header */
-  headerWrapper: {
-    backgroundColor: '#0052A2',
-  },
-
+  headerWrapper: { backgroundColor: "#0052A2" },
   header: {
-    height: Platform.OS === 'ios' ? 52 : 64,
-    backgroundColor: '#0052A2',
-    flexDirection: 'row',
-    alignItems: 'center',
+    height: Platform.OS === "ios" ? 52 : 64,
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
-    paddingVertical: Platform.OS === 'ios' ? 6 : 8,
   },
-
-  backBtn: {
-    width: 40,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-  },
-
+  backBtn: { width: 40 },
   headerTitle: {
     flex: 1,
-    textAlign: 'center',
-    fontSize: Platform.OS === 'ios' ? 17 : 18,
-    fontWeight: Platform.OS === 'ios' ? '600' : '700',
-    color: '#fff',
+    textAlign: "center",
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#fff",
+  },
+  rightSpace: { width: 40 },
+
+  dots: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginVertical: 8,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#ccc",
+    marginHorizontal: 4,
+  },
+  activeDot: {
+    width: 16,
+    backgroundColor: "#0B5ED7",
   },
 
-  rightSpace: {
-    width: 40,
-  },
-
-  /* Containers */
   container: {
-    flex: 1,
-    paddingHorizontal: 12,
+    backgroundColor: "#FAFAFA",
+    paddingVertical: 6,
   },
 
-  tabletContainer: {
-    paddingHorizontal: 40,
-  },
-
-  /* Item Card */
-  itemContainer: {
-    flexDirection: 'row',
-    marginBottom: 20,
-    alignItems: 'flex-start',
-  },
-
-  logoWrapper: {
-    backgroundColor: '#fff',
+  studioCard: {
+    flexDirection: "row",
+    marginHorizontal: 16,
+    marginVertical: 8,
+    backgroundColor: "#fff",
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#EDEDED',
-    padding: 8,
+    padding: 12,
+    elevation: 2,
+  },
+
+  logoCard: {
+    width: 70,
+    height: 70,
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 12,
   },
 
   logo: {
-    width: 72,
-    height: 104,
-    resizeMode: 'contain',
+    width: 60,
+    height: 60,
+    resizeMode: "contain",
   },
 
-  textContent: {
+  info: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingVertical: 8,
-    justifyContent: 'space-between',
   },
 
-  studioName: {
+  name: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#004780',
+    fontWeight: "700",
+    color: "#007BFF",
     marginBottom: 4,
   },
 
-  description: {
+  location: {
     fontSize: 14,
-    color: '#444',
+    color: "#333",
     marginBottom: 8,
   },
 
-  moreButton: {
-    backgroundColor: '#005AA1',
-    alignSelf: 'flex-end',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 6,
+  footerRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
   },
 
-  moreText: {
-    color: '#fff',
+  footerItem: {
     fontSize: 12,
-    fontWeight: '600',
+    color: "#555",
+    marginRight: 14,
+  },
+
+  videoBox: {
+    marginHorizontal: 16,
+    marginTop: 30,
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: "#000",
   },
 });

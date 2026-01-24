@@ -12,7 +12,6 @@ import {
   Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import Svg, { Path } from "react-native-svg";
 import { useNavigation } from "@react-navigation/native";
 import { WebView } from "react-native-webview";
 import Footer from "../../src/components/Footer";
@@ -20,59 +19,56 @@ import Footer from "../../src/components/Footer";
 const { width } = Dimensions.get("window");
 const isTablet = width >= 768;
 
-/* ===== AD BANNERS (SAME AS TUTION2) ===== */
+/* ===== AD BANNERS ===== */
 const bannerAds = [
   "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
   "https://images.unsplash.com/photo-1509062522246-3755977927d7",
   "https://images.unsplash.com/photo-1551650975-87deedd944c3",
 ];
 
-/* -------------------- DATA -------------------- */
+/* ===== DATA ===== */
 const allColleges = [
   {
-    name: "Arunachala College of Engineering For Women, Nagercoil",
+    id: "1",
+    name: "Arunachala College of Engineering For Women",
+    location: "Nagercoil · 2.4 km",
+    type: "Private",
+    category: "All",
     logo: require("../../assets/collegeicon.png"),
   },
   {
-    name: "Arunachala College of Engineering For Women, Nagercoil",
+    id: "2",
+    name: "Arunachala College of Engineering For Women",
+    location: "Nagercoil · 3.1 km",
+    type: "Private",
+    category: "All",
     logo: require("../../assets/collegeicon.png"),
   },
 ];
 
 const govtUniversities = [
   {
-    name: "Government College of Technology, Coimbatore",
+    id: "3",
+    name: "Government College of Technology",
+    location: "Coimbatore · 4.8 km",
+    type: "Govt",
+    category: "Govt",
     logo: require("../../assets/collegeicon.png"),
   },
 ];
 
 const autonomousUniversities = [
   {
-    name: "PSG College of Technology, Coimbatore",
+    id: "4",
+    name: "PSG College of Technology",
+    location: "Coimbatore · 5.2 km",
+    type: "Autonomous",
+    category: "Autonomous",
     logo: require("../../assets/collegeicon.png"),
   },
 ];
 
-/* -------------------- READ MORE BUTTON -------------------- */
-function ReadMoreButton({ onPress }) {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.85}
-      style={styles.readMoreContainer}
-    >
-      <Svg height="36" width="110">
-        <Path d="M20 0 L110 0 L110 36 L0 36 Z" fill="#0c2f63" />
-      </Svg>
-      <View style={styles.readMoreTextContainer}>
-        <Text style={styles.readMoreText}>Read More</Text>
-      </View>
-    </TouchableOpacity>
-  );
-}
-
-/* -------------------- SCREEN -------------------- */
-const College3 = ({ route }) => {
+export default function College3({ route }) {
   const { degree } = route.params;
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState("All");
@@ -96,15 +92,10 @@ const College3 = ({ route }) => {
     return () => clearInterval(timer);
   }, []);
 
-  const renderColleges = () => {
-    switch (activeTab) {
-      case "Govt":
-        return govtUniversities;
-      case "Autonomous":
-        return autonomousUniversities;
-      default:
-        return allColleges;
-    }
+  const getColleges = () => {
+    if (activeTab === "Govt") return govtUniversities;
+    if (activeTab === "Autonomous") return autonomousUniversities;
+    return allColleges;
   };
 
   return (
@@ -112,26 +103,21 @@ const College3 = ({ route }) => {
       <StatusBar barStyle="light-content" backgroundColor="#0052A2" />
 
       {/* ===== HEADER ===== */}
-      <View style={styles.headerWrapper}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backBtn}
-          >
-            <Ionicons
-              name={Platform.OS === "ios" ? "chevron-back" : "arrow-back"}
-              size={24}
-              color="#fff"
-            />
-          </TouchableOpacity>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons
+            name={Platform.OS === "ios" ? "chevron-back" : "arrow-back"}
+            size={24}
+            color="#fff"
+          />
+        </TouchableOpacity>
 
-          <Text style={styles.headerTitle}>{degree}</Text>
-          <View style={{ width: 40 }} />
-        </View>
+        <Text style={styles.headerTitle}>{degree}</Text>
+        <View style={{ width: 24 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* ===== TOP AUTO SCROLL AD ===== */}
+        {/* ===== TOP ADS ===== */}
         <ScrollView
           ref={bannerRef}
           horizontal
@@ -168,26 +154,33 @@ const College3 = ({ route }) => {
         </View>
 
         {/* ===== FILTERS ===== */}
-        <View style={styles.filtersContainer}>
-          <TouchableOpacity style={styles.filterButton}>
+        <View style={styles.filterRow}>
+          <TouchableOpacity style={styles.filterInput}>
             <Text style={styles.filterText}>Filters</Text>
-            <Ionicons name="chevron-down" size={18} color="gray" />
+            <Ionicons name="chevron-down-outline" size={16} color="#333" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.filterButton}>
+          <TouchableOpacity style={styles.filterInput}>
             <Text style={styles.filterText}>Select</Text>
-            <Ionicons name="chevron-down" size={18} color="gray" />
+            <Ionicons name="chevron-down-outline" size={16} color="#333" />
           </TouchableOpacity>
         </View>
 
         {/* ===== TABS ===== */}
-        <View style={styles.tabsContainer}>
+        <View style={styles.categories}>
           {["All", "Govt", "Autonomous"].map((tab) => (
-            <TouchableOpacity key={tab} onPress={() => setActiveTab(tab)}>
+            <TouchableOpacity
+              key={tab}
+              style={[
+                styles.categoryBtn,
+                activeTab === tab && styles.activeCategory,
+              ]}
+              onPress={() => setActiveTab(tab)}
+            >
               <Text
                 style={[
-                  styles.tabText,
-                  activeTab === tab && styles.activeTabText,
+                  styles.categoryText,
+                  activeTab === tab && styles.activeCategoryText,
                 ]}
               >
                 {tab === "Govt"
@@ -200,24 +193,36 @@ const College3 = ({ route }) => {
           ))}
         </View>
 
-        {/* ===== COLLEGE CARDS ===== */}
-        {renderColleges().map((college, index) => (
-          <View key={index} style={styles.card}>
-            <Image source={college.logo} style={styles.logo} />
+        {/* ===== COLLEGE LIST (SCHOOL2 STYLE) ===== */}
+        {getColleges().map((college, index) => (
+          <TouchableOpacity
+            key={index}
+            style={styles.card}
+            activeOpacity={0.85}
+            onPress={() =>
+              navigation.navigate("College4", { college })
+            }
+          >
+            <Image source={college.logo} style={styles.image} />
 
-            <View style={styles.collegeInfo}>
-              <Text style={styles.collegeName}>{college.name}</Text>
+            <View style={styles.cardContent}>
+              <Text style={styles.name}>{college.name}</Text>
+              <Text style={styles.location}>📍 {college.location}</Text>
 
-              <ReadMoreButton
-                onPress={() =>
-                  navigation.navigate("College4", { college })
-                }
-              />
+              <View style={styles.tags}>
+                <Text style={styles.tagBlue}>{college.type}</Text>
+              </View>
             </View>
-          </View>
+
+            <Ionicons
+              name="chevron-forward"
+              size={18}
+              color="#0B5ED7"
+            />
+          </TouchableOpacity>
         ))}
 
-        {/* ===== VIDEO AD (SAME AS TUTION2) ===== */}
+        {/* ===== VIDEO ===== */}
         <View style={styles.videoBox}>
           <WebView
             allowsFullscreenVideo
@@ -237,26 +242,22 @@ const College3 = ({ route }) => {
       <Footer />
     </SafeAreaView>
   );
-};
+}
 
-/* -------------------- STYLES -------------------- */
+/* ================= STYLES ================= */
+
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#fff" },
 
-  headerWrapper: { backgroundColor: "#0052A2" },
-
   header: {
-    height: Platform.OS === "ios" ? 52 : 64,
+    backgroundColor: "#0052A2",
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
+    justifyContent: "space-between",
+    padding: 16,
   },
 
-  backBtn: { width: 40 },
-
   headerTitle: {
-    flex: 1,
-    textAlign: "center",
     color: "#fff",
     fontSize: 18,
     fontWeight: "700",
@@ -281,82 +282,96 @@ const styles = StyleSheet.create({
     backgroundColor: "#0B5ED7",
   },
 
-  filtersContainer: {
+  filterRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
-    marginVertical: 10,
+    paddingHorizontal: 12,
+    marginVertical: 14,
   },
 
-  filterButton: {
+  filterInput: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f2f2f2",
+    borderWidth: 1,
+    borderColor: "#ccc",
     borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    width: "48%",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    flex: 0.48,
     justifyContent: "space-between",
   },
 
   filterText: { fontSize: 14 },
 
-  tabsContainer: {
+  categories: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+    paddingVertical: 8,
   },
 
-  tabText: { fontSize: 14, color: "gray" },
+  categoryBtn: { paddingBottom: 6 },
 
-  activeTabText: {
-    color: "#0c2f63",
+  categoryText: { fontSize: 14, color: "#333" },
+
+  activeCategory: {
     borderBottomWidth: 2,
-    borderBottomColor: "#0c2f63",
-    paddingBottom: 4,
+    borderBottomColor: "#0052A2",
   },
 
+  activeCategoryText: {
+    color: "#0052A2",
+    fontWeight: "bold",
+  },
+
+  /* ===== SCHOOL2 / TUTION2 CARD STYLE ===== */
   card: {
+    backgroundColor: "#fff",
+    marginHorizontal: 16,
+    marginBottom: 14,
+    borderRadius: 16,
     flexDirection: "row",
-    backgroundColor: "#f2f2f2",
+    alignItems: "center",
+    padding: 12,
+    elevation: Platform.OS === "android" ? 3 : 0,
+  },
+
+  image: {
+    width: 70,
+    height: 70,
     borderRadius: 12,
-    padding: 15,
-    marginHorizontal: 20,
-    marginBottom: 15,
-    alignItems: "center",
   },
 
-  logo: {
-    width: isTablet ? 80 : 60,
-    height: isTablet ? 80 : 60,
-    marginRight: 15,
+  cardContent: {
+    flex: 1,
+    marginLeft: 12,
   },
 
-  collegeInfo: { flex: 1 },
-
-  collegeName: {
-    fontSize: isTablet ? 18 : 16,
-    fontWeight: "bold",
-    marginBottom: 10,
+  name: {
+    fontSize: isTablet ? 16 : 15,
+    fontWeight: "700",
+    color: "#000",
   },
 
-  readMoreContainer: {
-    alignSelf: "flex-end",
-    marginRight: -15,
+  location: {
+    fontSize: 12,
+    color: "#5F6F81",
+    marginTop: 4,
   },
 
-  readMoreTextContainer: {
-    position: "absolute",
-    width: 110,
-    height: 36,
-    justifyContent: "center",
-    alignItems: "center",
+  tags: {
+    flexDirection: "row",
+    marginTop: 8,
   },
 
-  readMoreText: {
-    color: "#fff",
-    fontSize: 13,
-    fontWeight: "bold",
+  tagBlue: {
+    backgroundColor: "#E8F1FF",
+    color: "#0B5ED7",
+    fontSize: 11,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
 
   videoBox: {
@@ -367,5 +382,3 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
   },
 });
-
-export default College3;
