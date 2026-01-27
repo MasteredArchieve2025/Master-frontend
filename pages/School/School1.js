@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
   Dimensions,
   Platform,
+  StatusBar,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -71,6 +72,8 @@ export default function School1({ navigation }) {
 
   return (
     <SafeAreaView style={[styles.container, isWeb && styles.containerWeb]}>
+      <StatusBar barStyle="light-content" backgroundColor="#0052A2" />
+      
       {/* ===== HEADER ===== */}
       <View style={[styles.header, isTablet && styles.headerTablet, isWeb && styles.headerWeb]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>

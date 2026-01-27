@@ -19,7 +19,7 @@ import { useNavigation } from "@react-navigation/native";
 import { WebView } from "react-native-webview";
 import Footer from "../../src/components/Footer";
 
-const { width: screenWidth } = Dimensions.get("window");
+const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 const isTablet = screenWidth >= 768;
 const isWeb = screenWidth >= 1024;
 
@@ -174,29 +174,21 @@ export default function School2() {
   );
 
   return (
-    <SafeAreaView style={[styles.safe, isWeb && styles.safeWeb]}>
+    <SafeAreaView style={[styles.container, isWeb && styles.containerWeb]}>
       <StatusBar barStyle="light-content" backgroundColor="#0052A2" />
 
-      {/* ===== HEADER ===== */}
-      <View style={[
-        styles.header, 
-        isTablet && styles.headerTablet,
-        isWeb && styles.headerWeb
-      ]}>
+      {/* ===== HEADER (Same as School1) ===== */}
+      <View style={[styles.header, isTablet && styles.headerTablet, isWeb && styles.headerWeb]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons
-            name={Platform.OS === "ios" ? "chevron-back" : "arrow-back"}
-            size={isTablet ? 28 : 24}
-            marginTop={13}
-            color="#fff"
+          <Ionicons 
+            name="arrow-back" 
+            size={isTablet ? 28 : 24} 
+            color="#fff" 
           />
         </TouchableOpacity>
-        <Text style={[
-          styles.headerTitle,
-          isTablet && styles.headerTitleTablet,
-          isWeb && styles.headerTitleWeb
-        ]}>
-          Schools
+
+        <Text style={[styles.headerTitle, isTablet && styles.headerTitleTablet, isWeb && styles.headerTitleWeb]}>
+          School
         </Text>
         <View style={{ width: isTablet ? 28 : 24 }} />
       </View>
@@ -369,11 +361,11 @@ export default function School2() {
 
 /* ================= STYLES ================= */
 const styles = StyleSheet.create({
-  safe: { 
-    flex: 1, 
-    backgroundColor: "#fff" 
+  container: {
+    flex: 1,
+    backgroundColor: "#F4F8FF",
   },
-  safeWeb: {
+  containerWeb: {
     maxWidth: 1200,
     alignSelf: 'center',
     width: '100%',
@@ -383,14 +375,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
 
-  // Header Styles
+  // Header Styles (Same as School1)
   header: {
     backgroundColor: "#0052A2",
+    padding: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 16,
-    height :75
   },
   headerTablet: {
     paddingVertical: 20,
@@ -401,15 +392,15 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: "#fff",
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: "700",
-    marginTop:10,
+    marginRight: 25,
   },
   headerTitleTablet: {
-    fontSize: 22,
+    fontSize: 26,
   },
   headerTitleWeb: {
-    fontSize: 24,
+    fontSize: 28,
   },
 
   // Banner Container
