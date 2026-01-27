@@ -12,11 +12,9 @@ import {
   Dimensions,
   StyleSheet,
   Platform,
-  Alert,
 } from "react-native";
 import {
   MaterialCommunityIcons,
-  Feather,
   FontAwesome5,
   Ionicons,
 } from "@expo/vector-icons";
@@ -25,7 +23,9 @@ import { useNavigation } from "@react-navigation/native";
 import Header from "../../src/components/Header";
 import Footer from "../../src/components/Footer";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
+const isLargeScreen = width >= 768;
+const isExtraLargeScreen = width >= 1024;
 
 /* -------- Assets -------- */
 const collegeBannerImage = require("../../assets/Global.png");
@@ -34,7 +34,7 @@ const RIBBON_RIGHT = require("../../assets/Ribbonright.png");
 const collegeIcon = require("../../assets/collegeicon.png");
 
 ////////////////////////////////////////
-// 🔵 BANNER DATA (DEFINE FIRST)
+// 🔵 BANNER DATA
 ////////////////////////////////////////
 const bannerData = [
   {
@@ -63,42 +63,35 @@ const bannerData = [
 ////////////////////////////////////////
 // 🔵 STABLE AUTO SCROLL COLLEGE BANNER
 ////////////////////////////////////////
-const BANNER_WIDTH = width - 32;
-
 const CollegeBanner = () => {
   const listRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  
+  const BANNER_WIDTH = isLargeScreen ? Math.min(width * 0.8, 1000) : width - 32;
+  const BANNER_HEIGHT = isLargeScreen ? 220 : 175;
 
   // 🔁 Auto scroll
   useEffect(() => {
     const interval = setInterval(() => {
-      const nextIndex =
-        activeIndex === bannerData.length - 1 ? 0 : activeIndex + 1;
-
-      listRef.current?.scrollToIndex({
-        index: nextIndex,
-        animated: true,
-      });
-
+      const nextIndex = activeIndex === bannerData.length - 1 ? 0 : activeIndex + 1;
+      listRef.current?.scrollToIndex({ index: nextIndex, animated: true });
       setActiveIndex(nextIndex);
     }, 3000);
 
     return () => clearInterval(interval);
   }, [activeIndex]);
 
-  // 👁 Track visible item
   const onViewRef = useRef(({ viewableItems }) => {
-    if (viewableItems?.length > 0) {
-      setActiveIndex(viewableItems[0].index);
-    }
+    if (viewableItems?.length > 0) setActiveIndex(viewableItems[0].index);
   });
 
-  const viewConfigRef = useRef({
-    viewAreaCoveragePercentThreshold: 50,
-  });
+  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 });
 
   return (
-    <View style={styles.bannerWrapper}>
+    <View style={[
+      styles.bannerWrapper,
+      isLargeScreen && styles.bannerWrapperCenter
+    ]}>
       <FlatList
         ref={listRef}
         data={bannerData}
@@ -115,15 +108,49 @@ const CollegeBanner = () => {
             colors={["#0175D3", "#014B85"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 0, y: 1 }}
-            style={[styles.banner, { width: BANNER_WIDTH }]}
+            style={[
+              styles.banner,
+              { width: BANNER_WIDTH, height: BANNER_HEIGHT },
+              isLargeScreen && styles.bannerTablet
+            ]}
           >
-            <View style={styles.textContainer}>
-              <Text style={styles.bannertitle}>{item.title}</Text>
-              <Text style={styles.bannerSubtitle}>{item.line1}</Text>
-              <Text style={styles.bannerSubtitle}>{item.line2}</Text>
-              <Text style={styles.bannerInfo}>{item.info}</Text>
+            <View style={[
+              styles.textContainer,
+              isLargeScreen && styles.textContainerTablet
+            ]}>
+              <Text style={[
+                styles.bannertitle,
+                isLargeScreen && styles.bannertitleTablet
+              ]}>
+                {item.title}
+              </Text>
+              <Text style={[
+                styles.bannerSubtitle,
+                isLargeScreen && styles.bannerSubtitleTablet
+              ]}>
+                {item.line1}
+              </Text>
+              <Text style={[
+                styles.bannerSubtitle,
+                isLargeScreen && styles.bannerSubtitleTablet
+              ]}>
+                {item.line2}
+              </Text>
+              <Text style={[
+                styles.bannerInfo,
+                isLargeScreen && styles.bannerInfoTablet
+              ]}>
+                {item.info}
+              </Text>
             </View>
-            <Image source={item.image} style={styles.bannerImage} />
+            <Image 
+              source={item.image} 
+              style={[
+                styles.bannerImage,
+                isLargeScreen && styles.bannerImageTablet,
+                isExtraLargeScreen && styles.bannerImageLarge
+              ]} 
+            />
           </LinearGradient>
         )}
       />
@@ -142,101 +169,111 @@ const CollegeBanner = () => {
 };
 
 ////////////////////////////////////////
-// Ribbon Choices Component
+// Ribbon Choices Component - SINGLE COLUMN FOR ALL SCREENS
 ////////////////////////////////////////
 const choices = [
   {
     id: 1,
     title: "School",
-    icon: <MaterialCommunityIcons name="school" size={28} color="#1a73e8" />,
+    icon: "school",
+    screen: "School1",
   },
   {
     id: 2,
     title: "College",
-    icon: <FontAwesome5 name="graduation-cap" size={26} color="#1a73e8" />,
+    icon: "graduation-cap",
+    screen: "College1",
   },
   {
     id: 3,
     title: "Course",
-    icon: <FontAwesome5 name="laptop" size={26} color="#1a73e8" />,
+    icon: "laptop",
+    screen: "Course1",
   },
   {
     id: 4,
     title: "Exam",
-    icon: (
-      <MaterialCommunityIcons
-        name="file-document-edit-outline"
-        size={28}
-        color="#1a73e8"
-      />
-    ),
+    icon: "file-document-edit-outline",
+    screen: "Exam1",
   },
   {
     id: 5,
     title: "IQ",
-    icon: (
-      <MaterialCommunityIcons
-        name="head-cog-outline"
-        size={28}
-        color="#1a73e8"
-      />
-    ),
+    icon: "head-cog-outline",
+    screen: "Iq1",
   },
   {
     id: 6,
     title: "Extra-Skills",
-    icon: (
-      <MaterialCommunityIcons name="music-note" size={26} color="#1a73e8" />
-    ),
+    icon: "music-note",
+    screen: "Extraskills1",
   },
 ];
 
 const ChoiceItemRibbon = ({ item, index, navigation }) => {
   const isEven = (index + 1) % 2 === 0;
+  const iconSize = isLargeScreen ? 32 : 28;
+  
+  const IconComponent = item.icon.includes("graduation-cap") || item.icon.includes("laptop") 
+    ? FontAwesome5 
+    : MaterialCommunityIcons;
 
-  const handlePress = () => {
-    if (item.title === "School") {
-      navigation.navigate("School1");
-    } else if (item.title === "College") {
-      navigation.navigate("College1");
-    } else if (item.title === "Course") {
-      navigation.navigate("Course1");
-    } else if (item.title === "IQ") {
-      navigation.navigate("Iq1");
-    } else if (item.title === "Extra-Skills") {
-      navigation.navigate("Extraskills1");
-    } else if (item.title === "Exam") {
-      navigation.navigate("Exam1");
-    }
-  };
+  const handlePress = () => navigation.navigate(item.screen);
 
+  // SINGLE COLUMN RIBBON DESIGN FOR ALL SCREENS
   return (
-    <View style={styles.choiceRow}>
+    <View style={[
+      styles.choiceRow,
+      isLargeScreen && styles.choiceRowTablet
+    ]}>
       <Image
         source={isEven ? RIBBON_LEFT : RIBBON_RIGHT}
-        style={[styles.ribbon, isEven ? styles.ribbonLeft : styles.ribbonRight]}
+        style={[
+          styles.ribbon, 
+          isEven ? styles.ribbonLeft : styles.ribbonRight,
+          isLargeScreen && styles.ribbonTablet
+        ]}
         resizeMode="stretch"
       />
-
       <TouchableOpacity
         activeOpacity={0.75}
-        style={[styles.choiceCard, isEven ? styles.cardEven : styles.cardOdd]}
+        style={[
+          styles.choiceCard, 
+          isEven ? styles.cardEven : styles.cardOdd,
+          isLargeScreen && styles.choiceCardTablet
+        ]}
         onPress={handlePress}
       >
-        <View style={styles.sideSlot}>{!isEven ? item.icon : null}</View>
-        <Text numberOfLines={1} style={styles.choiceTitle}>
+        <View style={[
+          styles.sideSlot,
+          isLargeScreen && styles.sideSlotTablet
+        ]}>
+          {!isEven ? (
+            <IconComponent name={item.icon} size={iconSize} color="#1a73e8" />
+          ) : null}
+        </View>
+        <Text style={[
+          styles.choiceTitle,
+          isLargeScreen && styles.choiceTitleTablet
+        ]}>
           {item.title}
         </Text>
-        <View style={styles.sideSlot}>{isEven ? item.icon : null}</View>
+        <View style={[
+          styles.sideSlot,
+          isLargeScreen && styles.sideSlotTablet
+        ]}>
+          {isEven ? (
+            <IconComponent name={item.icon} size={iconSize} color="#1a73e8" />
+          ) : null}
+        </View>
       </TouchableOpacity>
     </View>
   );
 };
 
 ////////////////////////////////////////
-// Blogs Component
+// BLOG CARD COMPONENT
 ////////////////////////////////////////
-
 const blogsData = [
   {
     id: "1",
@@ -244,10 +281,8 @@ const blogsData = [
     category: "NEWS",
     date: "2 hrs ago",
     readTime: "Curriculum Update",
-    image:
-      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=250&fit=crop",
-    description:
-      "The University board has released the updated curriculum focusing on AI and sustainable energy.",
+    image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=250&fit=crop",
+    description: "The University board has released the updated curriculum focusing on AI and sustainable energy.",
   },
   {
     id: "2",
@@ -255,10 +290,8 @@ const blogsData = [
     category: "BLOG",
     date: "Yesterday",
     readTime: "Study Tips",
-    image:
-      "https://images.unsplash.com/photo-1456513080510-34499c4359ce?w=400&h=250&fit=crop",
-    description:
-      "Discover scientifically proven methods to enhance memory retention and focus during exams.",
+    image: "https://images.unsplash.com/photo-1456513080510-34499c4359ce?w=400&h=250&fit=crop",
+    description: "Discover scientifically proven methods to enhance memory retention and focus during exams.",
   },
   {
     id: "3",
@@ -266,10 +299,8 @@ const blogsData = [
     category: "NEWS",
     date: "Oct 24",
     readTime: "Scholarship",
-    image:
-      "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=250&fit=crop",
-    description:
-      "Arunachala College announces new merit-based scholarships for top performing students.",
+    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=250&fit=crop",
+    description: "Arunachala College announces new merit-based scholarships for top performing students.",
   },
   {
     id: "4",
@@ -277,27 +308,21 @@ const blogsData = [
     category: "BLOG",
     date: "Oct 22",
     readTime: "Technology",
-    image:
-      "https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?w=400&h=250&fit=crop",
-    description:
-      "A comprehensive review of top online education platforms for 2025.",
+    image: "https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?w=400&h=250&fit=crop",
+    description: "A comprehensive review of top online education platforms for 2025.",
   },
 ];
 
-////////////////////////////////////////
-// BLOG CARD COMPONENT
-////////////////////////////////////////
 const BlogCard = ({ blog }) => {
   const navigation = useNavigation();
-
-  // Determine badge color based on category
-  const getBadgeStyle = (category) => {
-    return category === "NEWS" ? styles.newsBadge : styles.blogBadge;
-  };
+  const getBadgeStyle = (category) => category === "NEWS" ? styles.newsBadge : styles.blogBadge;
 
   return (
     <TouchableOpacity
-      style={styles.blogCard}
+      style={[
+        styles.blogCard,
+        isLargeScreen && styles.blogCardTablet
+      ]}
       onPress={() =>
         navigation.navigate("BlogDetailScreen", {
           blogId: blog.id,
@@ -312,21 +337,52 @@ const BlogCard = ({ blog }) => {
       }
       activeOpacity={0.8}
     >
-      <Image source={{ uri: blog.image }} style={styles.blogImage} />
+      <Image 
+        source={{ uri: blog.image }} 
+        style={[
+          styles.blogImage,
+          isLargeScreen && styles.blogImageTablet
+        ]} 
+      />
       <View style={styles.blogContent}>
         <View style={styles.blogHeader}>
           <View style={[styles.blogCategory, getBadgeStyle(blog.category)]}>
-            <Text style={styles.blogCategoryText}>{blog.category}</Text>
+            <Text style={[
+              styles.blogCategoryText,
+              isLargeScreen && styles.blogCategoryTextTablet
+            ]}>
+              {blog.category}
+            </Text>
           </View>
-          <Text style={styles.blogTime}>{blog.date}</Text>
+          <Text style={[
+            styles.blogTime,
+            isLargeScreen && styles.blogTimeTablet
+          ]}>
+            {blog.date}
+          </Text>
         </View>
-        <Text style={styles.blogTitle} numberOfLines={2}>
+        <Text 
+          style={[
+            styles.blogTitle,
+            isLargeScreen && styles.blogTitleTablet
+          ]} 
+          numberOfLines={2}
+        >
           {blog.title}
         </Text>
         <View style={styles.blogMeta}>
           <View style={styles.blogMetaItem}>
-            <Ionicons name="document-text-outline" size={12} color="#666" />
-            <Text style={styles.blogMetaText}>{blog.readTime}</Text>
+            <Ionicons 
+              name="document-text-outline" 
+              size={isLargeScreen ? 14 : 12} 
+              color="#666" 
+            />
+            <Text style={[
+              styles.blogMetaText,
+              isLargeScreen && styles.blogMetaTextTablet
+            ]}>
+              {blog.readTime}
+            </Text>
           </View>
         </View>
       </View>
@@ -340,6 +396,32 @@ const BlogCard = ({ blog }) => {
 const ViewBlogsSection = () => {
   const navigation = useNavigation();
 
+  if (isLargeScreen) {
+    return (
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={[
+            styles.sectionTitle,
+            isLargeScreen && styles.sectionTitleTablet
+          ]}>
+            VIEW BLOGS
+          </Text>
+          <TouchableOpacity
+            style={styles.viewAllButton}
+            onPress={() => navigation.navigate("BlogsScreen")}
+          >
+            <Text style={styles.viewAllButtonText}>View All</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.blogsGrid}>
+          {blogsData.map((blog) => (
+            <BlogCard key={blog.id} blog={blog} />
+          ))}
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
@@ -351,7 +433,6 @@ const ViewBlogsSection = () => {
           <Text style={styles.viewAllButtonText}>View All</Text>
         </TouchableOpacity>
       </View>
-
       <FlatList
         data={blogsData}
         renderItem={({ item }) => <BlogCard blog={item} />}
@@ -378,39 +459,62 @@ const collegesData = [
 ];
 
 const LeftIconsCollege = () => (
-  <View
-    style={{
-      flexDirection: "row",
-      alignItems: "center",
-      width: 70,
-      marginRight: 12,
-    }}
-  >
-    <Text style={{ color: "green", fontSize: 18, marginRight: 5 }}>▲</Text>
+  <View style={[
+    styles.leftIconsContainer,
+    isLargeScreen && styles.leftIconsContainerTablet
+  ]}>
+    <Text style={[
+      styles.greenArrow,
+      isLargeScreen && styles.greenArrowTablet
+    ]}>
+      ▲
+    </Text>
     <Image
       source={collegeIcon}
-      style={{ width: 42, height: 42, marginLeft: 6 }}
+      style={[
+        styles.collegeIcon,
+        isLargeScreen && styles.collegeIconTablet
+      ]}
       resizeMode="contain"
     />
   </View>
 );
 
 const CollegeCardFull = ({ rank, name }) => (
-  <View style={styles.collegeCardWrapper}>
-    <View style={{ flex: 1, justifyContent: "center" }}>
-      <Text style={[styles.collegeName, { fontSize: 12, textAlign: "left" }]}>
+  <View style={[
+    styles.collegeCardWrapper,
+    isLargeScreen && styles.collegeCardWrapperTablet
+  ]}>
+    <View style={styles.collegeTextContainer}>
+      <Text style={[
+        styles.collegeName,
+        isLargeScreen && styles.collegeNameTablet
+      ]}>
         {name}
       </Text>
     </View>
     <View style={styles.rankContainer}>
-      <Text style={[styles.rankText, { fontSize: 14 }]}>{rank}</Text>
-      <Text style={[styles.trophyIcon, { fontSize: 20 }]}>🏆</Text>
+      <Text style={[
+        styles.rankText,
+        isLargeScreen && styles.rankTextTablet
+      ]}>
+        {rank}
+      </Text>
+      <Text style={[
+        styles.trophyIcon,
+        isLargeScreen && styles.trophyIconTablet
+      ]}>
+        🏆
+      </Text>
     </View>
   </View>
 );
 
 const ListItemFull = ({ rank, name }) => (
-  <View style={styles.listItemContainer}>
+  <View style={[
+    styles.listItemContainer,
+    isLargeScreen && styles.listItemContainerTablet
+  ]}>
     <LeftIconsCollege />
     <CollegeCardFull rank={rank} name={name} />
   </View>
@@ -418,24 +522,41 @@ const ListItemFull = ({ rank, name }) => (
 
 const TopRateColleges = () => {
   const navigation = useNavigation();
-  const top3Colleges = collegesData.slice(0, 3);
+  const topColleges = isLargeScreen ? collegesData.slice(0, 4) : collegesData.slice(0, 3);
 
-  const renderCollegeList = (data) => (
-    <FlatList
-      data={data}
-      keyExtractor={(item) => item.id.toString()}
-      renderItem={({ item }) => (
-        <ListItemFull rank={item.id} name={item.name} />
-      )}
-      contentContainerStyle={{ paddingBottom: 16 }}
-      scrollEnabled={false}
-    />
-  );
+  const renderCollegeList = (data) => {
+    if (isLargeScreen) {
+      return (
+        <View style={styles.collegesGrid}>
+          {data.map((item) => (
+            <ListItemFull key={item.id} rank={item.id} name={item.name} />
+          ))}
+        </View>
+      );
+    }
+
+    return (
+      <FlatList
+        data={data}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <ListItemFull rank={item.id} name={item.name} />
+        )}
+        contentContainerStyle={{ paddingBottom: 16 }}
+        scrollEnabled={false}
+      />
+    );
+  };
 
   return (
     <View style={styles.topCollegeContainer}>
       <View style={styles.topCollegeHeader}>
-        <Text style={styles.title}>TOP RATED COLLEGES</Text>
+        <Text style={[
+          styles.title,
+          isLargeScreen && styles.titleTablet
+        ]}>
+          TOP RATED COLLEGES
+        </Text>
         <TouchableOpacity
           style={styles.viewAllButton}
           onPress={() => navigation.navigate("TopRatedList")}
@@ -443,7 +564,7 @@ const TopRateColleges = () => {
           <Text style={styles.viewAllButtonText}>View All</Text>
         </TouchableOpacity>
       </View>
-      {renderCollegeList(top3Colleges)}
+      {renderCollegeList(topColleges)}
     </View>
   );
 };
@@ -455,33 +576,50 @@ const HomeScreen = () => {
   const navigation = useNavigation();
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={[
+      styles.safe,
+      isExtraLargeScreen && styles.safeLarge
+    ]}>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
       <Header />
 
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+      <ScrollView 
+        contentContainerStyle={[
+          styles.scrollViewContent,
+          isLargeScreen && styles.scrollViewContentTablet
+        ]}
+      >
         <View style={styles.greetingContainer}>
-          <Text style={styles.greeting}>Hello ! Mabisha</Text>
+          <Text style={[
+            styles.greeting,
+            isLargeScreen && styles.greetingTablet
+          ]}>
+            Hello ! Mabisha
+          </Text>
         </View>
 
         <CollegeBanner />
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>YOUR CHOICE</Text>
-          {choices.map((c, i) => (
-            <ChoiceItemRibbon
-              key={c.id}
-              item={c}
-              index={i}
-              navigation={navigation}
-            />
-          ))}
+          <Text style={[
+            styles.sectionTitle,
+            isLargeScreen && styles.sectionTitleTablet
+          ]}>
+            YOUR CHOICE
+          </Text>
+          <View style={styles.choicesContainer}>
+            {choices.map((c, i) => (
+              <ChoiceItemRibbon
+                key={c.id}
+                item={c}
+                index={i}
+                navigation={navigation}
+              />
+            ))}
+          </View>
         </View>
 
-        {/* ADDED: View Blogs Section */}
         <ViewBlogsSection />
-
-        {/* Top Rated Colleges Section */}
         <TopRateColleges />
       </ScrollView>
 
@@ -491,28 +629,29 @@ const HomeScreen = () => {
 };
 
 ////////////////////////////////////////
-// Styles
+// Styles - SINGLE COLUMN RIBBON FOR ALL SCREENS
 ////////////////////////////////////////
-const CARD_WIDTH = 295;
-const CARD_HEIGHT = 59;
-const SIDE_SLOT_WIDTH = 40;
-const RIBBON_W = 140;
-const RIBBON_H = 46;
-const BLUE = "#0077B6";
-const TITLE = "#003366";
-const RIBBON_OFFSET = 18;
-
 const styles = StyleSheet.create({
+  // Base Container Styles
   safe: {
     flex: 1,
     backgroundColor: "#fff",
   },
+  safeLarge: {
+    maxWidth: 1200,
+    alignSelf: 'center',
+    width: '100%',
+  },
   scrollViewContent: {
     paddingBottom: 40,
   },
+  scrollViewContentTablet: {
+    paddingHorizontal: 40,
+  },
+  
+  // Greeting
   greetingContainer: {
-    height: 10,
-    paddingTop: 0,
+    paddingTop: 10,
   },
   greeting: {
     fontSize: 24,
@@ -522,25 +661,38 @@ const styles = StyleSheet.create({
     color: "#2A6B9D",
     paddingBottom: 10,
   },
+  greetingTablet: {
+    fontSize: 28,
+  },
+  
+  // Banner
   bannerWrapper: {
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 6,
-    backgroundColor: "#fff",
   },
-
+  bannerWrapperCenter: {
+    alignItems: 'center',
+  },
   banner: {
-    height: 175,
     borderRadius: 16,
     padding: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-
+  bannerTablet: {
+    paddingHorizontal: 24,
+    height:300,
+    width : 690
+    
+  },
   textContainer: {
     flex: 1,
     paddingRight: 12,
+  },
+  textContainerTablet: {
+    flex: 0.7,
   },
   bannertitle: {
     color: "#D0F1FB",
@@ -548,8 +700,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "left",
     lineHeight: 22,
-    flexShrink: 1,
     marginBottom: 8,
+  },
+  bannertitleTablet: {
+    fontSize: 24,
+    lineHeight: 26,
   },
   bannerSubtitle: {
     color: "#fff",
@@ -557,13 +712,19 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "left",
     lineHeight: 22,
-    flexShrink: 1,
     marginBottom: 8,
+  },
+  bannerSubtitleTablet: {
+    fontSize: 24,
+    lineHeight: 26,
   },
   bannerInfo: {
     color: "#fff",
     fontSize: 12,
     paddingTop: 10,
+  },
+  bannerInfoTablet: {
+    fontSize: 14,
   },
   bannerImage: {
     width: width * 0.55,
@@ -573,30 +734,72 @@ const styles = StyleSheet.create({
     right: -width * 0.05,
     resizeMode: "contain",
   },
+  bannerImageTablet: {
+    width: width * 0.5,
+    height: width * 0.4,
+    bottom: -width * 0.12,
+    right: -width * 0.04,
+  },
+  bannerImageLarge: {
+    width: 400,
+    height: 300,
+    bottom: -40,
+    right: -20,
+  },
+  dotsRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#B0CFEA",
+    marginHorizontal: 5,
+  },
+  activeDot: {
+    width: 20,
+    backgroundColor: "#014B85",
+  },
+  
+  // CHOICES - SINGLE COLUMN RIBBON FOR ALL SCREENS
+  choicesContainer: {},
+  
+  // Mobile ribbon layout (scaled for tablet)
   choiceRow: {
     alignItems: "center",
     marginVertical: 8,
-    height: CARD_HEIGHT,
+    height: 59,
     position: "relative",
+  },
+  choiceRowTablet: {
+    height: 70,
+    marginVertical: 10,
   },
   ribbon: {
     position: "absolute",
-    color: "#F3F5F5",
-    width: RIBBON_W,
-    height: RIBBON_H,
-    top: (CARD_HEIGHT - RIBBON_H) / 2,
+    width: 140,
+    height: 46,
+    top: 6.5,
     zIndex: 1,
     resizeMode: "stretch",
   },
+  ribbonTablet: {
+    width: 160,
+    height: 56,
+    top: 7,
+  },
   ribbonLeft: {
-    left: -RIBBON_OFFSET,
+    left: -18,
   },
   ribbonRight: {
-    right: -RIBBON_OFFSET,
+    right: -18,
   },
   choiceCard: {
     zIndex: 2,
-    height: CARD_HEIGHT,
+    height: 59,
     backgroundColor: "#F3F5F5",
     borderRadius: 12,
     flexDirection: "row",
@@ -615,26 +818,38 @@ const styles = StyleSheet.create({
       },
     }),
   },
+  choiceCardTablet: {
+    height: 70,
+    paddingHorizontal: 16,
+  },
   cardOdd: {
-    marginRight: RIBBON_W / 4,
+    marginRight: 35,
     marginLeft: 0,
   },
   cardEven: {
-    marginLeft: RIBBON_W / 4,
+    marginLeft: 35,
     marginRight: 0,
   },
   sideSlot: {
-    width: SIDE_SLOT_WIDTH,
+    width: 40,
     alignItems: "center",
     justifyContent: "center",
+  },
+  sideSlotTablet: {
+    width: 50,
   },
   choiceTitle: {
     flex: 1,
     textAlign: "center",
     fontSize: 16,
     fontWeight: "700",
-    color: TITLE,
+    color: "#003366",
   },
+  choiceTitleTablet: {
+    fontSize: 18,
+  },
+  
+  // Section Common
   section: {
     paddingHorizontal: 20,
     marginTop: 20,
@@ -648,11 +863,20 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: TITLE,
+    color: "#003366",
   },
-  // Blogs Styles
+  sectionTitleTablet: {
+    fontSize: 22,
+  },
+  
+  // Blogs
   blogsList: {
     paddingRight: 20,
+  },
+  blogsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
   },
   blogCard: {
     width: 200,
@@ -672,26 +896,48 @@ const styles = StyleSheet.create({
       },
     }),
   },
+  blogCardTablet: {
+    width: '48%',
+    marginRight: 0,
+    marginBottom: 16,
+  },
   blogImage: {
     width: "100%",
     height: 120,
     resizeMode: "cover",
   },
+  blogImageTablet: {
+    height: 150,
+  },
   blogContent: {
     padding: 12,
   },
+  blogHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
   blogCategory: {
-    alignSelf: "flex-start",
     backgroundColor: "#F0F7FF",
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
-    marginBottom: 8,
   },
   blogCategoryText: {
     fontSize: 10,
     fontWeight: "600",
     color: "#0072BC",
+  },
+  blogCategoryTextTablet: {
+    fontSize: 12,
+  },
+  blogTime: {
+    fontSize: 10,
+    color: "#666",
+  },
+  blogTimeTablet: {
+    fontSize: 12,
   },
   blogTitle: {
     fontSize: 14,
@@ -699,6 +945,10 @@ const styles = StyleSheet.create({
     color: "#003366",
     lineHeight: 18,
     marginBottom: 8,
+  },
+  blogTitleTablet: {
+    fontSize: 16,
+    lineHeight: 20,
   },
   blogMeta: {
     flexDirection: "row",
@@ -713,7 +963,11 @@ const styles = StyleSheet.create({
     color: "#666",
     marginLeft: 4,
   },
-  // Top Colleges Styles
+  blogMetaTextTablet: {
+    fontSize: 12,
+  },
+  
+  // Top Colleges
   topCollegeContainer: {
     paddingHorizontal: 20,
     marginTop: 30,
@@ -725,13 +979,29 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 12,
   },
+  title: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#003366",
+  },
+  titleTablet: {
+    fontSize: 22,
+  },
+  collegesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
   listItemContainer: {
     flexDirection: "row",
     marginBottom: 12,
     alignItems: "center",
   },
+  listItemContainerTablet: {
+    width: '48%',
+    marginBottom: 16,
+  },
   collegeCardWrapper: {
-    width: 280,
     flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
@@ -744,9 +1014,19 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 2, height: 2 },
     elevation: 2,
   },
+  collegeCardWrapperTablet: {
+    padding: 16,
+  },
   collegeName: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "600",
+    textAlign: "left",
+  },
+  collegeNameTablet: {
+    fontSize: 14,
+  },
+  collegeTextContainer: {
+    flex: 1,
     justifyContent: "center",
   },
   rankContainer: {
@@ -755,18 +1035,48 @@ const styles = StyleSheet.create({
   },
   rankText: {
     fontWeight: "700",
-    fontSize: 16,
+    fontSize: 14,
     marginBottom: 2,
+  },
+  rankTextTablet: {
+    fontSize: 16,
   },
   trophyIcon: {
     fontSize: 18,
     color: "#FFD700",
   },
-  title: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: TITLE,
+  trophyIconTablet: {
+    fontSize: 20,
   },
+  leftIconsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: 70,
+    marginRight: 12,
+  },
+  leftIconsContainerTablet: {
+    width: 80,
+    marginRight: 16,
+  },
+  greenArrow: {
+    color: "green",
+    fontSize: 18,
+    marginRight: 5,
+  },
+  greenArrowTablet: {
+    fontSize: 20,
+  },
+  collegeIcon: {
+    width: 42,
+    height: 42,
+    marginLeft: 6,
+  },
+  collegeIconTablet: {
+    width: 48,
+    height: 48,
+  },
+  
+  // Common Components
   viewAllButton: {
     backgroundColor: "#003366",
     borderRadius: 4,
@@ -777,23 +1087,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
     fontSize: 14,
-  },
-  dotsRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 10,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#B0CFEA",
-    marginHorizontal: 5,
-  },
-  activeDot: {
-    width: 20,
-    backgroundColor: "#014B85",
   },
 });
 
