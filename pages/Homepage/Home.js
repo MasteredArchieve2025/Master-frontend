@@ -589,14 +589,7 @@ const HomeScreen = () => {
           isLargeScreen && styles.scrollViewContentTablet
         ]}
       >
-        <View style={styles.greetingContainer}>
-          <Text style={[
-            styles.greeting,
-            isLargeScreen && styles.greetingTablet
-          ]}>
-            Hello ! Mabisha
-          </Text>
-        </View>
+      
 
         <CollegeBanner />
 

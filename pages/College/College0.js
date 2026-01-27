@@ -82,6 +82,7 @@ export default function College0({ navigation }) {
           <Ionicons 
             name="arrow-back" 
             size={isTablet ? 28 : 24} 
+            top={10}
             color="#fff" 
           />
         </TouchableOpacity>
@@ -304,6 +305,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "700",
     marginRight: 25,
+    marginTop:15,
   },
   headerTitleTablet: {
     fontSize: 26,
@@ -325,7 +327,7 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   },
   bannerImageTablet: {
-    height: 260,
+    height: 300,
   },
   bannerImageWeb: {
     height: 300,
