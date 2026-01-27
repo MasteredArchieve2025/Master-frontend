@@ -13,6 +13,8 @@ import {
   Animated,
   Dimensions,
   Easing,
+  TextInput,
+  KeyboardAvoidingView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -25,6 +27,9 @@ const { width } = Dimensions.get('window');
 export default function Profile() {
   const navigation = useNavigation();
   const [user, setUser] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedUser, setEditedUser] = useState({ username: "", email: "" });
+  
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideUpAnim = useRef(new Animated.Value(50)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
@@ -40,7 +45,12 @@ export default function Profile() {
     try {
       const storedUser = await AsyncStorage.getItem("user");
       if (storedUser) {
-        setUser(JSON.parse(storedUser));
+        const userData = JSON.parse(storedUser);
+        setUser(userData);
+        setEditedUser({
+          username: userData.username || "",
+          email: userData.email || ""
+        });
       }
     } catch (error) {
       console.log("Failed to load user", error);
@@ -78,6 +88,25 @@ export default function Profile() {
       easing: Easing.bezier(0.4, 0.0, 0.2, 1),
       useNativeDriver: false,
     }).start();
+  };
+
+  // 🔹 Handle Save Profile
+  const handleSaveProfile = async () => {
+    try {
+      const updatedUser = {
+        ...user,
+        username: editedUser.username,
+        email: editedUser.email
+      };
+      
+      await AsyncStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      setIsEditing(false);
+      Alert.alert("Success", "Profile updated successfully!");
+    } catch (error) {
+      Alert.alert("Error", "Failed to update profile");
+      console.log("Failed to save user", error);
+    }
   };
 
   // 🔹 Logout
@@ -121,9 +150,8 @@ export default function Profile() {
             </TouchableOpacity>
 
             <Text style={styles.headerTitle}>My Profile</Text>
-            <TouchableOpacity style={styles.settingsBtn}>
-              <Ionicons name="settings-outline" size={22} color="#fff" />
-            </TouchableOpacity>
+            {/* Settings button removed as requested */}
+            <View style={styles.settingsBtnPlaceholder} />
           </View>
 
           {/* Profile Avatar */}
@@ -149,7 +177,6 @@ export default function Profile() {
             </Animated.View>
             
             <Text style={styles.headerName}>{user?.username || "—"}</Text>
-            {/* <Text style={styles.headerRole}>Student</Text> */}
           </Animated.View>
         </View>
       </LinearGradient>
@@ -158,6 +185,7 @@ export default function Profile() {
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {/* Personal Information Card - FIRST */}
         <Animated.View 
@@ -169,28 +197,63 @@ export default function Profile() {
             }
           ]}
         >
-          <Text style={styles.cardTitle}>Personal Information</Text>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Personal Information</Text>
+            <TouchableOpacity 
+              onPress={() => isEditing ? handleSaveProfile() : setIsEditing(true)}
+              style={styles.editToggleBtn}
+            >
+              <Text style={styles.editToggleText}>
+                {isEditing ? "Save" : "Edit"}
+              </Text>
+            </TouchableOpacity>
+          </View>
           
+          {/* Full Name Section */}
           <View style={styles.infoSection}>
             <View style={styles.infoIcon}>
               <Ionicons name="person" size={20} color="#0B5394" />
             </View>
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>Full Name</Text>
-              <Text style={styles.infoValue}>{user?.username || "—"}</Text>
+              {isEditing ? (
+                <TextInput
+                  style={styles.input}
+                  value={editedUser.username}
+                  onChangeText={(text) => setEditedUser({...editedUser, username: text})}
+                  placeholder="Enter your name"
+                  placeholderTextColor="#999"
+                />
+              ) : (
+                <Text style={styles.infoValue}>{user?.username || "—"}</Text>
+              )}
             </View>
           </View>
 
+          {/* Email Section */}
           <View style={styles.infoSection}>
             <View style={styles.infoIcon}>
               <Ionicons name="mail" size={20} color="#0B5394" />
             </View>
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>Email</Text>
-              <Text style={styles.infoValue}>{user?.email || "—"}</Text>
+              {isEditing ? (
+                <TextInput
+                  style={styles.input}
+                  value={editedUser.email}
+                  onChangeText={(text) => setEditedUser({...editedUser, email: text})}
+                  placeholder="Enter your email"
+                  placeholderTextColor="#999"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+              ) : (
+                <Text style={styles.infoValue}>{user?.email || "—"}</Text>
+              )}
             </View>
           </View>
 
+          {/* Phone Section (Read-only) */}
           <View style={styles.infoSection}>
             <View style={styles.infoIcon}>
               <Ionicons name="call" size={20} color="#0B5394" />
@@ -201,20 +264,32 @@ export default function Profile() {
             </View>
           </View>
 
-          <View style={styles.infoSection}>
-            <View style={styles.infoIcon}>
-              <Ionicons name="location" size={20} color="#0B5394" />
+          {/* Location section removed as requested */}
+          
+          {isEditing && (
+            <View style={styles.editButtons}>
+              <TouchableOpacity 
+                style={styles.cancelBtn} 
+                onPress={() => {
+                  setIsEditing(false);
+                  setEditedUser({
+                    username: user?.username || "",
+                    email: user?.email || ""
+                  });
+                }}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.cancelBtnText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.saveBtn} 
+                onPress={handleSaveProfile}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.saveBtnText}>Save Changes</Text>
+              </TouchableOpacity>
             </View>
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Location</Text>
-              <Text style={styles.infoValue}>Coimbatore, Tamil Nadu</Text>
-            </View>
-          </View>
-
-          <TouchableOpacity style={styles.editProfileBtn} activeOpacity={0.7}>
-            <Ionicons name="create" size={20} color="#fff" />
-            <Text style={styles.editProfileText}>Edit Profile</Text>
-          </TouchableOpacity>
+          )}
         </Animated.View>
 
         {/* IQ Score Card - SECOND */}
@@ -294,13 +369,7 @@ export default function Profile() {
           <Text style={styles.cardTitle}>Settings</Text>
           
           <View style={styles.actionsList}>
-            <TouchableOpacity style={styles.actionItem} activeOpacity={0.7}>
-              <View style={[styles.actionIcon, { backgroundColor: 'rgba(52, 199, 89, 0.1)' }]}>
-                <Ionicons name="notifications" size={22} color="#34C759" />
-              </View>
-              <Text style={styles.actionLabel}>Notifications</Text>
-              <Ionicons name="chevron-forward" size={20} color="#999" />
-            </TouchableOpacity>
+            {/* Notifications section removed as requested */}
 
             <TouchableOpacity style={styles.actionItem} activeOpacity={0.7}>
               <View style={[styles.actionIcon, { backgroundColor: 'rgba(0, 122, 255, 0.1)' }]}>
@@ -390,13 +459,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
 
-  settingsBtn: {
+  settingsBtnPlaceholder: {
     width: 40,
     height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
 
   profileAvatarContainer: {
@@ -417,15 +482,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#fff',
     marginBottom: 4,
-  },
-
-  headerRole: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.9)',
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: 15,
   },
 
   // Content
@@ -454,11 +510,30 @@ const styles = StyleSheet.create({
     }),
   },
 
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+
   cardTitle: {
     fontSize: 20,
     fontWeight: '800',
     color: '#0B5394',
-    marginBottom: 20,
+  },
+
+  editToggleBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#0B5394',
+    borderRadius: 8,
+  },
+
+  editToggleText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
 
   infoSection: {
@@ -493,32 +568,49 @@ const styles = StyleSheet.create({
     color: '#333',
   },
 
-  editProfileBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#0B5394',
-    borderRadius: 12,
-    paddingVertical: 14,
-    marginTop: 10,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#0B5394',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 6,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
+  input: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    borderBottomWidth: 1,
+    borderBottomColor: '#0B5394',
+    paddingVertical: 4,
+    paddingHorizontal: 0,
   },
 
-  editProfileText: {
+  editButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+    gap: 10,
+  },
+
+  cancelBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+
+  cancelBtnText: {
+    color: '#666',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+
+  saveBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    backgroundColor: '#0B5394',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+
+  saveBtnText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
-    marginLeft: 8,
   },
 
   // IQ Card

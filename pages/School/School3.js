@@ -19,7 +19,7 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { WebView } from "react-native-webview";
 import Footer from "../../src/components/Footer";
 
-const { width: screenWidth } = Dimensions.get("window");
+const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 const isTablet = screenWidth >= 768;
 const isWeb = screenWidth >= 1024;
 
@@ -94,25 +94,17 @@ export default function School3() {
 
   return (
     <SafeAreaView style={[styles.container, isWeb && styles.containerWeb]}>
-      {/* ===== HEADER ===== */}
-      <View style={[
-        styles.header,
-        isTablet && styles.headerTablet,
-        isWeb && styles.headerWeb
-      ]}>
+      {/* ===== HEADER (Same as School1) ===== */}
+      <View style={[styles.header, isTablet && styles.headerTablet, isWeb && styles.headerWeb]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons
-            name={Platform.OS === "ios" ? "chevron-back" : "arrow-back"}
-            size={isTablet ? 28 : 24}
-            top={9}
-            color="#fff"
+          <Ionicons 
+            name="arrow-back" 
+            size={isTablet ? 28 : 24} 
+            color="#fff" 
           />
         </TouchableOpacity>
-        <Text style={[
-          styles.headerTitle,
-          isTablet && styles.headerTitleTablet,
-          isWeb && styles.headerTitleWeb
-        ]}>
+
+        <Text style={[styles.headerTitle, isTablet && styles.headerTitleTablet, isWeb && styles.headerTitleWeb]}>
           School Details
         </Text>
         <View style={{ width: isTablet ? 28 : 24 }} />
@@ -553,7 +545,7 @@ export default function School3() {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: "#F6F9FF" 
+    backgroundColor: "#F4F8FF" 
   },
   containerWeb: {
     maxWidth: 1200,
@@ -565,13 +557,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
 
-  // Header
+  // Header Styles (Same as School1)
   header: {
     backgroundColor: "#0052A2",
+    padding: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 16,
   },
   headerTablet: {
     paddingVertical: 20,
@@ -584,7 +576,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 22,
     fontWeight: "700",
-    marginTop:15
+    marginRight: 25,
   },
   headerTitleTablet: {
     fontSize: 26,
