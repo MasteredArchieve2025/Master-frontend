@@ -12,22 +12,17 @@ import {
   SafeAreaView,
   ScrollView,
   useWindowDimensions,
-  Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { WebView } from "react-native-webview";
 import Footer from "../../src/components/Footer";
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
-const isTablet = screenWidth >= 768;
-const isWeb = screenWidth >= 1024;
-
 /* ===== AD BANNERS ===== */
 const bannerAds = [
-  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
-  "https://images.unsplash.com/photo-1509062522246-3755977927d7",
-  "https://images.unsplash.com/photo-1551650975-87deedd944c3",
+  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=1200&auto=format&fit=crop",
 ];
 
 /* ===== SCHOOL DATA ===== */
@@ -40,6 +35,8 @@ const schools = [
     type: "Public",
     image: require("../../assets/school.png"),
     category: "Govt.School",
+    rating: 4.5,
+    students: "1200+",
   },
   {
     id: "2",
@@ -49,6 +46,8 @@ const schools = [
     type: "Private",
     image: require("../../assets/school.png"),
     category: "CBSE",
+    rating: 4.8,
+    students: "800+",
   },
   {
     id: "3",
@@ -58,6 +57,8 @@ const schools = [
     type: "Day School",
     image: require("../../assets/school.png"),
     category: "ICSE",
+    rating: 4.3,
+    students: "1500+",
   },
   {
     id: "4",
@@ -67,6 +68,8 @@ const schools = [
     type: "Private",
     image: require("../../assets/school.png"),
     category: "State Board",
+    rating: 4.6,
+    students: "2000+",
   },
   {
     id: "5",
@@ -76,15 +79,31 @@ const schools = [
     type: "Public",
     image: require("../../assets/school.png"),
     category: "Govt.School",
+    rating: 4.2,
+    students: "1800+",
+  },
+  {
+    id: "6",
+    name: "Kendriya Vidyalaya",
+    location: "Coimbatore · 2.8 km",
+    board: "CBSE",
+    type: "Central Govt",
+    image: require("../../assets/school.png"),
+    category: "CBSE",
+    rating: 4.7,
+    students: "1000+",
   },
 ];
 
 export default function School2() {
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
   const navigation = useNavigation();
-  const { width } = useWindowDimensions();
-  const bannerWidth = isWeb ? Math.min(width, 1200) : width;
-
+  const { width, height } = useWindowDimensions();
+  const isTablet = width >= 768;
+  const isWeb = Platform.OS === 'web';
+  
   /* ===== BANNER LOGIC ===== */
   const bannerRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -93,28 +112,38 @@ export default function School2() {
     const timer = setInterval(() => {
       setActiveIndex((prev) => {
         const next = (prev + 1) % bannerAds.length;
-        bannerRef.current?.scrollTo({
-          x: next * bannerWidth,
-          animated: true,
-        });
+        if (!isWeb && bannerRef.current) {
+          bannerRef.current.scrollTo({
+            x: next * width,
+            animated: true,
+          });
+        }
         return next;
       });
     }, 3000);
     return () => clearInterval(timer);
-  }, [bannerWidth]);
+  }, [width, isWeb]);
 
-  const filteredSchools =
-    selectedCategory === "All"
-      ? schools
-      : schools.filter((s) => s.category === selectedCategory);
+  const filteredSchools = schools.filter(school => {
+    const matchesCategory = selectedCategory === "All" || school.category === selectedCategory;
+    const matchesSearch = searchQuery === "" || 
+      school.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      school.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      school.board.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
-  /* ===== SCHOOL CARD ===== */
+  /* ===== RENDER SCHOOL CARD ===== */
   const renderSchoolCard = ({ item }) => (
     <TouchableOpacity
       style={[
         styles.card,
-        isTablet && styles.cardTablet,
-        isWeb && styles.cardWeb
+        {
+          marginHorizontal: isTablet ? 24 : 16,
+          marginBottom: isTablet ? 18 : 14,
+          padding: isTablet ? 18 : 14,
+          borderRadius: isTablet ? 18 : 16,
+        }
       ]}
       activeOpacity={0.85}
       onPress={() => navigation.navigate("School3", { school: item })}
@@ -123,42 +152,60 @@ export default function School2() {
         source={item.image} 
         style={[
           styles.image,
-          isTablet && styles.imageTablet,
-          isWeb && styles.imageWeb
+          { 
+            width: isTablet ? 100 : 80,
+            height: isTablet ? 100 : 80,
+            borderRadius: isTablet ? 14 : 12,
+          }
         ]} 
       />
 
       <View style={[
         styles.cardContent,
-        isTablet && styles.cardContentTablet
+        { marginLeft: isTablet ? 18 : 14 }
       ]}>
-        <Text style={[
-          styles.name,
-          isTablet && styles.nameTablet,
-          isWeb && styles.nameWeb
-        ]}>
-          {item.name}
-        </Text>
+        <View style={styles.cardHeader}>
+          <Text style={[
+            styles.name,
+            { fontSize: isTablet ? 18 : 16 }
+          ]} numberOfLines={1}>
+            {item.name}
+          </Text>
+          <View style={styles.ratingContainer}>
+            <Ionicons name="star" size={isTablet ? 16 : 14} color="#FFB703" />
+            <Text style={[
+              styles.rating,
+              { fontSize: isTablet ? 14 : 12 }
+            ]}>
+              {item.rating}
+            </Text>
+          </View>
+        </View>
+
         <Text style={[
           styles.location,
-          isTablet && styles.locationTablet
+          { fontSize: isTablet ? 14 : 12 }
         ]}>
           📍 {item.location}
         </Text>
 
-        <View style={[
-          styles.tags,
-          isTablet && styles.tagsTablet
+        <Text style={[
+          styles.students,
+          { fontSize: isTablet ? 13 : 11 }
         ]}>
+          👨‍🎓 {item.students} Students
+        </Text>
+
+        <View style={styles.tags}>
           <Text style={[
             styles.tagBlue,
-            isTablet && styles.tagTablet
+            { fontSize: isTablet ? 13 : 11 }
           ]}>
             {item.board}
           </Text>
           <Text style={[
             styles.tagGray,
-            isTablet && styles.tagTablet
+            { fontSize: isTablet ? 13 : 11 }
           ]}>
             {item.type}
           </Text>
@@ -167,155 +214,338 @@ export default function School2() {
 
       <Ionicons 
         name="chevron-forward" 
-        size={isTablet ? 22 : 18} 
+        size={isTablet ? 24 : 20} 
         color="#0B5ED7" 
+        style={styles.chevronIcon}
       />
     </TouchableOpacity>
   );
 
+  const renderAdSlider = () => {
+    if (isWeb) {
+      return (
+        <Image
+          source={{ uri: bannerAds[activeIndex] }}
+          style={[
+            styles.adImage,
+            { 
+              height: isTablet ? 200 : 180,
+            }
+          ]}
+          resizeMode="cover"
+        />
+      );
+    }
+    
+    return (
+      <ScrollView
+        ref={bannerRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={(e) =>
+          setActiveIndex(Math.round(e.nativeEvent.contentOffset.x / width))
+        }
+      >
+        {bannerAds.map((img, index) => (
+          <Image
+            key={index}
+            source={{ uri: img }}
+            style={{
+              width,
+              height: isTablet ? 300 : 180,
+            }}
+            resizeMode="cover"
+          />
+        ))}
+      </ScrollView>
+    );
+  };
+
   return (
-    <SafeAreaView style={[styles.container, isWeb && styles.containerWeb]}>
+    <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0052A2" />
 
-      {/* ===== HEADER (Same as School1) ===== */}
-      <View style={[styles.header, isTablet && styles.headerTablet, isWeb && styles.headerWeb]}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons 
-            name="arrow-back" 
-            size={isTablet ? 28 : 24} 
-            color="#fff" 
-          />
+      {/* ===== HEADER ===== */}
+      <View style={[
+        styles.header,
+        {
+          paddingHorizontal: isTablet ? 24 : 16,
+          paddingVertical: isTablet ? 20 : 16,
+        }
+      ]}>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <Ionicons name="arrow-back" size={isTablet ? 28 : 24} color="#fff" />
         </TouchableOpacity>
 
-        <Text style={[styles.headerTitle, isTablet && styles.headerTitleTablet, isWeb && styles.headerTitleWeb]}>
-          School
-        </Text>
-        <View style={{ width: isTablet ? 28 : 24 }} />
+        <View style={styles.headerCenter}>
+          <Text style={[
+            styles.headerTitle,
+            { fontSize: isTablet ? 26 : 22 }
+          ]}>
+            Schools 
+          </Text>
+         
+        </View>
+        
+        <View style={{ 
+          width: isTablet ? 28 : 24,
+          height: isTablet ? 28 : 24,
+        }} />
       </View>
 
       <ScrollView 
-        showsVerticalScrollIndicator={isWeb} 
-        contentContainerStyle={isWeb && styles.scrollContentWeb}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
       >
         {/* ===== TOP ADS BANNER ===== */}
-        <View style={isWeb && styles.bannerContainerWeb}>
-          <ScrollView
-            ref={bannerRef}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onMomentumScrollEnd={(e) =>
-              setActiveIndex(
-                Math.round(e.nativeEvent.contentOffset.x / bannerWidth)
-              )
-            }
-          >
-            {bannerAds.map((img, i) => (
-              <Image
-                key={i}
-                source={{ uri: `${img}?w=${Math.floor(bannerWidth * 2)}&auto=format&fit=crop` }}
-                style={[
-                  styles.bannerImage,
-                  isTablet && styles.bannerImageTablet,
-                  isWeb && styles.bannerImageWeb,
-                  { width: bannerWidth }
-                ]}
-                resizeMode="cover"
-              />
-            ))}
-          </ScrollView>
+        {renderAdSlider()}
 
-          {/* DOTS */}
-          <View style={styles.dots}>
-            {bannerAds.map((_, i) => (
-              <View
-                key={i}
-                style={[
-                  styles.dot,
-                  activeIndex === i && styles.activeDot,
-                ]}
-              />
-            ))}
-          </View>
+        {/* DOTS */}
+        <View style={styles.dots}>
+          {bannerAds.map((_, i) => (
+            <View
+              key={i}
+              style={[
+                styles.dot,
+                activeIndex === i && styles.activeDot,
+              ]}
+            />
+          ))}
         </View>
 
-        {/* FILTERS */}
+       
+
+        {/* ===== SEARCH & FILTER ROW ===== */}
         <View style={[
-          styles.filterRow,
-          isTablet && styles.filterRowTablet,
-          isWeb && styles.filterRowWeb
+          styles.searchFilterRow,
+          {
+            marginHorizontal: isTablet ? 24 : 16,
+            marginBottom: isTablet ? 20 : 16,
+          }
         ]}>
+          {/* SEARCH INPUT */}
           <View style={[
-            styles.filterInput,
-            isTablet && styles.filterInputTablet
+            styles.searchContainer,
+            {
+              flex: 1,
+              marginRight: isTablet ? 12 : 8,
+              padding: isTablet ? 14 : 10,
+              borderRadius: isTablet ? 14 : 12,
+            }
           ]}>
+            <Ionicons name="search" size={isTablet ? 20 : 16} color="#666" />
             <TextInput
-              placeholder="Filters"
+              placeholder="Search by name, location, board..."
               placeholderTextColor="#666"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
               style={[
-                styles.filterText,
-                isTablet && styles.filterTextTablet
+                styles.searchInput,
+                { fontSize: isTablet ? 16 : 14 }
               ]}
             />
-            <Ionicons
-              name="chevron-down-outline"
-              size={isTablet ? 18 : 16}
-              color="#333"
-            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchQuery("")}>
+                <Ionicons name="close-circle" size={isTablet ? 20 : 16} color="#999" />
+              </TouchableOpacity>
+            )}
           </View>
-          <View style={[
-            styles.filterInput,
-            isTablet && styles.filterInputTablet
-          ]}>
-            <TextInput
-              placeholder="Select"
-              placeholderTextColor="#666"
-              style={[
-                styles.filterText,
-                isTablet && styles.filterTextTablet
-              ]}
+
+          {/* FILTER BUTTON */}
+          <TouchableOpacity 
+            style={[
+              styles.filterButton,
+              {
+                padding: isTablet ? 14 : 10,
+                borderRadius: isTablet ? 14 : 12,
+              },
+              showFilters && styles.filterButtonActive
+            ]}
+            onPress={() => setShowFilters(!showFilters)}
+          >
+            <Ionicons 
+              name="filter" 
+              size={isTablet ? 22 : 18} 
+              color={showFilters ? "#fff" : "#0B5ED7"} 
             />
-            <Ionicons
-              name="chevron-down-outline"
-              size={isTablet ? 18 : 16}
-              color="#333"
-            />
-          </View>
+            {showFilters && (
+              <Text style={[
+                styles.filterButtonText,
+                { fontSize: isTablet ? 16 : 13, marginLeft: 8 }
+              ]}>
+                Filters
+              </Text>
+            )}
+          </TouchableOpacity>
         </View>
+
+        {/* ===== FILTER OPTIONS (SHOW/HIDE) ===== */}
+        {showFilters && (
+          <View style={[
+            styles.filterOptions,
+            {
+              marginHorizontal: isTablet ? 24 : 16,
+              marginBottom: isTablet ? 20 : 16,
+              padding: isTablet ? 20 : 16,
+              borderRadius: isTablet ? 16 : 14,
+            }
+          ]}>
+            <Text style={[
+              styles.filterOptionsTitle,
+              { fontSize: isTablet ? 18 : 16 }
+            ]}>
+              Filter Options
+            </Text>
+            
+            <View style={styles.filterOptionsRow}>
+              <TouchableOpacity 
+                style={[
+                  styles.filterOption,
+                  selectedCategory === "All" && styles.filterOptionActive
+                ]}
+                onPress={() => setSelectedCategory("All")}
+              >
+                <Text style={[
+                  styles.filterOptionText,
+                  selectedCategory === "All" && styles.filterOptionTextActive
+                ]}>
+                  All Schools
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[
+                  styles.filterOption,
+                  selectedCategory === "CBSE" && styles.filterOptionActive
+                ]}
+                onPress={() => setSelectedCategory("CBSE")}
+              >
+                <Text style={[
+                  styles.filterOptionText,
+                  selectedCategory === "CBSE" && styles.filterOptionTextActive
+                ]}>
+                  CBSE
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[
+                  styles.filterOption,
+                  selectedCategory === "ICSE" && styles.filterOptionActive
+                ]}
+                onPress={() => setSelectedCategory("ICSE")}
+              >
+                <Text style={[
+                  styles.filterOptionText,
+                  selectedCategory === "ICSE" && styles.filterOptionTextActive
+                ]}>
+                  ICSE
+                </Text>
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.filterOptionsRow}>
+              <TouchableOpacity 
+                style={[
+                  styles.filterOption,
+                  selectedCategory === "State Board" && styles.filterOptionActive
+                ]}
+                onPress={() => setSelectedCategory("State Board")}
+              >
+                <Text style={[
+                  styles.filterOptionText,
+                  selectedCategory === "State Board" && styles.filterOptionTextActive
+                ]}>
+                  State Board
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[
+                  styles.filterOption,
+                  selectedCategory === "Govt.School" && styles.filterOptionActive
+                ]}
+                onPress={() => setSelectedCategory("Govt.School")}
+              >
+                <Text style={[
+                  styles.filterOptionText,
+                  selectedCategory === "Govt.School" && styles.filterOptionTextActive
+                ]}>
+                  Govt Schools
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
 
         {/* ===== CATEGORIES ===== */}
         <View style={[
           styles.categories,
-          isTablet && styles.categoriesTablet,
-          isWeb && styles.categoriesWeb
+          {
+            marginHorizontal: isTablet ? 24 : 16,
+            marginBottom: isTablet ? 20 : 16,
+          }
         ]}>
-          {["All", "Govt.School", "State Board", "CBSE", "ICSE"].map(
-            (cat) => (
-              <TouchableOpacity
-                key={cat}
-                style={[
-                  styles.categoryBtn,
-                  selectedCategory === cat &&
-                    styles.activeCategory,
-                  isTablet && styles.categoryBtnTablet,
-                  isWeb && styles.categoryBtnWeb
-                ]}
-                onPress={() => setSelectedCategory(cat)}
-              >
-                <Text
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoriesScroll}
+          >
+            {["All", "Govt.School", "State Board", "CBSE", "ICSE", "Private"].map(
+              (cat) => (
+                <TouchableOpacity
+                  key={cat}
                   style={[
-                    styles.categoryText,
-                    selectedCategory === cat &&
-                      styles.activeCategoryText,
-                    isTablet && styles.categoryTextTablet,
-                    isWeb && styles.categoryTextWeb
+                    styles.categoryBtn,
+                    {
+                      paddingHorizontal: isTablet ? 20 : 16,
+                      paddingVertical: isTablet ? 10 : 8,
+                      borderRadius: isTablet ? 20 : 18,
+                      marginRight: isTablet ? 12 : 8,
+                    },
+                    selectedCategory === cat && styles.activeCategoryBtn,
                   ]}
+                  onPress={() => setSelectedCategory(cat)}
                 >
-                  {cat}
-                </Text>
-              </TouchableOpacity>
-            )
-          )}
+                  <Text
+                    style={[
+                      styles.categoryText,
+                      { fontSize: isTablet ? 16 : 13 },
+                      selectedCategory === cat && styles.activeCategoryText,
+                    ]}
+                  >
+                    {cat}
+                  </Text>
+                </TouchableOpacity>
+              )
+            )}
+          </ScrollView>
+        </View>
+
+        {/* ===== SCHOOL LIST HEADER ===== */}
+        <View style={[
+          styles.schoolsHeader,
+          {
+            marginHorizontal: isTablet ? 24 : 16,
+            marginBottom: isTablet ? 16 : 12,
+          }
+        ]}>
+          <Text style={[
+            styles.schoolsTitle,
+            { fontSize: isTablet ? 22 : 18 }
+          ]}>
+            Available Schools
+          </Text>
+          <Text style={[
+            styles.schoolsCount,
+            { fontSize: isTablet ? 16 : 13 }
+          ]}>
+            {filteredSchools.length} schools found
+          </Text>
         </View>
 
         {/* ===== SCHOOL LIST ===== */}
@@ -324,34 +554,78 @@ export default function School2() {
           renderItem={renderSchoolCard}
           keyExtractor={(item) => item.id}
           scrollEnabled={false}
-          contentContainerStyle={[
-            styles.listContent,
-            isTablet && styles.listContentTablet,
-            isWeb && styles.listContentWeb
-          ]}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={
+            <View style={[
+              styles.emptyContainer,
+              { marginHorizontal: isTablet ? 24 : 16 }
+            ]}>
+              <Ionicons name="school-outline" size={isTablet ? 60 : 48} color="#ccc" />
+              <Text style={[
+                styles.emptyText,
+                { fontSize: isTablet ? 18 : 16 }
+              ]}>
+                No schools found
+              </Text>
+              <Text style={[
+                styles.emptySubtext,
+                { fontSize: isTablet ? 14 : 12 }
+              ]}>
+                Try changing your search or filter criteria
+              </Text>
+            </View>
+          }
         />
 
-        {/* ===== VIDEO ===== */}
+        {/* ===== VIDEO SECTION ===== */}
         <View style={[
-          styles.videoBox,
-          isTablet && styles.videoBoxTablet,
-          isWeb && styles.videoBoxWeb
+          styles.sectionHeader,
+          {
+            marginHorizontal: isTablet ? 24 : 16,
+            marginTop: isTablet ? 24 : 20,
+            marginBottom: isTablet ? 16 : 12,
+          }
         ]}>
-          <WebView
-            allowsFullscreenVideo
-            javaScriptEnabled
-            domStorageEnabled
-            source={{
-              uri: "https://www.youtube.com/embed/NONufn3jgXI?rel=0&showinfo=0",
-            }}
-            style={{
-              height: isWeb ? 360 : isTablet ? 280 : 220,
-              width: "100%",
-            }}
-          />
+          <Text style={[
+            styles.sectionTitle,
+            { fontSize: isTablet ? 22 : 18 }
+          ]}>
+            School Tour
+          </Text>
         </View>
 
-        <View style={{ height: isWeb ? 80 : 120 }} />
+        <View style={[
+          styles.videoContainer,
+          {
+            marginHorizontal: isTablet ? 24 : 16,
+            marginBottom: isTablet ? 32 : 24,
+            borderRadius: isTablet ? 16 : 14,
+          }
+        ]}>
+          {isWeb ? (
+            <iframe
+              width="100%"
+              height={isTablet ? 320 : 220}
+              src="https://www.youtube.com/embed/NONufn3jgXI?rel=0&showinfo=0&modestbranding=1"
+              title="School Tour Video"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              style={styles.videoIframe}
+            />
+          ) : (
+            <WebView
+              allowsFullscreenVideo
+              source={{ uri: "https://www.youtube.com/embed/NONufn3jgXI?rel=0&showinfo=0&modestbranding=1" }}
+              style={{ height: isTablet ? 320 : 220 }}
+              javaScriptEnabled={true}
+              domStorageEnabled={true}
+              mediaPlaybackRequiresUserAction={false}
+            />
+          )}
+        </View>
+
+        <View style={{ height: isTablet ? 140 : 120 }} />
       </ScrollView>
 
       <Footer />
@@ -363,306 +637,474 @@ export default function School2() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F8FF",
-  },
-  containerWeb: {
-    maxWidth: 1200,
-    alignSelf: 'center',
-    width: '100%',
+    backgroundColor: "#F6F9FF",
   },
   
-  scrollContentWeb: {
-    paddingHorizontal: 40,
+  scrollContent: {
+    flexGrow: 1,
   },
 
-  // Header Styles (Same as School1)
+  /* HEADER */
   header: {
     backgroundColor: "#0052A2",
-    padding: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 6,
+      },
+      web: {
+        boxShadow: "0 4px 12px rgba(0, 82, 162, 0.3)",
+      },
+    }),
   },
-  headerTablet: {
-    paddingVertical: 20,
-    paddingHorizontal: 24,
+
+  backButton: {
+    padding: 4,
   },
-  headerWeb: {
-    paddingHorizontal: 40,
+
+  headerCenter: {
+    alignItems: "center",
+    flex: 1,
   },
+
   headerTitle: {
     color: "#fff",
-    fontSize: 22,
     fontWeight: "700",
-    marginRight: 25,
-  },
-  headerTitleTablet: {
-    fontSize: 26,
-  },
-  headerTitleWeb: {
-    fontSize: 28,
+    textAlign: "center",
+    marginBottom: 2,
   },
 
-  // Banner Container
-  bannerContainerWeb: {
-    borderRadius: 12,
-    overflow: 'hidden',
-    marginTop: 8,
+  headerSubtitle: {
+    color: "#DCE8FF",
+    textAlign: "center",
   },
 
-  // Banner Image
-  bannerImage: {
-    height: 180,
-  },
-  bannerImageTablet: {
-    height: 300,
-  },
-  bannerImageWeb: {
-    height: 220,
+  /* AD IMAGE */
+  adImage: {
+    width: '100%',
+    backgroundColor: '#f0f0f0',
   },
 
-  // Dots
+  /* DOTS */
   dots: {
     flexDirection: "row",
     justifyContent: "center",
-    marginVertical: 8,
+    alignItems: "center",
+    marginVertical: 12,
+    height: 20,
   },
+
   dot: {
     width: 8,
     height: 8,
     borderRadius: 4,
     backgroundColor: "#ccc",
-    marginHorizontal: 4,
+    marginHorizontal: 6,
+    transition: "all 0.3s ease",
   },
+
   activeDot: {
-    width: 16,
+    width: 24,
+    height: 8,
     backgroundColor: "#0B5ED7",
   },
 
-  // Filter Row
-  filterRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 12,
-    marginVertical: 14,
-  },
-  filterRowTablet: {
-    paddingHorizontal: 24,
-    marginVertical: 20,
-  },
-  filterRowWeb: {
-    paddingHorizontal: 0,
-  },
-  filterInput: {
+  /* INFO BANNER */
+  infoBanner: {
+    backgroundColor: "#E8F1FF",
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    flex: 0.48,
-    height: 40,
-  },
-  filterInputTablet: {
-    height: 46,
-    borderRadius: 23,
-    paddingHorizontal: 14,
-  },
-  filterText: {
-    flex: 1,
-    fontSize: 14,
-  },
-  filterTextTablet: {
-    fontSize: 16,
-  },
-
-  // Categories
-  categories: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-    paddingVertical: 8,
-  },
-  categoriesTablet: {
-    paddingVertical: 12,
-  },
-  categoriesWeb: {
-    paddingHorizontal: 0,
-  },
-  categoryBtn: { 
-    paddingBottom: 6 
-  },
-  categoryBtnTablet: {
-    paddingBottom: 8,
-  },
-  categoryBtnWeb: {
-    marginHorizontal: 8,
-  },
-  categoryText: { 
-    fontSize: 14, 
-    color: "#333" 
-  },
-  categoryTextTablet: {
-    fontSize: 16,
-  },
-  categoryTextWeb: {
-    fontSize: 15,
-  },
-  activeCategory: {
-    borderBottomWidth: 2,
-    borderBottomColor: "#0052A2",
-  },
-  activeCategoryText: {
-    color: "#0052A2",
-    fontWeight: "bold",
-  },
-
-  // School List Content
-  listContent: {
-    paddingTop: 12,
-  },
-  listContentTablet: {
-    paddingTop: 16,
-  },
-  listContentWeb: {
-    paddingHorizontal: 0,
-  },
-
-  // School Card
-  card: {
-    backgroundColor: "#fff",
-    marginHorizontal: 16,
-    marginBottom: 14,
-    borderRadius: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 12,
     ...Platform.select({
       ios: {
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
+        shadowOpacity: 0.08,
+        shadowRadius: 6,
       },
       android: {
         elevation: 3,
       },
+      web: {
+        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+      },
     }),
   },
-  cardTablet: {
-    marginHorizontal: 24,
-    marginBottom: 18,
-    padding: 16,
-    borderRadius: 20,
-  },
-  cardWeb: {
-    marginHorizontal: 0,
-    marginBottom: 16,
-    padding: 20,
-  },
 
-  // Card Image
-  image: {
-    width: 70,
-    height: 70,
-    borderRadius: 12,
-  },
-  imageTablet: {
-    width: 85,
-    height: 85,
-    borderRadius: 16,
-  },
-  imageWeb: {
-    width: 90,
-    height: 90,
-  },
-
-  // Card Content
-  cardContent: {
+  bannerTextContainer: {
     flex: 1,
-    marginLeft: 12,
-  },
-  cardContentTablet: {
     marginLeft: 16,
   },
 
-  // School Name
-  name: {
-    fontSize: 15,
+  bannerTitle: {
+    color: "#0B5ED7",
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+
+  bannerSubtitle: {
+    color: "#5F6F81",
+    opacity: 0.9,
+  },
+
+  /* SEARCH & FILTER ROW */
+  searchFilterRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  searchContainer: {
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    alignItems: "center",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+      },
+      android: {
+        elevation: 2,
+      },
+      web: {
+        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+      },
+    }),
+  },
+
+  searchInput: {
+    flex: 1,
+    marginLeft: 12,
+    marginRight: 8,
+    color: "#333",
+  },
+
+  filterButton: {
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+      },
+      android: {
+        elevation: 2,
+      },
+      web: {
+        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+        cursor: "pointer",
+        transition: "all 0.2s ease",
+        ":hover": {
+          backgroundColor: "#F0F4FF",
+        },
+      },
+    }),
+  },
+
+  filterButtonActive: {
+    backgroundColor: "#0B5ED7",
+  },
+
+  filterButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+
+  /* FILTER OPTIONS */
+  filterOptions: {
+    backgroundColor: "#fff",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 6,
+      },
+      android: {
+        elevation: 3,
+      },
+      web: {
+        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+      },
+    }),
+  },
+
+  filterOptionsTitle: {
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 16,
+  },
+
+  filterOptionsRow: {
+    flexDirection: "row",
+    marginBottom: 12,
+  },
+
+  filterOption: {
+    backgroundColor: "#F5F7FA",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginRight: 12,
+  },
+
+  filterOptionActive: {
+    backgroundColor: "#0B5ED7",
+  },
+
+  filterOptionText: {
+    color: "#666",
+    fontWeight: "500",
+  },
+
+  filterOptionTextActive: {
+    color: "#fff",
+  },
+
+  /* CATEGORIES */
+  categories: {
+    marginTop: 4,
+  },
+
+  categoriesScroll: {
+    paddingVertical: 4,
+  },
+
+  categoryBtn: {
+    backgroundColor: "#F1F3F6",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 1,
+      },
+      web: {
+        cursor: "pointer",
+        transition: "all 0.2s ease",
+      },
+    }),
+  },
+
+  activeCategoryBtn: {
+    backgroundColor: "#0B5ED7",
+  },
+
+  categoryText: {
+    color: "#5F6F81",
+    fontWeight: "500",
+  },
+
+  activeCategoryText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+
+  /* SCHOOLS HEADER */
+  schoolsHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  schoolsTitle: {
     fontWeight: "700",
     color: "#000",
   },
-  nameTablet: {
-    fontSize: 18,
-  },
-  nameWeb: {
-    fontSize: 19,
+
+  schoolsCount: {
+    color: "#666",
+    fontWeight: "500",
   },
 
-  // Location
+  /* LIST CONTENT */
+  listContent: {
+    paddingTop: 8,
+  },
+
+  /* EMPTY STATE */
+  emptyContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 32,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20,
+  },
+
+  emptyText: {
+    color: "#333",
+    fontWeight: "600",
+    marginTop: 16,
+    marginBottom: 8,
+  },
+
+  emptySubtext: {
+    color: "#666",
+    textAlign: "center",
+  },
+
+  /* CARD */
+  card: {
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    alignItems: "center",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 6,
+      },
+      android: {
+        elevation: 3,
+      },
+      web: {
+        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+        transition: "all 0.3s ease",
+        cursor: "pointer",
+        ":hover": {
+          transform: "translateY(-4px)",
+          boxShadow: "0 8px 20px rgba(0,0,0,0.12)",
+          backgroundColor: "#F8FBFF",
+        },
+      },
+    }),
+  },
+
+  image: {
+    resizeMode: "cover",
+  },
+
+  cardContent: {
+    flex: 1,
+    marginRight: 12,
+  },
+
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+
+  name: {
+    fontWeight: "700",
+    color: "#000",
+    flex: 1,
+    marginRight: 8,
+  },
+
+  ratingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFF9E6",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    minWidth: 50,
+    justifyContent: "center",
+  },
+
+  rating: {
+    color: "#000",
+    fontWeight: "600",
+    marginLeft: 4,
+  },
+
   location: {
-    fontSize: 12,
     color: "#5F6F81",
-    marginTop: 4,
-  },
-  locationTablet: {
-    fontSize: 14,
-    marginTop: 6,
+    marginBottom: 4,
   },
 
-  // Tags Container
+  students: {
+    color: "#4B5563",
+    marginBottom: 8,
+  },
+
   tags: {
     flexDirection: "row",
-    marginTop: 8,
-  },
-  tagsTablet: {
-    marginTop: 10,
+    flexWrap: "wrap",
   },
 
-  // Tags
   tagBlue: {
     backgroundColor: "#E8F1FF",
     color: "#0B5ED7",
-    fontSize: 11,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    fontWeight: "500",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     borderRadius: 8,
     marginRight: 8,
+    marginBottom: 4,
+    overflow: "hidden",
   },
+
   tagGray: {
     backgroundColor: "#F1F3F6",
     color: "#5F6F81",
-    fontSize: 11,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  tagTablet: {
-    fontSize: 13,
+    fontWeight: "500",
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 10,
+    borderRadius: 8,
+    marginBottom: 4,
+    overflow: "hidden",
   },
 
-  // Video Box
-  videoBox: {
-    marginHorizontal: 16,
-    marginTop: 30,
-    borderRadius: 12,
+  chevronIcon: {
+    opacity: 0.8,
+  },
+
+  /* SECTION HEADER */
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  sectionTitle: {
+    fontWeight: "700",
+    color: "#000",
+  },
+
+  /* VIDEO CONTAINER */
+  videoContainer: {
     overflow: "hidden",
     backgroundColor: "#000",
-    height : 200,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 10,
+      },
+      android: {
+        elevation: 8,
+      },
+      web: {
+        boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
+      },
+    }),
   },
-  videoBoxTablet: {
-    marginHorizontal: 24,
-    marginTop: 40,
-    borderRadius: 16,
-    height : 300,
-  },
-  videoBoxWeb: {
-    marginHorizontal: 0,
-    marginTop: 50,
-    borderRadius: 16,
+
+  videoIframe: {
+    border: "none",
+    borderRadius: 12,
+    width: "100%",
+    backgroundColor: "#000",
   },
 });

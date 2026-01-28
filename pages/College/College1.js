@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     height: 180,
   },
   bannerImageTablet: {
-    height: 200,
+    height: 300,
   },
   bannerImageWeb: {
     height: 220,
@@ -465,6 +465,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 24,
     marginTop: 40,
     borderRadius: 16,
+    height:300
   },
   videoBoxWeb: {
     marginHorizontal: 0,
