@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -10,14 +10,33 @@ import {
   StatusBar,
   SafeAreaView,
   Dimensions,
+  useWindowDimensions,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { WebView } from "react-native-webview";
 import { LinearGradient } from "expo-linear-gradient";
 import Footer from "../../src/components/Footer";
 
-const { width } = Dimensions.get("window");
-const isTablet = width >= 768;
+const { width, height } = Dimensions.get("window");
+
+/* ---------- RESPONSIVE UTILITIES ---------- */
+const isMobile = width < 768;
+const isTablet = width >= 768 && width < 1024;
+const isDesktop = width >= 1024;
+
+// Responsive scaling function
+const scale = (size) => {
+  if (isDesktop) return size * 1.2;
+  if (isTablet) return size * 1.1;
+  return size;
+};
+
+// Responsive value selector
+const responsiveValue = (mobile, tablet, desktop) => {
+  if (isDesktop) return desktop;
+  if (isTablet) return tablet;
+  return mobile;
+};
 
 /* ---------- BANNER ADS ---------- */
 const bannerAds = [
@@ -40,17 +59,133 @@ const courseMeta = {
     icon: "chart-line",
     desc: "Analyze data and build insights",
   },
-  Finance: {
+  "Cybersecurity": {
+    icon: "shield-lock",
+    desc: "Protect systems from digital threats",
+  },
+  "Cloud Computing": {
+    icon: "cloud",
+    desc: "Master cloud services and deployment",
+  },
+  "Nursing Fundamentals": {
+    icon: "medical-bag",
+    desc: "Essential skills for nursing professionals",
+  },
+  "Public Health": {
+    icon: "hospital",
+    desc: "Community health and disease prevention",
+  },
+  "Nutrition & Dietetics": {
+    icon: "food-apple",
+    desc: "Science of nutrition and healthy eating",
+  },
+  "Medical Terminology": {
+    icon: "clipboard-pulse",
+    desc: "Learn medical language and terms",
+  },
+  "First Aid & CPR": {
+    icon: "heart-pulse",
+    desc: "Emergency response and life-saving techniques",
+  },
+  "Digital Marketing": {
+    icon: "bullhorn",
+    desc: "Online marketing strategies and tools",
+  },
+  "Business Analytics": {
+    icon: "chart-bar",
+    desc: "Data-driven business decision making",
+  },
+  "Project Management": {
+    icon: "clipboard-check",
+    desc: "Plan and execute projects successfully",
+  },
+  "Finance Fundamentals": {
     icon: "finance",
     desc: "Understand finance & accounting basics",
   },
-  Marketing: {
-    icon: "bullhorn",
-    desc: "Learn digital and brand marketing",
+  "Entrepreneurship": {
+    icon: "lightbulb-on",
+    desc: "Start and grow your own business",
   },
-  "HR Management": {
-    icon: "account-group",
-    desc: "Human resource & people management",
+  "English Grammar & Writing": {
+    icon: "pencil",
+    desc: "Master English language skills",
+  },
+  "Public Speaking": {
+    icon: "microphone",
+    desc: "Confident communication and presentation",
+  },
+  "Business Communication": {
+    icon: "email",
+    desc: "Professional communication in business",
+  },
+  "French for Beginners": {
+    icon: "translate",
+    desc: "Start learning French language basics",
+  },
+  "Creative Writing": {
+    icon: "book-open",
+    desc: "Develop storytelling and writing skills",
+  },
+  "Mechanical Engineering Basics": {
+    icon: "cog",
+    desc: "Fundamentals of mechanical systems",
+  },
+  "Electrical Systems": {
+    icon: "flash",
+    desc: "Understanding electrical circuits",
+  },
+  "Civil Engineering": {
+    icon: "home-city",
+    desc: "Infrastructure and construction principles",
+  },
+  "Robotics": {
+    icon: "robot",
+    desc: "Design and program robots",
+  },
+  "3D Printing & CAD Design": {
+    icon: "cube",
+    desc: "Create 3D models and prototypes",
+  },
+  "UI/UX Design": {
+    icon: "palette",
+    desc: "Design user-friendly digital interfaces",
+  },
+  "Graphic Design": {
+    icon: "brush",
+    desc: "Visual communication and design",
+  },
+  "Animation": {
+    icon: "movie",
+    desc: "Bring characters and stories to life",
+  },
+  "Photography": {
+    icon: "camera",
+    desc: "Master the art of photography",
+  },
+  "Interior Design": {
+    icon: "sofa",
+    desc: "Create beautiful living spaces",
+  },
+  "Time Management": {
+    icon: "clock",
+    desc: "Maximize productivity and efficiency",
+  },
+  "Mindfulness & Meditation": {
+    icon: "yoga",
+    desc: "Stress reduction and mental wellness",
+  },
+  "Fitness & Wellness": {
+    icon: "dumbbell",
+    desc: "Physical health and exercise routines",
+  },
+  "Personal Finance": {
+    icon: "wallet",
+    desc: "Money management and financial planning",
+  },
+  "Goal Setting": {
+    icon: "target",
+    desc: "Achieve your personal and professional goals",
   },
 };
 
@@ -58,18 +193,72 @@ export default function Course2({ route, navigation }) {
   const sections = route?.params?.sections || [];
   const bannerRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const { width: windowWidth } = useWindowDimensions();
 
   /* AUTO SCROLL ADS */
   useEffect(() => {
     const timer = setInterval(() => {
       setActiveIndex((prev) => {
         const next = (prev + 1) % bannerAds.length;
-        bannerRef.current?.scrollTo({ x: next * width, animated: true });
+        bannerRef.current?.scrollTo({ x: next * windowWidth, animated: true });
         return next;
       });
     }, 3000);
     return () => clearInterval(timer);
+  }, [windowWidth]);
+
+  // Calculate columns based on screen size
+  const numColumns = useMemo(() => {
+    if (isDesktop) return 3;
+    if (isTablet) return 2;
+    return 1;
   }, []);
+
+  // Calculate card width
+  const cardWidth = useMemo(() => {
+    const padding = responsiveValue(16, 24, 32);
+    const gap = responsiveValue(12, 16, 20);
+    const availableWidth = windowWidth - (padding * 2);
+    
+    if (numColumns === 1) return availableWidth;
+    return (availableWidth - (gap * (numColumns - 1))) / numColumns;
+  }, [windowWidth, numColumns]);
+
+  // Responsive card layout
+  const cardLayout = useMemo(() => {
+    if (numColumns > 1) {
+      return {
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+      };
+    }
+    return {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+    };
+  }, [numColumns]);
+
+  // Responsive icon container
+  const iconContainerStyle = useMemo(() => {
+    const size = responsiveValue(56, 64, 72);
+    return {
+      width: size,
+      height: size,
+      borderRadius: size / 2,
+      marginBottom: numColumns === 1 ? 0 : scale(10),
+      marginRight: numColumns === 1 ? scale(12) : 0,
+    };
+  }, [numColumns]);
+
+  // Responsive text container
+  const textContainerStyle = useMemo(() => {
+    return {
+      flex: numColumns === 1 ? 1 : undefined,
+      alignItems: numColumns === 1 ? 'flex-start' : 'center',
+    };
+  }, [numColumns]);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -77,21 +266,40 @@ export default function Course2({ route, navigation }) {
 
       {/* ===== HEADER ===== */}
       <View style={styles.headerWrapper}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <View style={[
+          styles.header, 
+          { 
+            height: responsiveValue(
+              Platform.OS === "ios" ? 52 : 64,
+              Platform.OS === "ios" ? 60 : 72,
+              Platform.OS === "ios" ? 68 : 80
+            ),
+            paddingHorizontal: responsiveValue(16, 24, 32)
+          }
+        ]}>
+          <TouchableOpacity 
+            onPress={() => navigation.goBack()} 
+            style={styles.backBtn}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
             <Ionicons
               name={Platform.OS === "ios" ? "chevron-back" : "arrow-back"}
-              size={24}
+              size={scale(24)}
               color="#fff"
             />
           </TouchableOpacity>
 
-          <Text style={styles.headerTitle}>Course Details</Text>
-          <View style={{ width: 40 }} />
+          <Text style={[styles.headerTitle, { fontSize: scale(18) }]}>
+            Course Details
+          </Text>
+          <View style={{ width: scale(40) }} />
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         {/* ===== TOP BANNER ADS ===== */}
         <ScrollView
           ref={bannerRef}
@@ -99,39 +307,73 @@ export default function Course2({ route, navigation }) {
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           onMomentumScrollEnd={(e) =>
-            setActiveIndex(Math.round(e.nativeEvent.contentOffset.x / width))
+            setActiveIndex(Math.round(e.nativeEvent.contentOffset.x / windowWidth))
           }
         >
           {bannerAds.map((img, i) => (
             <Image
               key={i}
               source={{ uri: img }}
-              style={{ width, height: isTablet ? 160 : 190 }}
+              style={{ 
+                width: windowWidth, 
+                height: responsiveValue(190,300, 260),
+              }}
               resizeMode="cover"
             />
           ))}
         </ScrollView>
 
         {/* DOTS */}
-        <View style={styles.dots}>
+        <View style={[styles.dots, { marginBottom: responsiveValue(16, 20, 24) }]}>
           {bannerAds.map((_, i) => (
             <View
               key={i}
-              style={[styles.dot, activeIndex === i && styles.activeDot]}
+              style={[
+                styles.dot, 
+                activeIndex === i && styles.activeDot,
+                {
+                  width: scale(8),
+                  height: scale(8),
+                  marginHorizontal: scale(4)
+                }
+              ]}
             />
           ))}
         </View>
 
         {/* ===== SECTIONS ===== */}
         {sections.map((section, idx) => (
-          <View key={idx}>
-            {/* Section Title */}
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>{section.title}</Text>
+          <View key={idx} style={styles.sectionContainer}>
+            {/* Section Title - Added extra spacing here */}
+            <View style={[
+              styles.sectionHeader,
+              { 
+                marginHorizontal: responsiveValue(16, 24, 32),
+                paddingVertical: responsiveValue(14, 16, 18),
+                borderRadius: scale(14),
+                marginTop: idx === 0 ? responsiveValue(4, 8, 12) : responsiveValue(24, 28, 32),
+              }
+            ]}>
+              <Text style={[
+                styles.sectionTitle,
+                { fontSize: responsiveValue(18, 22, 26) }
+              ]}>
+                {section.title}
+              </Text>
             </View>
 
-            {/* Cards */}
-            <View style={styles.cardGrid}>
+            {/* Add spacing between section header and cards */}
+            <View style={{ height: responsiveValue(16, 20, 24) }} />
+
+            {/* Cards Grid/List */}
+            <View style={[
+              styles.cardContainer,
+              { 
+                paddingHorizontal: responsiveValue(16, 24, 32),
+                gap: responsiveValue(12, 16, 20),
+                marginBottom: responsiveValue(20, 24, 30), // Added spacing below cards
+              }
+            ]}>
               {section.items.map((item, i) => {
                 const meta = courseMeta[item] || {
                   icon: "book-open-page-variant",
@@ -142,7 +384,14 @@ export default function Course2({ route, navigation }) {
                   <TouchableOpacity
                     key={i}
                     activeOpacity={0.85}
-                    style={styles.card}
+                    style={[
+                      styles.card,
+                      { 
+                        width: cardWidth,
+                        ...cardLayout,
+                        padding: responsiveValue(16, 18, 20),
+                      }
+                    ]}
                     onPress={() =>
                       navigation.navigate("Course3", { title: item })
                     }
@@ -152,34 +401,72 @@ export default function Course2({ route, navigation }) {
                       colors={["#2295D2", "#284598"]}
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 1 }}
-                      style={styles.iconContainer}
+                      style={[styles.iconContainer, iconContainerStyle]}
                     >
                       <MaterialCommunityIcons
                         name={meta.icon}
-                        size={26}
+                        size={scale(26)}
                         color="#fff"
                       />
                     </LinearGradient>
 
-                    <Text style={styles.cardTitle}>{item}</Text>
-                    <Text style={styles.cardDesc}>{meta.desc}</Text>
+                    <View style={[styles.textContainer, textContainerStyle]}>
+                      <Text 
+                        style={[
+                          styles.cardTitle,
+                          { 
+                            fontSize: scale(15),
+                            textAlign: numColumns === 1 ? 'left' : 'center',
+                            marginBottom: scale(4),
+                          }
+                        ]}
+                        numberOfLines={2}
+                      >
+                        {item}
+                      </Text>
+                      <Text 
+                        style={[
+                          styles.cardDesc,
+                          { 
+                            fontSize: scale(11),
+                            textAlign: numColumns === 1 ? 'left' : 'center',
+                          }
+                        ]}
+                        numberOfLines={2}
+                      >
+                        {meta.desc}
+                      </Text>
+                    </View>
                   </TouchableOpacity>
                 );
               })}
             </View>
+
+            {/* Extra spacing after each section */}
+            <View style={{ 
+              height: responsiveValue(12, 16, 20),
+              marginBottom: responsiveValue(16, 20, 24) 
+            }} />
           </View>
         ))}
 
         {/* ===== VIDEO AD ===== */}
-        <View style={styles.videoBox}>
+        <View style={[
+          styles.videoBox,
+          { 
+            marginHorizontal: responsiveValue(16, 24, 32),
+            marginTop: responsiveValue(20, 24, 30), // Reduced top margin since we have spacing above
+            marginBottom: responsiveValue(80, 100, 120),
+            height: responsiveValue(220, 300, 300),
+            borderRadius: scale(12),
+          }
+        ]}>
           <WebView
             allowsFullscreenVideo
-            source={{ uri: "https://www.youtube.com/watch?v=NONufn3jgXI" }}
-            style={{ height: isTablet ? 260 : 220 }}
+            source={{ uri: "https://www.youtube.com/embed/NONufn3jgXI" }}
+            style={{ flex: 1 }}
           />
         </View>
-
-        <View style={{ height: 120 }} />
       </ScrollView>
 
       <Footer />
@@ -189,99 +476,116 @@ export default function Course2({ route, navigation }) {
 
 /* ---------- STYLES ---------- */
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#fff" },
+  safe: { 
+    flex: 1, 
+    backgroundColor: "#fff",
+    maxWidth: isDesktop ? 1400 : '100%',
+    alignSelf: 'center',
+    width: '100%'
+  },
 
-  headerWrapper: { backgroundColor: "#0052A2" },
+  scrollContent: {
+    paddingBottom: responsiveValue(80, 100, 120),
+  },
+
+  headerWrapper: { 
+    backgroundColor: "#0052A2",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 4,
+  },
   header: {
-    height: Platform.OS === "ios" ? 52 : 64,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
+    justifyContent: "space-between",
   },
-  backBtn: { width: 40 },
+  backBtn: { 
+    alignItems: 'flex-start',
+    padding: scale(4),
+  },
   headerTitle: {
-    flex: 1,
-    textAlign: "center",
-    fontSize: 18,
     fontWeight: "700",
     color: "#fff",
+    textAlign: "center",
+    flex: 1,
   },
 
   dots: {
     flexDirection: "row",
     justifyContent: "center",
-    marginVertical: 8,
+    marginVertical: scale(8),
   },
   dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    borderRadius: scale(4),
     backgroundColor: "#ccc",
-    marginHorizontal: 4,
   },
   activeDot: {
-    width: 16,
+    width: scale(16),
     backgroundColor: "#0B5ED7",
+  },
+
+  sectionContainer: {
+    // marginBottom handled individually for better control
   },
 
   sectionHeader: {
     backgroundColor: "#CFE5FA",
-    margin: 16,
-    borderRadius: 14,
-    paddingVertical: 14,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   sectionTitle: {
-    fontSize: isTablet ? 22 : 18,
     fontWeight: "700",
     color: "#0B5AA7",
   },
 
-  cardGrid: {
+  cardContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
+    justifyContent: "flex-start",
   },
 
   card: {
     backgroundColor: "#fff",
-    width: isTablet ? "48%" : "47%",
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 14,
-    alignItems: "center",
+    borderRadius: scale(14),
     elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: scale(4),
+    shadowOffset: { width: 0, height: scale(2) },
   },
 
   iconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 10,
+  },
+
+  textContainer: {
+    overflow: 'hidden',
   },
 
   cardTitle: {
-    fontSize: 15,
     fontWeight: "700",
     color: "#004780",
-    textAlign: "center",
-    marginBottom: 6,
   },
 
   cardDesc: {
-    fontSize: 11,
     color: "#555",
-    textAlign: "center",
+    lineHeight: scale(16),
   },
 
   videoBox: {
-    marginHorizontal: 16,
-    marginTop: 30,
-    borderRadius: 12,
     overflow: "hidden",
     backgroundColor: "#000",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
 });

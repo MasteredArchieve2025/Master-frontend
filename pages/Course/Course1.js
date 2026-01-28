@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
   Dimensions,
   Image,
   ScrollView,
+  useWindowDimensions,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { LinearGradient } from "expo-linear-gradient";
@@ -18,8 +19,26 @@ import { Ionicons } from "@expo/vector-icons";
 import { WebView } from "react-native-webview";
 import Footer from "../../src/components/Footer";
 
-const { width } = Dimensions.get("window");
-const isTablet = width >= 768;
+const { width, height } = Dimensions.get("window");
+
+/* ---------------- RESPONSIVE UTILITIES ---------------- */
+const isMobile = width < 768;
+const isTablet = width >= 768 && width < 1024;
+const isDesktop = width >= 1024;
+
+// Responsive scaling function
+const scale = (size) => {
+  if (isDesktop) return size * 1.2;
+  if (isTablet) return size * 1.1;
+  return size;
+};
+
+// Responsive padding/margin
+const responsiveValue = (mobile, tablet, desktop) => {
+  if (isDesktop) return desktop;
+  if (isTablet) return tablet;
+  return mobile;
+};
 
 /* ---------------- BANNER ADS ---------------- */
 const bannerAds = [
@@ -77,35 +96,63 @@ const activities = [
 export default function Course1({ navigation }) {
   const bannerRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const { width: windowWidth } = useWindowDimensions();
 
   /* AUTO SCROLL */
   useEffect(() => {
     const timer = setInterval(() => {
       setActiveIndex((prev) => {
         const next = (prev + 1) % bannerAds.length;
-        bannerRef.current?.scrollTo({ x: next * width, animated: true });
+        bannerRef.current?.scrollTo({ x: next * windowWidth, animated: true });
         return next;
       });
     }, 3000);
     return () => clearInterval(timer);
+  }, [windowWidth]);
+
+  // Calculate columns based on screen size
+  const numColumns = useMemo(() => {
+    if (isDesktop) return 4;
+    if (isTablet) return 3;
+    return 2;
   }, []);
+
+  // Calculate card width based on columns
+  const cardWidth = useMemo(() => {
+    const padding = responsiveValue(12, 16, 24);
+    const gap = responsiveValue(8, 12, 16);
+    const availableWidth = windowWidth - (padding * 2);
+    return (availableWidth - (gap * (numColumns - 1))) / numColumns;
+  }, [windowWidth, numColumns]);
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
       activeOpacity={0.85}
-      style={styles.card}
+      style={[styles.card, { width: cardWidth }]}
       onPress={() =>
         navigation.navigate("Course2", {
           sections: item.sections,
         })
       }
     >
-      <LinearGradient colors={["#2295D2", "#284598"]} style={styles.iconContainer}>
-        <Icon name={item.icon} size={26} color="#fff" />
+      <LinearGradient 
+        colors={["#2295D2", "#284598"]} 
+        style={[
+          styles.iconContainer,
+          { 
+            width: scale(56),
+            height: scale(56),
+            borderRadius: scale(28)
+          }
+        ]}
+      >
+        <Icon name={item.icon} size={scale(26)} color="#fff" />
       </LinearGradient>
 
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.description}>
+      <Text style={[styles.title, { fontSize: scale(15) }]} numberOfLines={2}>
+        {item.title}
+      </Text>
+      <Text style={[styles.description, { fontSize: scale(11) }]} numberOfLines={2}>
         Explore courses and skill development programs
       </Text>
     </TouchableOpacity>
@@ -117,21 +164,36 @@ export default function Course1({ navigation }) {
 
       {/* HEADER */}
       <View style={styles.headerWrapper}>
-        <View style={styles.header}>
+        <View style={[
+          styles.header, 
+          { 
+            height: responsiveValue(
+              Platform.OS === "ios" ? 52 : 64,
+              Platform.OS === "ios" ? 60 : 72,
+              Platform.OS === "ios" ? 68 : 80
+            ),
+            paddingHorizontal: responsiveValue(16, 24, 32)
+          }
+        ]}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Ionicons
               name={Platform.OS === "ios" ? "chevron-back" : "arrow-back"}
-              size={24}
+              size={scale(24)}
               color="#fff"
             />
           </TouchableOpacity>
 
-          <Text style={styles.headerTitle}>Courses</Text>
-          <View style={{ width: 40 }} />
+          <Text style={[styles.headerTitle, { fontSize: scale(18) }]}>
+            Courses
+          </Text>
+          <View style={{ width: scale(40) }} />
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: responsiveValue(80, 100, 120) }}
+      >
         {/* ===== TOP BANNER ADS ===== */}
         <ScrollView
           ref={bannerRef}
@@ -139,14 +201,17 @@ export default function Course1({ navigation }) {
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           onMomentumScrollEnd={(e) =>
-            setActiveIndex(Math.round(e.nativeEvent.contentOffset.x / width))
+            setActiveIndex(Math.round(e.nativeEvent.contentOffset.x / windowWidth))
           }
         >
           {bannerAds.map((img, i) => (
             <Image
               key={i}
               source={{ uri: img }}
-              style={{ width, height: isTablet ? 160 : 190 }}
+              style={{ 
+                width: windowWidth, 
+                height: responsiveValue(190, 300, 260) 
+              }}
               resizeMode="cover"
             />
           ))}
@@ -157,7 +222,15 @@ export default function Course1({ navigation }) {
           {bannerAds.map((_, i) => (
             <View
               key={i}
-              style={[styles.dot, activeIndex === i && styles.activeDot]}
+              style={[
+                styles.dot, 
+                activeIndex === i && styles.activeDot,
+                {
+                  width: scale(8),
+                  height: scale(8),
+                  marginHorizontal: scale(4)
+                }
+              ]}
             />
           ))}
         </View>
@@ -167,22 +240,33 @@ export default function Course1({ navigation }) {
           data={activities}
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
-          numColumns={2}
-          columnWrapperStyle={styles.row}
-          contentContainerStyle={styles.list}
+          numColumns={numColumns}
           scrollEnabled={false}
+          contentContainerStyle={[
+            styles.list,
+            { 
+              padding: responsiveValue(12, 16, 24),
+              gap: responsiveValue(8, 12, 16)
+            }
+          ]}
+          columnWrapperStyle={numColumns > 1 ? styles.row : null}
         />
 
         {/* ===== VIDEO AD ===== */}
-        <View style={styles.videoBox}>
+        <View style={[
+          styles.videoBox,
+          { 
+            marginHorizontal: responsiveValue(16, 24, 32),
+            marginTop: responsiveValue(30, 40, 50),
+            height: responsiveValue(220, 300, 300)
+          }
+        ]}>
           <WebView
             allowsFullscreenVideo
             source={{ uri: "https://www.youtube.com/watch?v=NONufn3jgXI" }}
-            style={{ height: isTablet ? 260 : 220 }}
+            style={{ flex: 1 }}
           />
         </View>
-
-        <View style={{ height: 120 }} />
       </ScrollView>
 
       <Footer />
@@ -192,91 +276,105 @@ export default function Course1({ navigation }) {
 
 /* ---------------- STYLES ---------------- */
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#fff" },
+  safe: { 
+    flex: 1, 
+    backgroundColor: "#fff",
+    maxWidth: isDesktop ? 1400 : '100%',
+    alignSelf: 'center',
+    width: '100%'
+  },
 
-  headerWrapper: { backgroundColor: "#0052A2" },
+  headerWrapper: { 
+    backgroundColor: "#0052A2",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 4,
+  },
   header: {
-    height: Platform.OS === "ios" ? 52 : 64,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
+    justifyContent: "space-between",
   },
-  backBtn: { width: 40 },
+  backBtn: { 
+    width: scale(40),
+    alignItems: 'flex-start'
+  },
   headerTitle: {
-    flex: 1,
     textAlign: "center",
-    fontSize: 18,
     fontWeight: "700",
     color: "#fff",
+    flex: 1,
   },
 
   dots: {
     flexDirection: "row",
     justifyContent: "center",
-    marginVertical: 8,
+    marginVertical: scale(8),
   },
   dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    borderRadius: scale(4),
     backgroundColor: "#ccc",
-    marginHorizontal: 4,
   },
   activeDot: {
-    width: 16,
+    width: scale(16),
     backgroundColor: "#0B5ED7",
   },
 
   list: {
-    padding: 12,
+    flexGrow: 1,
   },
 
   row: {
     justifyContent: "space-between",
+    gap: responsiveValue(8, 12, 16),
+    marginBottom: responsiveValue(14, 16, 20),
   },
 
   card: {
     backgroundColor: "#fff",
-    width: isTablet ? "48%" : "47%",
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 14,
+    borderRadius: scale(14),
+    padding: scale(16),
     alignItems: "center",
     elevation: 3,
     shadowColor: "#000",
     shadowOpacity: 0.08,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: scale(4),
+    shadowOffset: { width: 0, height: scale(2) },
+    ...(isDesktop && {
+      minHeight: scale(180),
+    }),
   },
 
   iconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: scale(10),
   },
 
   title: {
-    fontSize: 15,
     fontWeight: "700",
     color: "#004780",
     textAlign: "center",
-    marginBottom: 6,
+    marginBottom: scale(6),
   },
 
   description: {
-    fontSize: 11,
     color: "#555",
     textAlign: "center",
+    lineHeight: scale(16),
   },
 
   videoBox: {
-    marginHorizontal: 16,
-    marginTop: 30,
-    borderRadius: 12,
+    borderRadius: scale(12),
     overflow: "hidden",
     backgroundColor: "#000",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    
   },
 });
