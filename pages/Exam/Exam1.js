@@ -43,22 +43,19 @@ const responsiveValue = (mobile, tablet, desktop) => {
 const ads = [
   {
     id: "1",
-    title: "Exam Preparation Books",
-    description: "Get up to 40% off on best-selling exam guides",
+   
     image: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&h=300&fit=crop",
     url: "https://example.com/exam-books"
   },
   {
     id: "2",
-    title: "Online Test Series",
-    description: "Practice with 5000+ mock tests and previous papers",
+   
     image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&h=300&fit=crop",
     url: "https://example.com/test-series"
   },
   {
     id: "3",
-    title: "Exam Success Coaching",
-    description: "Personalized coaching for competitive exams",
+   
     image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=300&fit=crop",
     url: "https://example.com/coaching"
   },
@@ -153,7 +150,7 @@ const Exam1 = () => {
 
   // Calculate ad height
   const adHeight = useMemo(() => {
-    return responsiveValue(200, 240, 280);
+    return responsiveValue(200, 300, 280);
   }, []);
 
   // Advertisement Banner Component
@@ -183,17 +180,8 @@ const Exam1 = () => {
               }]}
               resizeMode="cover"
             />
-            <View style={styles.adContent}>
-              <Text style={[styles.adTitle, { fontSize: responsiveValue(18, 20, 22) }]}>
-                {ad.title}
-              </Text>
-              <Text style={[styles.adDesc, { fontSize: responsiveValue(14, 15, 16) }]}>
-                {ad.description}
-              </Text>
-            </View>
-            <View style={styles.adBadge}>
-              <Text style={styles.adBadgeText}>Ad</Text>
-            </View>
+            
+           
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -505,6 +493,7 @@ const styles = StyleSheet.create({
   adContainer: {
     backgroundColor: "#fff",
     width: '100%',
+    height : responsiveValue(200, 300, 300)
   },
   
   adSlide: {
@@ -670,6 +659,7 @@ const styles = StyleSheet.create({
   videoSection: {
     backgroundColor: "#fff",
     width: '100%',
+    height:responsiveValue(200,300,300)
   },
   
   videoHeader: {

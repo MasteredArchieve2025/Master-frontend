@@ -68,7 +68,7 @@ const CollegeBanner = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   
   const BANNER_WIDTH = isLargeScreen ? Math.min(width * 0.8, 1000) : width - 32;
-  const BANNER_HEIGHT = isLargeScreen ? 220 : 175;
+  const BANNER_HEIGHT = isLargeScreen ? 300 : 200;
 
   // 🔁 Auto scroll
   useEffect(() => {
@@ -660,7 +660,7 @@ const styles = StyleSheet.create({
   
   // Banner
   bannerWrapper: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 0,
     paddingTop: 16,
     paddingBottom: 6,
   },
@@ -668,7 +668,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   banner: {
-    borderRadius: 16,
+borderRadius: isLargeScreen ? 16 : 0,
     padding: 16,
     flexDirection: "row",
     alignItems: "center",
@@ -720,8 +720,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   bannerImage: {
-    width: width * 0.55,
-    height: width * 0.4,
+    width: width * 0.45,
+    height: width * 0.45,
     position: "absolute",
     bottom: -width * 0.14,
     right: -width * 0.05,

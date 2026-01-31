@@ -11,17 +11,12 @@ import {
   Platform,
   TextInput,
   Alert,
-  Dimensions,
-  SafeAreaView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { WebView } from "react-native-webview";
 import Footer from "../../src/components/Footer";
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
-const isTablet = screenWidth >= 768;
-const isWeb = screenWidth >= 1024;
 
 /* ===== TOP ADS ===== */
 const ads = [
@@ -34,13 +29,23 @@ export default function School3() {
   const navigation = useNavigation();
   const route = useRoute();
   const school = route.params?.school;
-  const { width } = useWindowDimensions();
-  const bannerWidth = isWeb ? Math.min(width, 1200) : width;
+
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  
+  // Responsive breakpoints
+  const isMobile = windowWidth < 768;
+  const isTablet = windowWidth >= 768 && windowWidth < 1024;
+  const isDesktop = windowWidth >= 1024;
+  
+  // Responsive dimensions for ads and video
+  const bannerHeight = isMobile ? 180 : isTablet ? 300 : 300;
+  const videoHeight = isMobile ? 200 : isTablet ? 0 : 350;
+  const maxContentWidth = isDesktop ? 900 : windowWidth;
 
   const adRef = useRef(null);
   const [activeAd, setActiveAd] = useState(0);
 
-  /* ===== REVIEW STATES ===== */
+  /* ===== REVIEW STATES (ADDED) ===== */
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [reviews, setReviews] = useState([
@@ -56,12 +61,15 @@ export default function School3() {
     const timer = setInterval(() => {
       setActiveAd((prev) => {
         const next = (prev + 1) % ads.length;
-        adRef.current?.scrollTo({ x: next * bannerWidth, animated: true });
+        adRef.current?.scrollTo({ 
+          x: next * windowWidth, 
+          animated: true 
+        });
         return next;
       });
     }, 3000);
     return () => clearInterval(timer);
-  }, [bannerWidth]);
+  }, [windowWidth]);
 
   /* ACTIONS */
   const openMap = () =>
@@ -93,447 +101,523 @@ export default function School3() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, isWeb && styles.containerWeb]}>
-      {/* ===== HEADER (Same as School1) ===== */}
-      <View style={[styles.header, isTablet && styles.headerTablet, isWeb && styles.headerWeb]}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons 
-            name="arrow-back" 
-            size={isTablet ? 28 : 24} 
-            color="#fff" 
-          />
-        </TouchableOpacity>
-
-        <Text style={[styles.headerTitle, isTablet && styles.headerTitleTablet, isWeb && styles.headerTitleWeb]}>
-          School Details
-        </Text>
-        <View style={{ width: isTablet ? 28 : 24 }} />
+    <SafeAreaView style={styles.container}>
+      {/* ===== HEADER ===== */}
+      <View style={[
+        styles.headerWrapper,
+        isDesktop && styles.headerWrapperDesktop
+      ]}>
+        <View style={[
+          styles.header,
+          isDesktop && styles.headerDesktop,
+          { maxWidth: maxContentWidth }
+        ]}>
+          <TouchableOpacity 
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          >
+            <Ionicons
+              name={Platform.OS === "ios" ? "chevron-back" : "arrow-back"}
+              size={isMobile ? 24 : isTablet ? 28 : 32}
+              color="#fff"
+            />
+          </TouchableOpacity>
+          <Text style={[
+            styles.headerTitle,
+            isTablet && styles.headerTitleTablet,
+            isDesktop && styles.headerTitleDesktop
+          ]}>
+            School Details
+          </Text>
+          <View style={{ 
+            width: isMobile ? 24 : isTablet ? 28 : 32 
+          }} />
+        </View>
       </View>
 
-      <ScrollView 
-        showsVerticalScrollIndicator={isWeb}
-        contentContainerStyle={isWeb && styles.scrollContentWeb}
-      >
+      <ScrollView showsVerticalScrollIndicator={false}>
         {/* ===== TOP ADS ===== */}
-        <View style={isWeb && styles.bannerContainerWeb}>
+        <View style={[
+          styles.bannerContainer,
+          isDesktop && styles.bannerContainerDesktop
+        ]}>
           <ScrollView
             ref={adRef}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
+            style={{ width: windowWidth }}
             onMomentumScrollEnd={(e) =>
-              setActiveAd(Math.round(e.nativeEvent.contentOffset.x / bannerWidth))
+              setActiveAd(Math.round(e.nativeEvent.contentOffset.x / windowWidth))
             }
           >
             {ads.map((img, i) => (
-              <Image
-                key={i}
-                source={{ uri: `${img}?w=${Math.floor(bannerWidth * 2)}&auto=format&fit=crop` }}
-                style={[
-                  styles.bannerImage,
-                  isTablet && styles.bannerImageTablet,
-                  isWeb && styles.bannerImageWeb,
-                  { width: bannerWidth }
-                ]}
-                resizeMode="cover"
-              />
+              <View key={i} style={{ width: windowWidth }}>
+                <Image
+                  source={{ uri: img }}
+                  style={{
+                    width: windowWidth,
+                    height: bannerHeight,
+                    resizeMode: "cover"
+                  }}
+                />
+              </View>
             ))}
           </ScrollView>
-
-          {/* DOTS */}
-          <View style={styles.dots}>
-            {ads.map((_, i) => (
-              <View
-                key={i}
-                style={[styles.dot, activeAd === i && styles.activeDot]}
-              />
-            ))}
-          </View>
         </View>
 
-        {/* ===== HERO CARD ===== */}
-        <View style={[
-          styles.heroCard,
-          isTablet && styles.heroCardTablet,
-          isWeb && styles.heroCardWeb
-        ]}>
-          <Text style={[
-            styles.schoolName,
-            isTablet && styles.schoolNameTablet,
-            isWeb && styles.schoolNameWeb
-          ]}>
-            {school?.name || "Josephs Matric HR Sec School"}
-          </Text>
-
-          <Text style={[
-            styles.tagline,
-            isTablet && styles.taglineTablet
-          ]}>
-            Quality Education · Discipline · Excellence
-          </Text>
-
-          <View style={styles.infoRow}>
-            <Ionicons 
-              name="school-outline" 
-              size={isTablet ? 18 : 16} 
-              color="#E8F0FF" 
+        {/* DOTS */}
+        <View style={styles.dots}>
+          {ads.map((_, i) => (
+            <View
+              key={i}
+              style={[styles.dot, activeAd === i && styles.activeDot]}
             />
-            <Text style={[
-              styles.infoText,
-              isTablet && styles.infoTextTablet
-            ]}>
-              LKG – Class 12 · All Boards
-            </Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Ionicons
-              name="location-outline"
-              size={isTablet ? 18 : 16}
-              color="#E8F0FF"
-            />
-            <Text style={[
-              styles.infoText,
-              isTablet && styles.infoTextTablet
-            ]}>
-              Colachel, Tamil Nadu
-            </Text>
-          </View>
-        </View>
-
-        {/* ===== CLASSES OFFERED ===== */}
-        <View style={[
-          styles.sectionCard,
-          isTablet && styles.sectionCardTablet,
-          isWeb && styles.sectionCardWeb
-        ]}>
-          <Text style={[
-            styles.sectionTitle,
-            isTablet && styles.sectionTitleTablet
-          ]}>
-            Classes Offered
-          </Text>
-          <View style={[
-            styles.chips,
-            isTablet && styles.chipsTablet
-          ]}>
-            <Text style={[
-              styles.chip,
-              isTablet && styles.chipTablet
-            ]}>
-              Primary
-            </Text>
-            <Text style={[
-              styles.chip,
-              isTablet && styles.chipTablet
-            ]}>
-              Middle School
-            </Text>
-            <Text style={[
-              styles.chip,
-              isTablet && styles.chipTablet
-            ]}>
-              High School
-            </Text>
-            <Text style={[
-              styles.chip,
-              isTablet && styles.chipTablet
-            ]}>
-              Higher Secondary
-            </Text>
-          </View>
-        </View>
-
-        {/* ===== TEACHING MODE ===== */}
-        <View style={[
-          styles.sectionCard,
-          isTablet && styles.sectionCardTablet,
-          isWeb && styles.sectionCardWeb
-        ]}>
-          <Text style={[
-            styles.sectionTitle,
-            isTablet && styles.sectionTitleTablet
-          ]}>
-            Teaching Mode
-          </Text>
-
-          <View style={[
-            styles.modeRow,
-            isTablet && styles.modeRowTablet
-          ]}>
-            <View style={[
-              styles.modeCard,
-              isTablet && styles.modeCardTablet
-            ]}>
-              <Ionicons 
-                name="business-outline" 
-                size={isTablet ? 26 : 22} 
-                color="#0B5ED7" 
-              />
-              <Text style={[
-                styles.modeTitle,
-                isTablet && styles.modeTitleTablet
-              ]}>
-                Offline
-              </Text>
-              <Text style={[
-                styles.modeSub,
-                isTablet && styles.modeSubTablet
-              ]}>
-                Classroom learning
-              </Text>
-            </View>
-
-            <View style={[
-              styles.modeCard,
-              isTablet && styles.modeCardTablet
-            ]}>
-              <Ionicons 
-                name="videocam-outline" 
-                size={isTablet ? 26 : 22} 
-                color="#0B5ED7" 
-              />
-              <Text style={[
-                styles.modeTitle,
-                isTablet && styles.modeTitleTablet
-              ]}>
-                Smart Classes
-              </Text>
-              <Text style={[
-                styles.modeSub,
-                isTablet && styles.modeSubTablet
-              ]}>
-                Digital learning support
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* ===== VIEW MAP ===== */}
-        <TouchableOpacity 
-          style={[
-            styles.mapButton,
-            isTablet && styles.mapButtonTablet,
-            isWeb && styles.mapButtonWeb
-          ]} 
-          onPress={openMap}
-        >
-          <Ionicons 
-            name="map-outline" 
-            size={isTablet ? 20 : 18} 
-            color="#fff" 
-          />
-          <Text style={[
-            styles.mapText,
-            isTablet && styles.mapTextTablet
-          ]}>
-            View on Map
-          </Text>
-        </TouchableOpacity>
-
-        {/* ===== ABOUT SCHOOL ===== */}
-        <View style={[
-          styles.sectionCard,
-          isTablet && styles.sectionCardTablet,
-          isWeb && styles.sectionCardWeb
-        ]}>
-          <Text style={[
-            styles.sectionTitle,
-            isTablet && styles.sectionTitleTablet
-          ]}>
-            About School
-          </Text>
-          <Text style={[
-            styles.aboutText,
-            isTablet && styles.aboutTextTablet
-          ]}>
-            The school has a private building with well-equipped classrooms,
-            library, playground, computer facilities, and a nurturing academic
-            environment that promotes holistic student development.
-          </Text>
-        </View>
-
-        {/* ===== CALL & WHATSAPP ===== */}
-        <View style={[
-          styles.actionRow,
-          isTablet && styles.actionRowTablet,
-          isWeb && styles.actionRowWeb
-        ]}>
-          <TouchableOpacity 
-            style={[
-              styles.callBtn,
-              isTablet && styles.actionBtnTablet
-            ]} 
-            onPress={callNow}
-          >
-            <Ionicons 
-              name="call" 
-              size={isTablet ? 20 : 18} 
-              color="#fff" 
-            />
-            <Text style={[
-              styles.actionText,
-              isTablet && styles.actionTextTablet
-            ]}>
-              Call
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[
-              styles.whatsappBtn,
-              isTablet && styles.actionBtnTablet
-            ]} 
-            onPress={openWhatsApp}
-          >
-            <Ionicons 
-              name="logo-whatsapp" 
-              size={isTablet ? 20 : 18} 
-              color="#fff" 
-            />
-            <Text style={[
-              styles.actionText,
-              isTablet && styles.actionTextTablet
-            ]}>
-              WhatsApp
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* ===== RATE & REVIEW ===== */}
-        <View style={[
-          styles.sectionCard,
-          isTablet && styles.sectionCardTablet,
-          isWeb && styles.sectionCardWeb
-        ]}>
-          <Text style={[
-            styles.sectionTitle,
-            isTablet && styles.sectionTitleTablet
-          ]}>
-            Rate & Review
-          </Text>
-
-          <View style={[
-            styles.starRow,
-            isTablet && styles.starRowTablet
-          ]}>
-            {[1, 2, 3, 4, 5].map((i) => (
-              <TouchableOpacity key={i} onPress={() => setRating(i)}>
-                <Ionicons
-                  name={i <= rating ? "star" : "star-outline"}
-                  size={isTablet ? 32 : 28}
-                  color="#FFD700"
-                />
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          <TextInput
-            placeholder="Write your review..."
-            multiline
-            value={reviewText}
-            onChangeText={setReviewText}
-            style={[
-              styles.reviewInput,
-              isTablet && styles.reviewInputTablet
-            ]}
-            placeholderTextColor="#999"
-          />
-
-          <TouchableOpacity 
-            style={[
-              styles.reviewBtn,
-              isTablet && styles.reviewBtnTablet
-            ]} 
-            onPress={submitReview}
-          >
-            <Ionicons 
-              name="send" 
-              size={isTablet ? 20 : 18} 
-              color="#fff" 
-            />
-            <Text style={[
-              styles.reviewBtnText,
-              isTablet && styles.reviewBtnTextTablet
-            ]}>
-              Submit Review
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* ===== REVIEWS LIST ===== */}
-        <View style={[
-          styles.sectionCard,
-          isTablet && styles.sectionCardTablet,
-          isWeb && styles.sectionCardWeb
-        ]}>
-          <Text style={[
-            styles.sectionTitle,
-            isTablet && styles.sectionTitleTablet
-          ]}>
-            User Reviews
-          </Text>
-
-          {reviews.map((r, i) => (
-            <View 
-              key={i} 
-              style={[
-                styles.reviewBox,
-                isTablet && styles.reviewBoxTablet
-              ]}
-            >
-              <View style={[
-                styles.reviewHeader,
-                isTablet && styles.reviewHeaderTablet
-              ]}>
-                <Text style={[
-                  styles.reviewName,
-                  isTablet && styles.reviewNameTablet
-                ]}>
-                  {r.name}
-                </Text>
-                <View style={{ flexDirection: "row" }}>
-                  {[1, 2, 3, 4, 5].map((x) => (
-                    <Ionicons
-                      key={x}
-                      name={x <= r.rating ? "star" : "star-outline"}
-                      size={isTablet ? 16 : 14}
-                      color="#FFD700"
-                    />
-                  ))}
-                </View>
-              </View>
-              <Text style={[
-                styles.reviewText,
-                isTablet && styles.reviewTextTablet
-              ]}>
-                {r.comment}
-              </Text>
-            </View>
           ))}
         </View>
 
-        {/* ===== VIDEO ===== */}
+        {/* ===== MAIN CONTENT CONTAINER ===== */}
         <View style={[
-          styles.videoBox,
-          isTablet && styles.videoBoxTablet,
-          isWeb && styles.videoBoxWeb
+          styles.contentContainer,
+          { maxWidth: maxContentWidth },
+          isDesktop && styles.contentContainerDesktop
         ]}>
-          <WebView
-            allowsFullscreenVideo
-            javaScriptEnabled
-            domStorageEnabled
-            source={{ 
-              uri: "https://www.youtube.com/embed/NONufn3jgXI?rel=0&showinfo=0" 
-            }}
-            style={{ 
-              height: isWeb ? 360 : isTablet ? 280 : 240,
-              width: "100%" 
-            }}
-          />
-        </View>
+          {/* ===== HERO CARD ===== */}
+          <View style={[
+            styles.heroCard,
+            {
+              marginHorizontal: isMobile ? 16 : isTablet ? 20 : 24,
+              padding: isMobile ? 16 : isTablet ? 18 : 22,
+            }
+          ]}>
+            <Text style={[
+              styles.schoolName,
+              isTablet && styles.schoolNameTablet,
+              isDesktop && styles.schoolNameDesktop
+            ]}>
+              {school?.name || "Josephs Matric HR Sec School"}
+            </Text>
 
-        <View style={{ height: isWeb ? 80 : 120 }} />
+            <Text style={[
+              styles.tagline,
+              isTablet && styles.taglineTablet,
+              isDesktop && styles.taglineDesktop
+            ]}>
+              Quality Education · Discipline · Excellence
+            </Text>
+
+            <View style={styles.infoRow}>
+              <Ionicons 
+                name="school-outline" 
+                size={isMobile ? 16 : isTablet ? 18 : 20} 
+                color="#E8F0FF" 
+              />
+              <Text style={[
+                styles.infoText,
+                isTablet && styles.infoTextTablet,
+                isDesktop && styles.infoTextDesktop
+              ]}>
+                LKG – Class 12 · All Boards
+              </Text>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Ionicons
+                name="location-outline"
+                size={isMobile ? 16 : isTablet ? 18 : 20}
+                color="#E8F0FF"
+              />
+              <Text style={[
+                styles.infoText,
+                isTablet && styles.infoTextTablet,
+                isDesktop && styles.infoTextDesktop
+              ]}>
+                Colachel, Tamil Nadu
+              </Text>
+            </View>
+          </View>
+
+          {/* ===== CLASSES OFFERED ===== */}
+          <View style={[
+            styles.sectionCard,
+            {
+              marginHorizontal: isMobile ? 16 : isTablet ? 20 : 24,
+              padding: isMobile ? 16 : isTablet ? 18 : 22,
+            }
+          ]}>
+            <Text style={[
+              styles.sectionTitle,
+              isTablet && styles.sectionTitleTablet,
+              isDesktop && styles.sectionTitleDesktop
+            ]}>
+              Classes Offered
+            </Text>
+            <View style={styles.chips}>
+              <Text style={[
+                styles.chip,
+                isTablet && styles.chipTablet,
+                isDesktop && styles.chipDesktop
+              ]}>
+                Primary
+              </Text>
+              <Text style={[
+                styles.chip,
+                isTablet && styles.chipTablet,
+                isDesktop && styles.chipDesktop
+              ]}>
+                Middle School
+              </Text>
+              <Text style={[
+                styles.chip,
+                isTablet && styles.chipTablet,
+                isDesktop && styles.chipDesktop
+              ]}>
+                High School
+              </Text>
+              <Text style={[
+                styles.chip,
+                isTablet && styles.chipTablet,
+                isDesktop && styles.chipDesktop
+              ]}>
+                Higher Secondary
+              </Text>
+            </View>
+          </View>
+
+          {/* ===== TEACHING MODE ===== */}
+          <View style={[
+            styles.sectionCard,
+            {
+              marginHorizontal: isMobile ? 16 : isTablet ? 20 : 24,
+              padding: isMobile ? 16 : isTablet ? 18 : 22,
+            }
+          ]}>
+            <Text style={[
+              styles.sectionTitle,
+              isTablet && styles.sectionTitleTablet,
+              isDesktop && styles.sectionTitleDesktop
+            ]}>
+              Teaching Mode
+            </Text>
+
+            <View style={styles.modeRow}>
+              <View style={[
+                styles.modeCard,
+                {
+                  width: isMobile ? "48%" : isTablet ? "48%" : "48%",
+                  padding: isMobile ? 14 : isTablet ? 16 : 18,
+                }
+              ]}>
+                <Ionicons 
+                  name="business-outline" 
+                  size={isMobile ? 22 : isTablet ? 24 : 26} 
+                  color="#0B5ED7" 
+                />
+                <Text style={[
+                  styles.modeTitle,
+                  isTablet && styles.modeTitleTablet,
+                  isDesktop && styles.modeTitleDesktop
+                ]}>
+                  Offline
+                </Text>
+                <Text style={[
+                  styles.modeSub,
+                  isTablet && styles.modeSubTablet,
+                  isDesktop && styles.modeSubDesktop
+                ]}>
+                  Classroom learning
+                </Text>
+              </View>
+
+              <View style={[
+                styles.modeCard,
+                {
+                  width: isMobile ? "48%" : isTablet ? "48%" : "48%",
+                  padding: isMobile ? 14 : isTablet ? 16 : 18,
+                }
+              ]}>
+                <Ionicons 
+                  name="videocam-outline" 
+                  size={isMobile ? 22 : isTablet ? 24 : 26} 
+                  color="#0B5ED7" 
+                />
+                <Text style={[
+                  styles.modeTitle,
+                  isTablet && styles.modeTitleTablet,
+                  isDesktop && styles.modeTitleDesktop
+                ]}>
+                  Smart Classes
+                </Text>
+                <Text style={[
+                  styles.modeSub,
+                  isTablet && styles.modeSubTablet,
+                  isDesktop && styles.modeSubDesktop
+                ]}>
+                  Digital learning support
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* ===== VIEW MAP ===== */}
+          <TouchableOpacity 
+            style={[
+              styles.mapButton,
+              {
+                marginHorizontal: isMobile ? 16 : isTablet ? 20 : 24,
+                paddingVertical: isMobile ? 14 : isTablet ? 16 : 18,
+              }
+            ]} 
+            onPress={openMap}
+          >
+            <Ionicons 
+              name="map-outline" 
+              size={isMobile ? 18 : isTablet ? 20 : 22} 
+              color="#fff" 
+            />
+            <Text style={[
+              styles.mapText,
+              isTablet && styles.mapTextTablet,
+              isDesktop && styles.mapTextDesktop
+            ]}>
+              View on Map
+            </Text>
+          </TouchableOpacity>
+
+          {/* ===== ABOUT SCHOOL ===== */}
+          <View style={[
+            styles.sectionCard,
+            {
+              marginHorizontal: isMobile ? 16 : isTablet ? 20 : 24,
+              padding: isMobile ? 16 : isTablet ? 18 : 22,
+            }
+          ]}>
+            <Text style={[
+              styles.sectionTitle,
+              isTablet && styles.sectionTitleTablet,
+              isDesktop && styles.sectionTitleDesktop
+            ]}>
+              About School
+            </Text>
+            <Text style={[
+              styles.aboutText,
+              isTablet && styles.aboutTextTablet,
+              isDesktop && styles.aboutTextDesktop
+            ]}>
+              The school has a private building with well-equipped classrooms,
+              library, playground, computer facilities, and a nurturing academic
+              environment that promotes holistic student development.
+            </Text>
+          </View>
+
+          {/* ===== CALL & WHATSAPP ===== */}
+          <View style={[
+            styles.actionRow,
+            {
+              marginHorizontal: isMobile ? 16 : isTablet ? 20 : 24,
+            }
+          ]}>
+            <TouchableOpacity 
+              style={[
+                styles.callBtn,
+                {
+                  paddingVertical: isMobile ? 14 : isTablet ? 16 : 18,
+                  marginRight: isMobile ? 8 : isTablet ? 10 : 12,
+                }
+              ]} 
+              onPress={callNow}
+            >
+              <Ionicons 
+                name="call" 
+                size={isMobile ? 18 : isTablet ? 20 : 22} 
+                color="#fff" 
+              />
+              <Text style={[
+                styles.actionText,
+                isTablet && styles.actionTextTablet,
+                isDesktop && styles.actionTextDesktop
+              ]}>
+                Call
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[
+                styles.whatsappBtn,
+                {
+                  paddingVertical: isMobile ? 14 : isTablet ? 16 : 18,
+                  marginLeft: isMobile ? 8 : isTablet ? 10 : 12,
+                }
+              ]} 
+              onPress={openWhatsApp}
+            >
+              <Ionicons 
+                name="logo-whatsapp" 
+                size={isMobile ? 18 : isTablet ? 20 : 22} 
+                color="#fff" 
+              />
+              <Text style={[
+                styles.actionText,
+                isTablet && styles.actionTextTablet,
+                isDesktop && styles.actionTextDesktop
+              ]}>
+                WhatsApp
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* ===== RATE & REVIEW (ADDED) ===== */}
+          <View style={[
+            styles.sectionCard,
+            {
+              marginHorizontal: isMobile ? 16 : isTablet ? 20 : 24,
+              padding: isMobile ? 16 : isTablet ? 18 : 22,
+            }
+          ]}>
+            <Text style={[
+              styles.sectionTitle,
+              isTablet && styles.sectionTitleTablet,
+              isDesktop && styles.sectionTitleDesktop
+            ]}>
+              Rate & Review
+            </Text>
+
+            <View style={styles.starRow}>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <TouchableOpacity 
+                  key={i} 
+                  onPress={() => setRating(i)}
+                  style={styles.starButton}
+                >
+                  <Ionicons
+                    name={i <= rating ? "star" : "star-outline"}
+                    size={isMobile ? 28 : isTablet ? 32 : 36}
+                    color="#FFD700"
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TextInput
+              placeholder="Write your review..."
+              placeholderTextColor="#9CA3AF"
+              multiline
+              value={reviewText}
+              onChangeText={setReviewText}
+              style={[
+                styles.reviewInput,
+                {
+                  minHeight: isMobile ? 80 : isTablet ? 100 : 120,
+                  padding: isMobile ? 12 : isTablet ? 14 : 16,
+                  fontSize: isMobile ? 14 : isTablet ? 15 : 16,
+                }
+              ]}
+            />
+
+            <TouchableOpacity 
+              style={[
+                styles.reviewBtn,
+                {
+                  paddingVertical: isMobile ? 12 : isTablet ? 14 : 16,
+                }
+              ]} 
+              onPress={submitReview}
+            >
+              <Ionicons 
+                name="send" 
+                size={isMobile ? 18 : isTablet ? 20 : 22} 
+                color="#fff" 
+              />
+              <Text style={[
+                styles.reviewBtnText,
+                isTablet && styles.reviewBtnTextTablet,
+                isDesktop && styles.reviewBtnTextDesktop
+              ]}>
+                Submit Review
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* ===== REVIEWS LIST ===== */}
+          <View style={[
+            styles.sectionCard,
+            {
+              marginHorizontal: isMobile ? 16 : isTablet ? 20 : 24,
+              padding: isMobile ? 16 : isTablet ? 18 : 22,
+            }
+          ]}>
+            <Text style={[
+              styles.sectionTitle,
+              isTablet && styles.sectionTitleTablet,
+              isDesktop && styles.sectionTitleDesktop
+            ]}>
+              User Reviews
+            </Text>
+
+            {reviews.map((r, i) => (
+              <View key={i} style={[
+                styles.reviewBox,
+                {
+                  padding: isMobile ? 12 : isTablet ? 14 : 16,
+                  marginBottom: isMobile ? 10 : isTablet ? 12 : 14,
+                }
+              ]}>
+                <View style={styles.reviewHeader}>
+                  <Text style={[
+                    styles.reviewName,
+                    isTablet && styles.reviewNameTablet,
+                    isDesktop && styles.reviewNameDesktop
+                  ]}>
+                    {r.name}
+                  </Text>
+                  <View style={{ flexDirection: "row" }}>
+                    {[1, 2, 3, 4, 5].map((x) => (
+                      <Ionicons
+                        key={x}
+                        name={x <= r.rating ? "star" : "star-outline"}
+                        size={isMobile ? 14 : isTablet ? 16 : 18}
+                        color="#FFD700"
+                      />
+                    ))}
+                  </View>
+                </View>
+                <Text style={[
+                  styles.reviewText,
+                  isTablet && styles.reviewTextTablet,
+                  isDesktop && styles.reviewTextDesktop
+                ]}>
+                  {r.comment}
+                </Text>
+              </View>
+            ))}
+          </View>
+
+          {/* ===== VIDEO ===== */}
+          <View style={[
+            styles.videoBox,
+            {
+              height: videoHeight,
+              marginHorizontal: isMobile ? 16 : isTablet ? 20 : 24,
+              marginTop: isMobile ? 32 : isTablet ? 40 : 48,
+            },
+            isDesktop && styles.videoBoxDesktop
+          ]}>
+            <WebView
+              allowsFullscreenVideo
+              javaScriptEnabled={true}
+              domStorageEnabled={true}
+              source={{ 
+                uri: "https://www.youtube.com/embed/NONufn3jgXI?rel=0&modestbranding=1" 
+              }}
+              style={{ flex: 1 }}
+            />
+          </View>
+
+          {/* Spacer for Footer */}
+          <View style={{ 
+            height: isMobile ? 120 : isTablet ? 140 : 160 
+          }} />
+        </View>
       </ScrollView>
 
       <Footer />
@@ -541,66 +625,54 @@ export default function School3() {
   );
 }
 
-/* ================= STYLES ================= */
+/* ================= RESPONSIVE STYLES ================= */
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: "#F4F8FF" 
-  },
-  containerWeb: {
-    maxWidth: 1200,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  
-  scrollContentWeb: {
-    paddingHorizontal: 40,
+    backgroundColor: "#F6F9FF" 
   },
 
-  // Header Styles (Same as School1)
+  // Header Styles
+  headerWrapper: { 
+    backgroundColor: "#0052A2" 
+  },
+  headerWrapperDesktop: {
+    alignItems: 'center',
+  },
   header: {
     backgroundColor: "#0052A2",
-    padding: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    padding: 16,
+    width: '100%',
   },
-  headerTablet: {
-    paddingVertical: 20,
-    paddingHorizontal: 24,
+  headerDesktop: {
+    padding: 20,
   },
-  headerWeb: {
-    paddingHorizontal: 40,
+  backButton: {
+    padding: 4,
   },
   headerTitle: {
     color: "#fff",
     fontSize: 22,
     fontWeight: "700",
-    marginRight: 25,
+    textAlign: 'center',
+    flex: 1,
   },
   headerTitleTablet: {
-    fontSize: 26,
+    fontSize: 24,
   },
-  headerTitleWeb: {
-    fontSize: 28,
+  headerTitleDesktop: {
+    fontSize: 26,
   },
 
   // Banner Container
-  bannerContainerWeb: {
-    borderRadius: 12,
-    overflow: 'hidden',
-    marginTop: 8,
+  bannerContainer: {
+    width: '100%',
   },
-
-  // Banner Image
-  bannerImage: {
-    height: 180,
-  },
-  bannerImageTablet: {
-    height: 200,
-  },
-  bannerImageWeb: {
-    height: 220,
+  bannerContainerDesktop: {
+    alignItems: 'center',
   },
 
   // Dots
@@ -621,20 +693,20 @@ const styles = StyleSheet.create({
     backgroundColor: "#0B5ED7",
   },
 
+  // Content Container
+  contentContainer: {
+    width: '100%',
+    alignSelf: 'center',
+  },
+  contentContainerDesktop: {
+    width: '90%',
+    maxWidth: 900,
+  },
+
   // Hero Card
   heroCard: {
     backgroundColor: "#4c73ac",
-    margin: 16,
     borderRadius: 18,
-    padding: 16,
-  },
-  heroCardTablet: {
-    marginHorizontal: 24,
-    padding: 20,
-    borderRadius: 20,
-  },
-  heroCardWeb: {
-    marginHorizontal: 0,
   },
   schoolName: {
     color: "#fff",
@@ -642,10 +714,10 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   schoolNameTablet: {
-    fontSize: 24,
+    fontSize: 22,
   },
-  schoolNameWeb: {
-    fontSize: 26,
+  schoolNameDesktop: {
+    fontSize: 24,
   },
   tagline: {
     color: "#DCE8FF",
@@ -655,6 +727,9 @@ const styles = StyleSheet.create({
   },
   taglineTablet: {
     fontSize: 14,
+  },
+  taglineDesktop: {
+    fontSize: 16,
   },
   infoRow: {
     flexDirection: "row",
@@ -669,22 +744,14 @@ const styles = StyleSheet.create({
   infoTextTablet: {
     fontSize: 14,
   },
+  infoTextDesktop: {
+    fontSize: 15,
+  },
 
-  // Section Card
+  // Section Cards
   sectionCard: {
     backgroundColor: "#fff",
-    marginHorizontal: 16,
-    marginTop: 16,
     borderRadius: 16,
-    padding: 16,
-  },
-  sectionCardTablet: {
-    marginHorizontal: 24,
-    padding: 20,
-    borderRadius: 18,
-  },
-  sectionCardWeb: {
-    marginHorizontal: 0,
   },
   sectionTitle: {
     fontSize: 16,
@@ -695,14 +762,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 12,
   },
+  sectionTitleDesktop: {
+    fontSize: 20,
+    marginBottom: 14,
+  },
 
   // Chips
   chips: { 
     flexDirection: "row", 
     flexWrap: "wrap" 
-  },
-  chipsTablet: {
-    marginTop: 4,
   },
   chip: {
     backgroundColor: "#E8F0FF",
@@ -717,31 +785,23 @@ const styles = StyleSheet.create({
   chipTablet: {
     fontSize: 14,
     paddingHorizontal: 14,
+    paddingVertical: 7,
+  },
+  chipDesktop: {
+    fontSize: 15,
+    paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 12,
-    marginRight: 10,
-    marginBottom: 10,
   },
 
-  // Mode Row
+  // Mode Cards
   modeRow: { 
     flexDirection: "row", 
     justifyContent: "space-between" 
   },
-  modeRowTablet: {
-    justifyContent: 'space-around',
-  },
   modeCard: {
-    width: "48%",
     backgroundColor: "#F8FAFF",
     borderRadius: 14,
-    padding: 14,
     alignItems: "center",
-  },
-  modeCardTablet: {
-    width: "46%",
-    padding: 18,
-    borderRadius: 16,
   },
   modeTitle: { 
     marginTop: 6, 
@@ -752,32 +812,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 8,
   },
+  modeTitleDesktop: {
+    fontSize: 17,
+    marginTop: 10,
+  },
   modeSub: { 
     fontSize: 11, 
     color: "#5F6F81", 
     marginTop: 2 
   },
   modeSubTablet: {
+    fontSize: 12,
+  },
+  modeSubDesktop: {
     fontSize: 13,
-    marginTop: 4,
   },
 
   // Map Button
   mapButton: {
-    margin: 16,
     backgroundColor: "#0B5ED7",
-    paddingVertical: 14,
     borderRadius: 30,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-  },
-  mapButtonTablet: {
-    marginHorizontal: 24,
-    paddingVertical: 16,
-  },
-  mapButtonWeb: {
-    marginHorizontal: 0,
   },
   mapText: { 
     color: "#fff", 
@@ -786,7 +843,9 @@ const styles = StyleSheet.create({
   },
   mapTextTablet: {
     fontSize: 16,
-    marginLeft: 10,
+  },
+  mapTextDesktop: {
+    fontSize: 18,
   },
 
   // About Text
@@ -799,26 +858,19 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 24,
   },
+  aboutTextDesktop: {
+    fontSize: 16,
+    lineHeight: 26,
+  },
 
   // Action Row
   actionRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginHorizontal: 16,
-    marginTop: 16,
-  },
-  actionRowTablet: {
-    marginHorizontal: 24,
-    marginTop: 20,
-  },
-  actionRowWeb: {
-    marginHorizontal: 0,
   },
   callBtn: {
     backgroundColor: "#e51515ee",
     flex: 1,
-    marginRight: 8,
-    paddingVertical: 14,
     borderRadius: 14,
     flexDirection: "row",
     justifyContent: "center",
@@ -827,16 +879,10 @@ const styles = StyleSheet.create({
   whatsappBtn: {
     backgroundColor: "#25D366",
     flex: 1,
-    marginLeft: 8,
-    paddingVertical: 14,
     borderRadius: 14,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-  },
-  actionBtnTablet: {
-    paddingVertical: 16,
-    borderRadius: 16,
   },
   actionText: { 
     color: "#fff", 
@@ -845,79 +891,58 @@ const styles = StyleSheet.create({
   },
   actionTextTablet: {
     fontSize: 16,
-    marginLeft: 8,
+  },
+  actionTextDesktop: {
+    fontSize: 17,
   },
 
-  // Star Row
+  // Star Rating
   starRow: { 
     flexDirection: "row", 
-    marginBottom: 10 
-  },
-  starRowTablet: {
-    marginBottom: 12,
+    marginBottom: 10,
     justifyContent: 'center',
+  },
+  starButton: {
+    marginHorizontal: 4,
   },
 
   // Review Input
   reviewInput: {
     backgroundColor: "#F8FAFF",
     borderRadius: 10,
-    padding: 12,
-    minHeight: 80,
     textAlignVertical: "top",
     marginBottom: 10,
-    fontSize: 14,
-  },
-  reviewInputTablet: {
-    minHeight: 100,
-    padding: 16,
-    fontSize: 16,
-    borderRadius: 12,
   },
 
   // Review Button
   reviewBtn: {
     backgroundColor: "#0B5ED7",
-    paddingVertical: 12,
     borderRadius: 30,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
   },
-  reviewBtnTablet: {
-    paddingVertical: 14,
-    borderRadius: 32,
-  },
   reviewBtnText: {
     color: "#fff",
     fontWeight: "700",
     marginLeft: 6,
-    fontSize: 14,
   },
   reviewBtnTextTablet: {
     fontSize: 16,
-    marginLeft: 8,
+  },
+  reviewBtnTextDesktop: {
+    fontSize: 18,
   },
 
   // Review Box
   reviewBox: {
     backgroundColor: "#F8FAFF",
     borderRadius: 12,
-    padding: 12,
-    marginBottom: 10,
-  },
-  reviewBoxTablet: {
-    padding: 16,
-    borderRadius: 14,
-    marginBottom: 12,
   },
   reviewHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 6,
-  },
-  reviewHeaderTablet: {
-    marginBottom: 8,
   },
   reviewName: {
     fontSize: 14,
@@ -926,6 +951,9 @@ const styles = StyleSheet.create({
   },
   reviewNameTablet: {
     fontSize: 16,
+  },
+  reviewNameDesktop: {
+    fontSize: 17,
   },
   reviewText: {
     fontSize: 13,
@@ -936,24 +964,18 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
   },
+  reviewTextDesktop: {
+    fontSize: 16,
+    lineHeight: 24,
+  },
 
   // Video Box
   videoBox: {
-    margin: 15,
-    marginTop: 32,
+    borderRadius: 16,
     overflow: "hidden",
     backgroundColor: "#000",
-    borderRadius: 12,
-    height : 200,
   },
-  videoBoxTablet: {
-    marginHorizontal: 24,
-    marginTop: 40,
-    borderRadius: 16,
-    height :300  },
-  videoBoxWeb: {
-    marginHorizontal: 0,
-    marginTop: 50,
-    borderRadius: 16,
+  videoBoxDesktop: {
+    borderRadius: 20,
   },
-});
+}); 

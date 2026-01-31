@@ -240,7 +240,7 @@ const College2 = ({ route }) => {
                   singleLastItem && isWeb && styles.singleLastItemWeb
                 ]}
                 onPress={() =>
-                  navigation.navigate("College0", {
+                  navigation.navigate("College3", {
                     degree: item.title,
                   })
                 }

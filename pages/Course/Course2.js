@@ -211,7 +211,7 @@ export default function Course2({ route, navigation }) {
   const numColumns = useMemo(() => {
     if (isDesktop) return 3;
     if (isTablet) return 2;
-    return 1;
+    return 2; // Changed from 1 to 2 for mobile
   }, []);
 
   // Calculate card width
@@ -220,21 +220,15 @@ export default function Course2({ route, navigation }) {
     const gap = responsiveValue(12, 16, 20);
     const availableWidth = windowWidth - (padding * 2);
     
-    if (numColumns === 1) return availableWidth;
+    // For all screen sizes, divide available width by number of columns
     return (availableWidth - (gap * (numColumns - 1))) / numColumns;
   }, [windowWidth, numColumns]);
 
   // Responsive card layout
   const cardLayout = useMemo(() => {
-    if (numColumns > 1) {
-      return {
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-      };
-    }
+    // Always use column layout for all screen sizes
     return {
-      flexDirection: 'row',
+      flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'flex-start',
     };
@@ -247,16 +241,16 @@ export default function Course2({ route, navigation }) {
       width: size,
       height: size,
       borderRadius: size / 2,
-      marginBottom: numColumns === 1 ? 0 : scale(10),
-      marginRight: numColumns === 1 ? scale(12) : 0,
+      marginBottom: scale(10), // Always add bottom margin
+      marginRight: 0, // No right margin since we're using column layout
     };
   }, [numColumns]);
 
   // Responsive text container
   const textContainerStyle = useMemo(() => {
     return {
-      flex: numColumns === 1 ? 1 : undefined,
-      alignItems: numColumns === 1 ? 'flex-start' : 'center',
+      // Center align for all screen sizes
+      alignItems: 'center',
     };
   }, [numColumns]);
 
@@ -371,7 +365,7 @@ export default function Course2({ route, navigation }) {
               { 
                 paddingHorizontal: responsiveValue(16, 24, 32),
                 gap: responsiveValue(12, 16, 20),
-                marginBottom: responsiveValue(20, 24, 30), // Added spacing below cards
+                marginBottom: responsiveValue(20, 24, 30),
               }
             ]}>
               {section.items.map((item, i) => {
@@ -416,7 +410,7 @@ export default function Course2({ route, navigation }) {
                           styles.cardTitle,
                           { 
                             fontSize: scale(15),
-                            textAlign: numColumns === 1 ? 'left' : 'center',
+                            textAlign: 'center', // Always center align
                             marginBottom: scale(4),
                           }
                         ]}
@@ -429,7 +423,7 @@ export default function Course2({ route, navigation }) {
                           styles.cardDesc,
                           { 
                             fontSize: scale(11),
-                            textAlign: numColumns === 1 ? 'left' : 'center',
+                            textAlign: 'center', // Always center align
                           }
                         ]}
                         numberOfLines={2}
@@ -455,7 +449,7 @@ export default function Course2({ route, navigation }) {
           styles.videoBox,
           { 
             marginHorizontal: responsiveValue(16, 24, 32),
-            marginTop: responsiveValue(20, 24, 30), // Reduced top margin since we have spacing above
+            marginTop: responsiveValue(20, 24, 30),
             marginBottom: responsiveValue(80, 100, 120),
             height: responsiveValue(220, 300, 300),
             borderRadius: scale(12),

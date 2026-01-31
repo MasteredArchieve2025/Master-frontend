@@ -19,27 +19,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { WebView } from "react-native-webview";
 import Footer from "../../src/components/Footer";
 
-const { width, height } = Dimensions.get("window");
-
-/* -------- RESPONSIVE UTILITIES -------- */
-const isMobile = width < 768;
-const isTablet = width >= 768 && width < 1024;
-const isDesktop = width >= 1024;
-
-// Responsive scaling function
-const scale = (size) => {
-  if (isDesktop) return size * 1.2;
-  if (isTablet) return size * 1.1;
-  return size;
-};
-
-// Responsive value selector
-const responsiveValue = (mobile, tablet, desktop) => {
-  if (isDesktop) return desktop;
-  if (isTablet) return tablet;
-  return mobile;
-};
-
 const STUDIO_LOGO = require("../../assets/AKlogo.png");
 
 /* ===== TOP ADS ===== */
@@ -52,7 +31,26 @@ const bannerAds = [
 export default function Course4({ navigation }) {
   const bannerRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const { width: windowWidth } = useWindowDimensions();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+
+  /* -------- RESPONSIVE UTILITIES (INSIDE COMPONENT) -------- */
+  const isMobile = windowWidth < 768;
+  const isTablet = windowWidth >= 768 && windowWidth < 1024;
+  const isDesktop = windowWidth >= 1024;
+
+  // Responsive scaling function
+  const scale = (size) => {
+    if (isDesktop) return size * 1.2;
+    if (isTablet) return size * 1.1;
+    return size;
+  };
+
+  // Responsive value selector
+  const responsiveValue = (mobile, tablet, desktop) => {
+    if (isDesktop) return desktop;
+    if (isTablet) return tablet;
+    return mobile;
+  };
 
   /* ===== REVIEW STATES ===== */
   const [rating, setRating] = useState(0);
@@ -104,7 +102,7 @@ export default function Course4({ navigation }) {
   const cardWidth = useMemo(() => {
     const padding = responsiveValue(16, 24, 32);
     return windowWidth - (padding * 2);
-  }, [windowWidth]);
+  }, [windowWidth, isMobile, isTablet, isDesktop]);
 
   // Responsive mode card width (for side-by-side layout)
   const modeCardWidth = useMemo(() => {
@@ -117,12 +115,12 @@ export default function Course4({ navigation }) {
     }
     // For tablet/desktop: (total width - gap) / 2
     return (availableWidth - gap) / 2;
-  }, [windowWidth]);
+  }, [windowWidth, isMobile, isTablet, isDesktop]);
 
   // Responsive star size
   const starSize = useMemo(() => {
     return responsiveValue(28, 32, 36);
-  }, []);
+  }, [isMobile, isTablet, isDesktop]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -359,15 +357,14 @@ export default function Course4({ navigation }) {
               styles.modeContainer,
               { 
                 flexDirection: isMobile ? 'column' : 'row',
-                justifyContent: 'space-between',
                 gap: responsiveValue(12, 16, 20)
               }
             ]}>
               <View style={[
                 styles.modeCard,
                 { 
-                  width: isMobile ? '100%' : modeCardWidth,
-                  marginBottom: isMobile ? responsiveValue(12, 16, 20) : 0,
+                  width:300,
+                  marginBottom: isMobile ? responsiveValue(12, 10, 50) : 0,
                 }
               ]}>
                 <Ionicons name="business-outline" size={scale(22)} color="#0B5ED7" />
@@ -388,7 +385,7 @@ export default function Course4({ navigation }) {
               <View style={[
                 styles.modeCard,
                 { 
-                  width: isMobile ? '100%' : modeCardWidth,
+                  width: 300,
                 }
               ]}>
                 <Ionicons name="videocam-outline" size={scale(22)} color="#0B5ED7" />
@@ -672,7 +669,7 @@ const styles = StyleSheet.create({
   },
   
   scrollContent: {
-    paddingBottom: responsiveValue(80, 100, 120),
+    paddingBottom: 120,
     alignItems: 'center',
   },
 
@@ -694,7 +691,7 @@ const styles = StyleSheet.create({
   
   backBtn: {
     alignItems: 'flex-start',
-    padding: scale(4),
+    padding: 4,
   },
   
   headerTitle: {
@@ -711,12 +708,12 @@ const styles = StyleSheet.create({
   },
   
   dot: {
-    borderRadius: scale(4),
+    borderRadius: 4,
     backgroundColor: "#ccc",
   },
   
   activeDot: {
-    width: scale(16),
+    width: 16,
     backgroundColor: "#0B5ED7",
   },
   
@@ -743,7 +740,7 @@ const styles = StyleSheet.create({
   tagline: {
     color: "#DCE8FF",
     textAlign: "center",
-    marginTop: scale(4),
+    marginTop: 4,
   },
   
   infoRow: {
@@ -774,7 +771,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontWeight: "700",
     color: "#004780",
-    marginBottom: scale(12),
+    marginBottom: 12,
   },
   
   aboutText: {
@@ -801,8 +798,8 @@ const styles = StyleSheet.create({
   modeCard: {
     backgroundColor: "#F8FAFF",
     alignItems: "center",
-    padding: responsiveValue(14, 16, 18),
-    borderRadius: scale(14),
+    padding: 16,
+    borderRadius: 14,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -893,7 +890,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: scale(8),
+    marginBottom: 8,
     width: '100%',
   },
   

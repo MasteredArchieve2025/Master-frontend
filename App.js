@@ -19,11 +19,11 @@ import School1 from "./pages/School/School1";
 import School2 from "./pages/School/School2";
 import School3 from "./pages/School/School3";
 
-import College0 from "./pages/College/College0";
-import College1 from "./pages/College/College1";
-import College2 from "./pages/College/College2";
-import College3 from "./pages/College/College3";
+import College1 from "./pages/College/College3";
+import College2 from "./pages/College/College1";
+import College3 from "./pages/College/College2";
 import College4 from "./pages/College/College4";
+import College5 from "./pages/College/College5";
 
 import Course1 from "./pages/Course/Course1";
 import Course2 from "./pages/Course/Course2";
@@ -84,12 +84,13 @@ export default function App() {
                 <Stack.Screen name="School3" component={School3} />
 
 
-        <Stack.Screen name="College0" component={College0} />
 
         <Stack.Screen name="College1" component={College1} />
         <Stack.Screen name="College2" component={College2} />
         <Stack.Screen name="College3" component={College3} />
         <Stack.Screen name="College4" component={College4} />
+        <Stack.Screen name="College5" component={College5} />
+
 
         <Stack.Screen name="Course1" component={Course1} />
         <Stack.Screen name="Course2" component={Course2} />
@@ -124,6 +125,7 @@ export default function App() {
         <Stack.Screen name="Collegecourse2" component={Collegecourse2} />
         <Stack.Screen name="Collegecourse3" component={Collegecourse3} />
         <Stack.Screen name="Collegecourse4" component={Collegecourse4} />
+        
       </Stack.Navigator>
     </NavigationContainer>
   );

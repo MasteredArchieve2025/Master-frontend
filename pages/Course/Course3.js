@@ -1,15 +1,16 @@
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
-  Image,
   TouchableOpacity,
-  SafeAreaView,
+  FlatList,
+  Image,
+  TextInput,
   Platform,
-  Dimensions,
   StatusBar,
+  SafeAreaView,
+  ScrollView,
   useWindowDimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -17,83 +18,69 @@ import { useNavigation } from "@react-navigation/native";
 import { WebView } from "react-native-webview";
 import Footer from "../../src/components/Footer";
 
-const { width, height } = Dimensions.get("window");
-
-/* -------- RESPONSIVE UTILITIES -------- */
-const isMobile = width < 768;
-const isTablet = width >= 768 && width < 1024;
-const isDesktop = width >= 1024;
-
-// Responsive scaling function
-const scale = (size) => {
-  if (isDesktop) return size * 1.2;
-  if (isTablet) return size * 1.1;
-  return size;
-};
-
-// Responsive value selector
-const responsiveValue = (mobile, tablet, desktop) => {
-  if (isDesktop) return desktop;
-  if (isTablet) return tablet;
-  return mobile;
-};
-
-const logo = require("../../assets/AKlogo.png");
-
-/* -------- BANNER ADS -------- */
+/* ===== AD BANNERS ===== */
 const bannerAds = [
-  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
-  "https://images.unsplash.com/photo-1509062522246-3755977927d7",
-  "https://images.unsplash.com/photo-1551650975-87deedd944c3",
+  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=1200&auto=format&fit=crop",
 ];
 
-/* -------- COURSE DATA -------- */
+/* ===== COURSE DATA ===== */
 const coursesData = [
   {
-    id: 1,
-    provider: "AK Technologies",
-    logo,
-    offered: [
-      { name: "Web Development", mode: "Online" },
-      { name: "Full Stack Development", mode: "Online" },
-      { name: "Python", mode: "Offline" },
-      { name: "Data Science", mode: "Online & Offline" },
-    ],
-    mode: "Online & Offline",
-    website: "www.ak.com",
+    id: "1",
+    name: "AK Technologies",
+    location: "Chennai · 1.2 km",
+    image: require("../../assets/AKlogo.png"),
+    rating: 4.5,
   },
   {
-    id: 2,
-    provider: "AK Technologies",
-    logo,
-    offered: [
-      { name: "UI/UX Design", mode: "Offline" },
-      { name: "Digital Marketing", mode: "Offline" },
-      { name: "Cloud Computing", mode: "Online" },
-    ],
-    mode: "Online & Offline",
-    website: "www.ak.com",
+    id: "2",
+    name: "AK Technologies",
+    location: "Bangalore · 2.5 km",
+    image: require("../../assets/AKlogo.png"),
+    rating: 4.8,
   },
   {
-    id: 3,
-    provider: "AK Technologies",
-    logo,
-    offered: [
-      { name: "Cybersecurity", mode: "Online" },
-      { name: "Networking", mode: "Offline" },
-      { name: "Python Programming", mode: "Online" },
-    ],
-    mode: "Online & Offline",
-    website: "www.ak.com",
+    id: "3",
+    name: "AK Technologies",
+    location: "Hyderabad · 4.0 km",
+    image: require("../../assets/AKlogo.png"),
+    rating: 4.3,
+  },
+  {
+    id: "4",
+    name: "AK Technologies",
+    location: "Mumbai · 3.2 km",
+    image: require("../../assets/AKlogo.png"),
+    rating: 4.6,
+  },
+  {
+    id: "5",
+    name: "AK Technologies",
+    location: "Delhi · 5.0 km",
+    image: require("../../assets/AKlogo.png"),
+    rating: 4.2,
+  },
+  {
+    id: "6",
+    name: "AK Technologies",
+    location: "Pune · 2.8 km",
+    image: require("../../assets/AKlogo.png"),
+    rating: 4.7,
   },
 ];
 
 export default function Course3({ route }) {
-  const navigation = useNavigation();
   const [selectedMode, setSelectedMode] = useState("All");
-  const { width: windowWidth } = useWindowDimensions();
-
-  /* -------- BANNER LOGIC -------- */
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const navigation = useNavigation();
+  const { width, height } = useWindowDimensions(); // ✅ Now inside component
+  const isTablet = width >= 768;
+  const isWeb = Platform.OS === 'web';
+  
+  /* ===== BANNER LOGIC ===== */
   const bannerRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -101,328 +88,455 @@ export default function Course3({ route }) {
     const timer = setInterval(() => {
       setActiveIndex((prev) => {
         const next = (prev + 1) % bannerAds.length;
-        bannerRef.current?.scrollTo({
-          x: next * windowWidth,
-          animated: true,
-        });
+        if (!isWeb && bannerRef.current) {
+          bannerRef.current.scrollTo({
+            x: next * width,
+            animated: true,
+          });
+        }
         return next;
       });
     }, 3000);
-
     return () => clearInterval(timer);
-  }, [windowWidth]);
+  }, [width, isWeb]);
 
-  // Responsive course card layout
-  const courseCardLayout = useMemo(() => {
-    if (isDesktop) {
-      return {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        padding: scale(20),
-      };
+  const filteredCourses = coursesData.filter(course => {
+    const matchesSearch = searchQuery === "" || 
+      course.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      course.location.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSearch;
+  });
+
+  /* ===== RENDER COURSE CARD ===== */
+  const renderCourseCard = ({ item }) => (
+    <TouchableOpacity
+      style={[
+        styles.card,
+        {
+          marginHorizontal: isTablet ? 24 : 16,
+          marginBottom: isTablet ? 18 : 14,
+          padding: isTablet ? 18 : 14,
+          borderRadius: isTablet ? 18 : 16,
+        }
+      ]}
+      activeOpacity={0.85}
+      onPress={() => navigation.navigate("Course4", { course: item })}
+    >
+      <Image 
+        source={item.image} 
+        style={[
+          styles.image,
+          { 
+            width: isTablet ? 100 : 80,
+            height: isTablet ? 100 : 80,
+            borderRadius: isTablet ? 14 : 12,
+          }
+        ]} 
+      />
+
+      <View style={[
+        styles.cardContent,
+        { marginLeft: isTablet ? 18 : 14 }
+      ]}>
+        <View style={styles.cardHeader}>
+          <Text style={[
+            styles.name,
+            { fontSize: isTablet ? 18 : 16 }
+          ]} numberOfLines={1}>
+            {item.name}
+          </Text>
+          <View style={styles.ratingContainer}>
+            <Ionicons name="star" size={isTablet ? 16 : 14} color="#FFB703" />
+            <Text style={[
+              styles.rating,
+              { fontSize: isTablet ? 14 : 12 }
+            ]}>
+              {item.rating}
+            </Text>
+          </View>
+        </View>
+
+        <Text style={[
+          styles.location,
+          { fontSize: isTablet ? 14 : 12 }
+        ]}>
+          📍 {item.location}
+        </Text>
+
+        <View style={styles.tags}>
+          <Text style={[
+            styles.tagBlue,
+            { fontSize: isTablet ? 13 : 11 }
+          ]}>
+            Online & Offline
+          </Text>
+        </View>
+      </View>
+
+      <Ionicons 
+        name="chevron-forward" 
+        size={isTablet ? 24 : 20} 
+        color="#0B5ED7" 
+        style={styles.chevronIcon}
+      />
+    </TouchableOpacity>
+  );
+
+  const renderAdSlider = () => {
+    if (isWeb) {
+      return (
+        <Image
+          source={{ uri: bannerAds[activeIndex] }}
+          style={[
+            styles.adImage,
+            { 
+              height: isTablet ? 200 : 180,
+            }
+          ]}
+          resizeMode="cover"
+        />
+      );
     }
-    if (isTablet) {
-      return {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        padding: scale(16),
-      };
-    }
-    return {
-      flexDirection: 'column',
-      alignItems: 'center',
-      padding: scale(14),
-    };
-  }, []);
-
-  // Responsive logo size
-  const logoSize = useMemo(() => {
-    if (isDesktop) return { width: scale(80), height: scale(80) };
-    if (isTablet) return { width: scale(70), height: scale(70) };
-    return { width: scale(60), height: scale(60) };
-  }, []);
-
-  // Responsive logo container
-  const logoContainerStyle = useMemo(() => {
-    if (isMobile) {
-      return {
-        marginBottom: scale(12),
-        alignItems: 'center',
-      };
-    }
-    return {
-      marginRight: responsiveValue(12, 16, 20),
-      alignItems: 'flex-start',
-    };
-  }, []);
-
-  // Responsive course info width
-  const courseInfoWidth = useMemo(() => {
-    if (isMobile) return '100%';
-    return isDesktop ? '85%' : '80%';
-  }, []);
+    
+    return (
+      <ScrollView
+        ref={bannerRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={(e) =>
+          setActiveIndex(Math.round(e.nativeEvent.contentOffset.x / width))
+        }
+      >
+        {bannerAds.map((img, index) => (
+          <Image
+            key={index}
+            source={{ uri: img }}
+            style={{
+              width,
+              height: isTablet ? 300 : 180,
+            }}
+            resizeMode="cover"
+          />
+        ))}
+      </ScrollView>
+    );
+  };
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0052A2" />
 
-      {/* ---------- HEADER ---------- */}
-      <View style={styles.headerWrapper}>
-        <View style={[
-          styles.header, 
-          { 
-            height: responsiveValue(
-              Platform.OS === "ios" ? 52 : 64,
-              Platform.OS === "ios" ? 60 : 72,
-              Platform.OS === "ios" ? 68 : 80
-            ),
-            paddingHorizontal: responsiveValue(16, 24, 32)
-          }
-        ]}>
-          <TouchableOpacity
-            style={styles.backBtn}
-            onPress={() => navigation.goBack()}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Ionicons
-              name={Platform.OS === "ios" ? "chevron-back" : "arrow-back"}
-              size={scale(24)}
-              color="#fff"
-            />
-          </TouchableOpacity>
+      {/* ===== HEADER ===== */}
+      <View style={[
+        styles.header,
+        {
+          paddingHorizontal: isTablet ? 24 : 16,
+          paddingVertical: isTablet ? 20 : 16,
+        }
+      ]}>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <Ionicons name="arrow-back" size={isTablet ? 28 : 24} color="#fff" />
+        </TouchableOpacity>
 
-          <Text style={[styles.headerTitle, { fontSize: scale(18) }]}>
-            Course Information
+        <View style={styles.headerCenter}>
+          <Text style={[
+            styles.headerTitle,
+            { fontSize: isTablet ? 26 : 22 }
+          ]}>
+            Course Providers
           </Text>
-          <View style={{ width: scale(40) }} />
         </View>
+        
+        <View style={{ 
+          width: isTablet ? 28 : 24,
+          height: isTablet ? 28 : 24,
+        }} />
       </View>
 
       <ScrollView 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* ---------- TOP BANNER ---------- */}
-        <ScrollView
-          ref={bannerRef}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={(e) =>
-            setActiveIndex(Math.round(e.nativeEvent.contentOffset.x / windowWidth))
-          }
-        >
-          {bannerAds.map((img, i) => (
-            <Image
-              key={i}
-              source={{ uri: img }}
-              style={{ 
-                width: windowWidth, 
-                height: responsiveValue(190,300, 260)
-              }}
-              resizeMode="cover"
-            />
-          ))}
-        </ScrollView>
+        {/* ===== TOP ADS BANNER ===== */}
+        {renderAdSlider()}
 
-        {/* DOT INDICATORS */}
-        <View style={[styles.dots, { marginBottom: responsiveValue(16, 20, 24) }]}>
+        {/* DOTS */}
+        <View style={styles.dots}>
           {bannerAds.map((_, i) => (
             <View
               key={i}
               style={[
-                styles.dot, 
+                styles.dot,
                 activeIndex === i && styles.activeDot,
-                {
-                  width: scale(8),
-                  height: scale(8),
-                  marginHorizontal: scale(4)
-                }
               ]}
             />
           ))}
         </View>
 
-        {/* ---------- BODY ---------- */}
+        {/* ===== SEARCH & FILTER ROW ===== */}
         <View style={[
-          styles.container,
-          { 
-            paddingTop: responsiveValue(12, 16, 20),
-            paddingBottom: responsiveValue(20, 24, 30)
+          styles.searchFilterRow,
+          {
+            marginHorizontal: isTablet ? 24 : 16,
+            marginBottom: isTablet ? 20 : 16,
           }
         ]}>
-          {/* MODE TABS */}
-          <View style={styles.tabsContainer}>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={[
-                styles.tabs,
-                { paddingHorizontal: responsiveValue(16, 24, 32) }
+          {/* SEARCH INPUT */}
+          <View style={[
+            styles.searchContainer,
+            {
+              flex: 1,
+              marginRight: isTablet ? 12 : 8,
+              padding: isTablet ? 14 : 10,
+              borderRadius: isTablet ? 14 : 12,
+            }
+          ]}>
+            <Ionicons name="search" size={isTablet ? 20 : 16} color="#666" />
+            <TextInput
+              placeholder="Search by name or location..."
+              placeholderTextColor="#666"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              style={[
+                styles.searchInput,
+                { fontSize: isTablet ? 16 : 14 }
               ]}
-            >
-              {["All", "Offline", "Online"].map((t) => (
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchQuery("")}>
+                <Ionicons name="close-circle" size={isTablet ? 20 : 16} color="#999" />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* FILTER BUTTON */}
+          <TouchableOpacity 
+            style={[
+              styles.filterButton,
+              {
+                padding: isTablet ? 14 : 10,
+                borderRadius: isTablet ? 14 : 12,
+              },
+              showFilters && styles.filterButtonActive
+            ]}
+            onPress={() => setShowFilters(!showFilters)}
+          >
+            <Ionicons 
+              name="filter" 
+              size={isTablet ? 22 : 18} 
+              color={showFilters ? "#fff" : "#0B5ED7"} 
+            />
+            {showFilters && (
+              <Text style={[
+                styles.filterButtonText,
+                { fontSize: isTablet ? 16 : 13, marginLeft: 8 }
+              ]}>
+                Filters
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        {/* ===== FILTER OPTIONS (SHOW/HIDE) ===== */}
+        {showFilters && (
+          <View style={[
+            styles.filterOptions,
+            {
+              marginHorizontal: isTablet ? 24 : 16,
+              marginBottom: isTablet ? 20 : 16,
+              padding: isTablet ? 20 : 16,
+              borderRadius: isTablet ? 16 : 14,
+            }
+          ]}>
+            <Text style={[
+              styles.filterOptionsTitle,
+              { fontSize: isTablet ? 18 : 16 }
+            ]}>
+              Filter Options
+            </Text>
+            
+            <View style={styles.filterOptionsRow}>
+              <TouchableOpacity 
+                style={[
+                  styles.filterOption,
+                  selectedMode === "All" && styles.filterOptionActive
+                ]}
+                onPress={() => setSelectedMode("All")}
+              >
+                <Text style={[
+                  styles.filterOptionText,
+                  selectedMode === "All" && styles.filterOptionTextActive
+                ]}>
+                  All
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[
+                  styles.filterOption,
+                  selectedMode === "Online" && styles.filterOptionActive
+                ]}
+                onPress={() => setSelectedMode("Online")}
+              >
+                <Text style={[
+                  styles.filterOptionText,
+                  selectedMode === "Online" && styles.filterOptionTextActive
+                ]}>
+                  Online
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* ===== CATEGORIES ===== */}
+        <View style={[
+          styles.categories,
+          {
+            marginHorizontal: isTablet ? 24 : 16,
+            marginBottom: isTablet ? 20 : 16,
+          }
+        ]}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoriesScroll}
+          >
+            {["All", "Online", "Offline", "Online & Offline"].map(
+              (cat) => (
                 <TouchableOpacity
-                  key={t}
-                  onPress={() => setSelectedMode(t)}
+                  key={cat}
                   style={[
-                    styles.tab,
-                    { 
-                      marginRight: responsiveValue(20, 24, 28),
-                      paddingVertical: responsiveValue(8, 10, 12)
-                    }
+                    styles.categoryBtn,
+                    {
+                      paddingHorizontal: isTablet ? 20 : 16,
+                      paddingVertical: isTablet ? 10 : 8,
+                      borderRadius: isTablet ? 20 : 18,
+                      marginRight: isTablet ? 12 : 8,
+                    },
+                    selectedMode === cat && styles.activeCategoryBtn,
                   ]}
+                  onPress={() => setSelectedMode(cat)}
                 >
                   <Text
                     style={[
-                      styles.tabText,
-                      { fontSize: responsiveValue(16, 18, 20) },
-                      selectedMode === t && styles.activeTabText,
+                      styles.categoryText,
+                      { fontSize: isTablet ? 16 : 13 },
+                      selectedMode === cat && styles.activeCategoryText,
                     ]}
                   >
-                    {t}
+                    {cat}
                   </Text>
-                  {selectedMode === t && (
-                    <View style={[
-                      styles.underline,
-                      { 
-                        height: scale(2),
-                        marginTop: scale(2)
-                      }
-                    ]} />
-                  )}
                 </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-
-          {/* COURSE CARDS */}
-          <View style={[
-            styles.coursesContainer,
-            { 
-              paddingHorizontal: responsiveValue(16, 24, 32),
-              gap: responsiveValue(12, 16, 20)
-            }
-          ]}>
-            {coursesData.map((course) => {
-              const displayedCourses = course.offered.filter((off) =>
-                selectedMode === "All"
-                  ? true
-                  : off.mode.toLowerCase().includes(selectedMode.toLowerCase())
-              );
-
-              return (
-                <TouchableOpacity
-                  key={course.id}
-                  activeOpacity={0.85}
-                  style={[
-                    styles.courseBlock,
-                    courseCardLayout,
-                    {
-                      marginBottom: 0, // margin handled by gap
-                      borderRadius: scale(10),
-                      maxWidth: isDesktop ? 1200 : '100%',
-                      alignSelf: isDesktop ? 'center' : 'stretch',
-                    }
-                  ]}
-                  onPress={() => navigation.navigate("Course4", { course })}
-                >
-                  <View style={[styles.logoCard, logoContainerStyle]}>
-                    <Image 
-                      source={course.logo} 
-                      style={[styles.logo, logoSize]} 
-                      resizeMode="contain"
-                    />
-                  </View>
-
-                  <View style={[styles.courseInfo, { width: courseInfoWidth }]}>
-                    <Text style={[
-                      styles.provider,
-                      { fontSize: responsiveValue(16, 18, 20) }
-                    ]}>
-                      {course.provider}
-                    </Text>
-
-                    <Text style={[
-                      styles.offeredLine,
-                      { 
-                        fontSize: responsiveValue(14, 15, 16),
-                        marginVertical: responsiveValue(4, 6, 8)
-                      }
-                    ]} numberOfLines={2}>
-                      <Text style={{ fontWeight: "700" }}>Courses Offered: </Text>
-                      {displayedCourses.map((c) => c.name).join(", ")}
-                    </Text>
-
-                    <View style={[
-                      styles.detailsContainer,
-                      { marginBottom: responsiveValue(8, 10, 12) }
-                    ]}>
-                      <Text style={[
-                        styles.mode,
-                        { fontSize: responsiveValue(14, 15, 16) }
-                      ]}>
-                        <Text style={{ fontWeight: "700" }}>Mode: </Text>
-                        {selectedMode === "All" ? course.mode : selectedMode}
-                      </Text>
-
-                      <Text style={[
-                        styles.website,
-                        { fontSize: responsiveValue(14, 15, 16) }
-                      ]}>
-                        <Text style={{ fontWeight: "700" }}>Website: </Text>
-                        {course.website}
-                      </Text>
-                    </View>
-
-                    <View style={[
-                      styles.footerRow,
-                      { 
-                        gap: responsiveValue(8, 12, 16),
-                        flexWrap: isMobile ? 'wrap' : 'nowrap'
-                      }
-                    ]}>
-                      <View style={styles.footerItemContainer}>
-                        <Text style={[
-                          styles.footerItem,
-                          { fontSize: responsiveValue(12, 13, 14) }
-                        ]}>
-                          📄 Certificate
-                        </Text>
-                      </View>
-                      <View style={styles.footerItemContainer}>
-                        <Text style={[
-                          styles.footerItem,
-                          { fontSize: responsiveValue(12, 13, 14) }
-                        ]}>
-                          🛠 Technical Training
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+              )
+            )}
+          </ScrollView>
         </View>
 
-        {/* ---------- VIDEO AD ---------- */}
+        {/* ===== COURSE LIST HEADER ===== */}
         <View style={[
-          styles.videoBox,
-          { 
-            marginHorizontal: responsiveValue(16, 24, 32),
-            marginTop: responsiveValue(20, 24, 30),
-            marginBottom: responsiveValue(80, 100, 120),
-            height: responsiveValue(220, 300, 300),
-            borderRadius: scale(12),
+          styles.coursesHeader,
+          {
+            marginHorizontal: isTablet ? 24 : 16,
+            marginBottom: isTablet ? 16 : 12,
           }
         ]}>
-          <WebView
-            allowsFullscreenVideo
-            source={{ uri: "https://www.youtube.com/embed/NONufn3jgXI" }}
-            style={{ flex: 1 }}
-          />
+          <Text style={[
+            styles.coursesTitle,
+            { fontSize: isTablet ? 22 : 18 }
+          ]}>
+            Available Courses
+          </Text>
+          <Text style={[
+            styles.coursesCount,
+            { fontSize: isTablet ? 16 : 13 }
+          ]}>
+            {filteredCourses.length} providers found
+          </Text>
         </View>
+
+        {/* ===== COURSE LIST ===== */}
+        <FlatList
+          data={filteredCourses}
+          renderItem={renderCourseCard}
+          keyExtractor={(item) => item.id}
+          scrollEnabled={false}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={
+            <View style={[
+              styles.emptyContainer,
+              { marginHorizontal: isTablet ? 24 : 16 }
+            ]}>
+              <Ionicons name="school-outline" size={isTablet ? 60 : 48} color="#ccc" />
+              <Text style={[
+                styles.emptyText,
+                { fontSize: isTablet ? 18 : 16 }
+              ]}>
+                No courses found
+              </Text>
+              <Text style={[
+                styles.emptySubtext,
+                { fontSize: isTablet ? 14 : 12 }
+              ]}>
+                Try changing your search or filter criteria
+              </Text>
+            </View>
+          }
+        />
+
+        {/* ===== VIDEO SECTION ===== */}
+        <View style={[
+          styles.sectionHeader,
+          {
+            marginHorizontal: isTablet ? 24 : 16,
+            marginTop: isTablet ? 24 : 20,
+            marginBottom: isTablet ? 16 : 12,
+          }
+        ]}>
+          <Text style={[
+            styles.sectionTitle,
+            { fontSize: isTablet ? 22 : 18 }
+          ]}>
+            Course Introduction
+          </Text>
+        </View>
+
+        <View style={[
+          styles.videoContainer,
+          {
+            marginHorizontal: isTablet ? 24 : 16,
+            marginBottom: isTablet ? 32 : 24,
+            borderRadius: isTablet ? 16 : 14,
+          }
+        ]}>
+          {isWeb ? (
+            <iframe
+              width="100%"
+              height={isTablet ? 320 : 220}
+              src="https://www.youtube.com/embed/NONufn3jgXI?rel=0&showinfo=0&modestbranding=1"
+              title="Course Introduction Video"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              style={styles.videoIframe}
+            />
+          ) : (
+            <WebView
+              allowsFullscreenVideo
+              source={{ uri: "https://www.youtube.com/embed/NONufn3jgXI?rel=0&showinfo=0&modestbranding=1" }}
+              style={{ height: isTablet ? 320 : 220 }}
+              javaScriptEnabled={true}
+              domStorageEnabled={true}
+              mediaPlaybackRequiresUserAction={false}
+            />
+          )}
+        </View>
+
+        <View style={{ height: isTablet ? 140 : 120 }} />
       </ScrollView>
 
       <Footer />
@@ -430,145 +544,422 @@ export default function Course3({ route }) {
   );
 }
 
-/* ---------------- STYLES ---------------- */
+
+
+/* ================= STYLES ================= */
 const styles = StyleSheet.create({
-  safe: { 
-    flex: 1, 
-    backgroundColor: "#fff",
-    maxWidth: isDesktop ? 1400 : '100%',
-    alignSelf: 'center',
-    width: '100%'
+  container: {
+    flex: 1,
+    backgroundColor: "#F6F9FF",
   },
-
+  
   scrollContent: {
-    paddingBottom: responsiveValue(80, 100, 120),
+    flexGrow: 1,
   },
 
-  headerWrapper: { 
-    backgroundColor: "#0052A2",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 4,
-  },
+  /* HEADER */
   header: {
+    backgroundColor: "#0052A2",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 6,
+      },
+      web: {
+        boxShadow: "0 4px 12px rgba(0, 82, 162, 0.3)",
+      },
+    }),
   },
-  backBtn: { 
-    alignItems: 'flex-start',
-    padding: scale(4),
+
+  backButton: {
+    padding: 4,
   },
-  headerTitle: {
-    fontWeight: "700",
-    color: "#fff",
-    textAlign: "center",
+
+  headerCenter: {
+    alignItems: "center",
     flex: 1,
   },
 
+  headerTitle: {
+    color: "#fff",
+    fontWeight: "700",
+    textAlign: "center",
+    marginBottom: 2,
+  },
+
+  /* AD IMAGE */
+  adImage: {
+    width: '100%',
+    backgroundColor: '#f0f0f0',
+  },
+
+  /* DOTS */
   dots: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: scale(8),
+    alignItems: "center",
+    marginVertical: 12,
+    height: 20,
   },
+
   dot: {
-    borderRadius: scale(4),
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: "#ccc",
+    marginHorizontal: 6,
+    transition: "all 0.3s ease",
   },
+
   activeDot: {
-    width: scale(16),
+    width: 24,
+    height: 8,
     backgroundColor: "#0B5ED7",
   },
 
-  container: { 
-    backgroundColor: "#FAFAFA",
-    flex: 1,
-  },
-
-  tabsContainer: {
-    marginBottom: responsiveValue(16, 20, 24),
-  },
-  tabs: { 
+  /* SEARCH & FILTER ROW */
+  searchFilterRow: {
     flexDirection: "row",
-  },
-  tab: { 
     alignItems: "center",
   },
-  tabText: { 
-    color: "#555",
+
+  searchContainer: {
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    alignItems: "center",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+      },
+      android: {
+        elevation: 2,
+      },
+      web: {
+        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+      },
+    }),
+  },
+
+  searchInput: {
+    flex: 1,
+    marginLeft: 12,
+    marginRight: 8,
+    color: "#333",
+  },
+
+  filterButton: {
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+      },
+      android: {
+        elevation: 2,
+      },
+      web: {
+        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+        cursor: "pointer",
+        transition: "all 0.2s ease",
+        ":hover": {
+          backgroundColor: "#F0F4FF",
+        },
+      },
+    }),
+  },
+
+  filterButtonActive: {
+    backgroundColor: "#0B5ED7",
+  },
+
+  filterButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+
+  /* FILTER OPTIONS */
+  filterOptions: {
+    backgroundColor: "#fff",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 6,
+      },
+      android: {
+        elevation: 3,
+      },
+      web: {
+        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+      },
+    }),
+  },
+
+  filterOptionsTitle: {
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 16,
+  },
+
+  filterOptionsRow: {
+    flexDirection: "row",
+    marginBottom: 12,
+  },
+
+  filterOption: {
+    backgroundColor: "#F5F7FA",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginRight: 12,
+  },
+
+  filterOptionActive: {
+    backgroundColor: "#0B5ED7",
+  },
+
+  filterOptionText: {
+    color: "#666",
     fontWeight: "500",
   },
-  activeTabText: { 
-    color: "#007BFF", 
-    fontWeight: "700" 
-  },
-  underline: { 
-    backgroundColor: "#007BFF", 
-    width: "100%",
+
+  filterOptionTextActive: {
+    color: "#fff",
   },
 
-  coursesContainer: {
-    flex: 1,
+  /* CATEGORIES */
+  categories: {
+    marginTop: 4,
   },
 
-  courseBlock: {
-    backgroundColor: "#fff",
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: scale(4),
-    shadowOffset: { width: 0, height: scale(2) },
+  categoriesScroll: {
+    paddingVertical: 4,
   },
 
-  logoCard: {
-    justifyContent: "center",
-  },
-  logo: {
-    resizeMode: "contain",
+  categoryBtn: {
+    backgroundColor: "#F1F3F6",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 1,
+      },
+      web: {
+        cursor: "pointer",
+        transition: "all 0.2s ease",
+      },
+    }),
   },
 
-  courseInfo: {
-    flex: 1,
+  activeCategoryBtn: {
+    backgroundColor: "#0B5ED7",
   },
-  provider: { 
-    fontWeight: "700", 
-    color: "#007BFF",
-    marginBottom: responsiveValue(4, 6, 8),
-  },
-  offeredLine: { 
-    color: "#1F6FC4",
-    lineHeight: scale(20),
-  },
-  detailsContainer: {
-    flexDirection: 'column',
-    gap: responsiveValue(4, 6, 8),
-  },
-  mode: { color: "#333" },
-  website: { color: "#333" },
 
-  footerRow: {
+  categoryText: {
+    color: "#5F6F81",
+    fontWeight: "500",
+  },
+
+  activeCategoryText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+
+  /* COURSES HEADER */
+  coursesHeader: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
   },
-  footerItemContainer: {
-    backgroundColor: "#F0F8FF",
-    paddingHorizontal: responsiveValue(8, 10, 12),
-    paddingVertical: responsiveValue(4, 5, 6),
-    borderRadius: scale(6),
-  },
-  footerItem: { 
-    color: "#555",
+
+  coursesTitle: {
+    fontWeight: "700",
+    color: "#000",
   },
 
-  videoBox: {
+  coursesCount: {
+    color: "#666",
+    fontWeight: "500",
+  },
+
+  /* LIST CONTENT */
+  listContent: {
+    paddingTop: 8,
+  },
+
+  /* EMPTY STATE */
+  emptyContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 32,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20,
+  },
+
+  emptyText: {
+    color: "#333",
+    fontWeight: "600",
+    marginTop: 16,
+    marginBottom: 8,
+  },
+
+  emptySubtext: {
+    color: "#666",
+    textAlign: "center",
+  },
+
+  /* CARD */
+  card: {
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    alignItems: "center",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 6,
+      },
+      android: {
+        elevation: 3,
+      },
+      web: {
+        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+        transition: "all 0.3s ease",
+        cursor: "pointer",
+        ":hover": {
+          transform: "translateY(-4px)",
+          boxShadow: "0 8px 20px rgba(0,0,0,0.12)",
+          backgroundColor: "#F8FBFF",
+        },
+      },
+    }),
+  },
+
+  image: {
+    resizeMode: "cover",
+  },
+
+  cardContent: {
+    flex: 1,
+    marginRight: 12,
+  },
+
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+
+  name: {
+    fontWeight: "700",
+    color: "#000",
+    flex: 1,
+    marginRight: 8,
+  },
+
+  ratingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFF9E6",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    minWidth: 50,
+    justifyContent: "center",
+  },
+
+  rating: {
+    color: "#000",
+    fontWeight: "600",
+    marginLeft: 4,
+  },
+
+  location: {
+    color: "#5F6F81",
+    marginBottom: 8,
+  },
+
+  tags: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+
+  tagBlue: {
+    backgroundColor: "#E8F1FF",
+    color: "#0B5ED7",
+    fontWeight: "500",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    marginRight: 8,
+    marginBottom: 4,
+    overflow: "hidden",
+  },
+
+  chevronIcon: {
+    opacity: 0.8,
+  },
+
+  /* SECTION HEADER */
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  sectionTitle: {
+    fontWeight: "700",
+    color: "#000",
+  },
+
+  /* VIDEO CONTAINER */
+  videoContainer: {
     overflow: "hidden",
     backgroundColor: "#000",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 10,
+      },
+      android: {
+        elevation: 8,
+      },
+      web: {
+        boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
+      },
+    }),
+  },
+
+  videoIframe: {
+    border: "none",
+    borderRadius: 12,
+    width: "100%",
+    backgroundColor: "#000",
   },
 });
